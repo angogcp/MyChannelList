@@ -4,341 +4,191 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Video DL</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://unpkg.com/feather-icons"></script>
     <style>
-      :root {
-        --bg: #f2efe8;
-        --panel: rgba(255, 252, 245, 0.9);
-        --ink: #1e1d1a;
-        --muted: #666156;
-        --accent: #c24d2c;
-        --accent-dark: #8f351d;
-        --line: rgba(30, 29, 26, 0.12);
-        --success: #226c4c;
-        --error: #9f2d2d;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: Georgia, "Times New Roman", serif;
-        color: var(--ink);
-        background:
-          radial-gradient(circle at top left, rgba(194, 77, 44, 0.25), transparent 32%),
-          radial-gradient(circle at bottom right, rgba(34, 108, 76, 0.18), transparent 35%),
-          linear-gradient(135deg, #efe9dd, #f8f5ee 45%, #ece5d8);
+      form.glass-panel {
+        padding: 32px;
         display: grid;
-        place-items: center;
-        padding: 24px;
+        gap: 24px;
+        margin-bottom: 24px;
       }
-
-      .shell {
-        width: min(860px, 100%);
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 28px;
-        box-shadow: 0 24px 80px rgba(52, 37, 24, 0.12);
-        overflow: hidden;
-        backdrop-filter: blur(14px);
-      }
-
-      .hero {
-        padding: 36px 32px 20px;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .eyebrow {
-        margin: 0 0 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-        font-size: 12px;
-        color: var(--accent-dark);
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(2.2rem, 5vw, 4rem);
-        line-height: 0.95;
-      }
-
-      .sub {
-        margin: 14px 0 0;
-        max-width: 56ch;
-        color: var(--muted);
-        font-size: 1.05rem;
-      }
-
-      form {
-        padding: 28px 32px 32px;
-        display: grid;
-        gap: 18px;
-      }
-
-      label {
-        display: grid;
-        gap: 8px;
-        font-size: 0.95rem;
-      }
-
-      .label-text {
-        font-weight: 700;
-        letter-spacing: 0.03em;
-      }
-
-      input,
-      select,
-      button,
-      textarea {
-        font: inherit;
-      }
-
-      input,
-      select {
-        width: 100%;
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 14px 16px;
-        background: rgba(255, 255, 255, 0.85);
-        color: var(--ink);
-      }
-
       .row {
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 16px;
       }
 
-      .drive-panel {
-        display: grid;
-        gap: 14px;
-        padding: 18px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.55);
-        border: 1px solid var(--line);
-      }
-
-      .drive-head {
+      /* ── Collapsible Drive Section ── */
+      .drive-toggle {
         display: flex;
-        justify-content: space-between;
+        align-items: center;
         gap: 12px;
-        align-items: baseline;
-      }
-
-      .drive-head strong {
-        font-size: 1rem;
-      }
-
-      .drive-steps {
-        margin: 0;
-        padding-left: 20px;
-        color: var(--muted);
-        line-height: 1.5;
-        font-size: 0.92rem;
-      }
-
-      .drive-steps strong {
-        color: var(--ink);
-      }
-
-      .button-row {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-
-      button {
-        border: 0;
-        border-radius: 999px;
-        padding: 16px 22px;
-        background: linear-gradient(135deg, var(--accent), #db7345);
-        color: #fff8f0;
-        font-weight: 700;
+        padding: 16px 0 0;
         cursor: pointer;
-        transition: transform 120ms ease, box-shadow 120ms ease;
-        box-shadow: 0 14px 24px rgba(194, 77, 44, 0.28);
+        user-select: none;
+        border-top: 1px solid var(--border);
       }
-
-      button:hover:not(:disabled) {
-        transform: translateY(-1px);
+      .drive-toggle .dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--text-muted);
+        flex-shrink: 0;
       }
-
-      button:disabled {
-        opacity: 0.6;
-        cursor: wait;
-        transform: none;
+      .drive-toggle .dot.on {
+        background: var(--success);
+        box-shadow: 0 0 6px var(--success);
       }
-
-      .secondary {
-        background: rgba(255, 255, 255, 0.8);
-        color: var(--ink);
-        border: 1px solid var(--line);
-        box-shadow: none;
+      .drive-toggle span {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-muted);
       }
+      .drive-toggle .arrow {
+        margin-left: auto;
+        color: var(--text-muted);
+        transition: transform 0.2s;
+      }
+      .drive-toggle .arrow.open { transform: rotate(180deg); }
 
-      .toggle {
+      .drive-body {
+        display: none;
+        padding-top: 20px;
+        display: grid;
+        gap: 16px;
+      }
+      .drive-body.collapsed { display: none; }
+      .drive-body.expanded { display: grid; }
+
+      .drive-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .drive-folder-row {
         display: flex;
         gap: 10px;
         align-items: center;
-        color: var(--muted);
+      }
+      .drive-folder-row select { flex: 1; }
+
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+      .toggle-row input { flex-shrink: 0; }
+
+      .hint {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        font-style: italic;
       }
 
-      .toggle input {
-        width: auto;
-      }
-
-      .muted-note {
-        color: var(--muted);
-        font-size: 0.92rem;
-        min-height: 1.3em;
-      }
-
-      .status {
-        min-height: 170px;
-        border-top: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.55);
-        padding: 24px 32px 32px;
-      }
-
-      .status p {
-        margin: 0 0 12px;
-      }
-
-      pre {
-        margin: 0;
-        white-space: pre-wrap;
-        word-break: break-word;
-        color: var(--muted);
-        font-size: 0.95rem;
-      }
-
-      .success {
-        color: var(--success);
-      }
-
-      .error {
-        color: var(--error);
-      }
-
-      @media (max-width: 720px) {
-        .hero,
-        form,
-        .status {
-          padding-left: 20px;
-          padding-right: 20px;
-        }
-
-        .row {
-          grid-template-columns: 1fr;
-        }
-
-        .button-row {
-          flex-direction: column;
-        }
+      @media (max-width: 768px) {
+        .row { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
-    <main class="shell">
-      <section class="hero">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-          <div>
-            <p class="eyebrow">Local Downloader</p>
-            <h1>Save video. Send to Drive.</h1>
-            <p class="sub">
-              Download locally, upload to Google Drive, and optionally remove the local file after the upload succeeds.
-            </p>
-          </div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <a href="/channels.html" style="font-size: 0.88rem; color: var(--accent); text-decoration: none; border: 1px solid var(--line); padding: 7px 14px; border-radius: 999px; white-space: nowrap; transition: background 120ms;" onmouseover="this.style.background='rgba(194,77,44,0.07)'" onmouseout="this.style.background=''">Watch List</a>
-            <a href="/library.html" style="font-size: 0.88rem; color: var(--accent); text-decoration: none; border: 1px solid var(--line); padding: 7px 14px; border-radius: 999px; white-space: nowrap; transition: background 120ms;" onmouseover="this.style.background='rgba(194,77,44,0.07)'" onmouseout="this.style.background=''">Library</a>
-          </div>
+    <div class="app-container">
+      <nav class="sidebar-nav">
+        <div class="brand">
+          <div class="brand-title">Video DL</div>
+          <div class="brand-version">v1.2.0</div>
         </div>
-      </section>
-
-      <form id="download-form">
-        <label>
-          <span class="label-text">Video URL</span>
-          <input id="url" name="url" type="url" placeholder="https://example.com/watch?v=..." required />
-        </label>
-
-        <div class="row">
-          <label>
-            <span class="label-text">Mode</span>
-            <select id="mode" name="mode">
-              <option value="video">Download video</option>
-              <option value="mp3">Convert to MP3</option>
-            </select>
-          </label>
-
-          <label>
-            <span class="label-text">Custom file name</span>
-            <input id="customName" name="customName" type="text" placeholder="Optional" />
-          </label>
+        <div class="nav-menu">
+          <a href="/" class="nav-item active"><i data-feather="download"></i> Downloader</a>
+          <a href="/channels.html" class="nav-item"><i data-feather="list"></i> Watch List</a>
+          <a href="/library.html" class="nav-item"><i data-feather="hard-drive"></i> Library</a>
         </div>
+      </nav>
 
-        <section class="drive-panel">
-          <div class="drive-head">
-            <strong>Google Drive</strong>
-            <span id="drive-status">Not connected</span>
-          </div>
+      <main class="main-content">
+        <div class="content-wrapper">
+          <header class="page-header">
+            <h1>Download a video</h1>
+            <p class="sub">Paste a URL, pick a format, and hit download.</p>
+          </header>
 
-          <ol class="drive-steps">
-            <li><strong>Paste</strong> your Google Desktop App client ID.</li>
-            <li><strong>Connect</strong> your Google account in this tab. You'll come back automatically.</li>
-            <li><strong>Choose</strong> the Drive folder, or use <strong>My Drive (Root)</strong>.</li>
-            <li><strong>Turn on</strong> upload. Optionally delete the local file after upload.</li>
-          </ol>
+          <form id="download-form" class="glass-panel">
+            <label>
+              <span class="label-text">Video URL</span>
+              <input id="url" name="url" type="url" placeholder="https://youtube.com/watch?v=..." required />
+            </label>
 
-          <label>
-            <span class="label-text">OAuth Client ID</span>
-            <input id="driveClientId" type="text" placeholder="Paste your Google OAuth Desktop client ID" />
-          </label>
-
-          <label>
-            <span class="label-text">OAuth Client Secret</span>
-            <input id="driveClientSecret" type="text" placeholder="Paste your Google OAuth Client Secret" />
-          </label>
-
-          <div class="button-row">
-            <button id="drive-connect" type="button">Connect Google Drive</button>
-            <button id="drive-refresh" class="secondary" type="button">Reload folders</button>
-            <button id="drive-disconnect" class="secondary" type="button">Disconnect</button>
-          </div>
-
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-              <span class="label-text" style="font-size: 0.95rem;">Drive folder</span>
-              <button type="button" id="drive-create-folder" class="secondary" style="padding: 4px 12px; font-size: 0.8rem;" disabled>+ New folder</button>
+            <div class="row">
+              <label>
+                <span class="label-text">Format</span>
+                <select id="mode" name="mode">
+                  <option value="video">Video (MP4)</option>
+                  <option value="mp3">Audio (MP3)</option>
+                </select>
+              </label>
+              <label>
+                <span class="label-text">Custom filename</span>
+                <input id="customName" name="customName" type="text" placeholder="Optional" />
+              </label>
             </div>
-            <select id="driveFolder">
-              <option value="">Choose Google Drive folder</option>
-            </select>
-          </div>
 
-          <label class="toggle">
-            <input id="uploadToDrive" type="checkbox" />
-            <span>Upload completed downloads to Google Drive</span>
-          </label>
+            <!-- Collapsible Google Drive -->
+            <div class="drive-toggle" id="drive-toggle">
+              <span class="dot" id="drive-dot"></span>
+              <span id="drive-toggle-label">Google Drive</span>
+              <span class="arrow" id="drive-arrow"><i data-feather="chevron-down" style="width:16px;height:16px"></i></span>
+            </div>
 
-          <label class="toggle">
-            <input id="deleteLocalAfterUpload" type="checkbox" />
-            <span>After successful upload, delete the local file</span>
-          </label>
+            <div class="drive-body collapsed" id="drive-body">
+              <label>
+                <span class="label-text">OAuth Client ID</span>
+                <input id="driveClientId" type="text" placeholder="Google OAuth Desktop client ID" />
+              </label>
+              <label>
+                <span class="label-text">OAuth Client Secret</span>
+                <input id="driveClientSecret" type="text" placeholder="Google OAuth Client Secret" />
+              </label>
 
-          <div id="drive-note" class="muted-note">Paste your client ID, then connect Google Drive.</div>
-        </section>
+              <div class="drive-actions">
+                <button class="primary small" id="drive-connect" type="button">Connect</button>
+                <button class="secondary small" id="drive-refresh" type="button">Reload Folders</button>
+                <button class="danger small" id="drive-disconnect" type="button">Disconnect</button>
+              </div>
 
-        <button id="submit" type="submit">Start download</button>
-      </form>
+              <div class="drive-folder-row">
+                <select id="driveFolder"><option value="">Choose folder</option></select>
+                <button type="button" id="drive-create-folder" class="secondary small" disabled>+ New</button>
+              </div>
 
-      <section class="status">
-        <p id="headline">Ready.</p>
-        <pre id="details">Downloads will be saved locally unless Google Drive upload is enabled.</pre>
-      </section>
-    </main>
+              <label class="toggle-row">
+                <input id="uploadToDrive" type="checkbox" />
+                Upload to Drive after download
+              </label>
+              <label class="toggle-row">
+                <input id="deleteLocalAfterUpload" type="checkbox" />
+                Delete local file after upload
+              </label>
+
+              <div id="drive-note" class="hint">Paste your client ID &amp; secret, then connect.</div>
+            </div>
+
+            <button class="primary" id="submit" type="submit" style="padding: 14px;">
+              <i data-feather="download-cloud"></i> Download
+            </button>
+          </form>
+
+          <section class="glass-panel" style="padding: 24px;">
+            <strong id="headline" style="display:block; margin-bottom: 12px; color: var(--text-main);">Ready</strong>
+            <div class="log-pane" id="details">Output will appear here.</div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script>feather.replace();</script>
 
     <script>
       const form = document.getElementById("download-form");
@@ -355,7 +205,11 @@
       const uploadToDriveInput = document.getElementById("uploadToDrive");
       const deleteLocalAfterUploadInput = document.getElementById("deleteLocalAfterUpload");
       const driveNote = document.getElementById("drive-note");
-      const driveStatus = document.getElementById("drive-status");
+      const driveDot = document.getElementById("drive-dot");
+      const driveToggleLabel = document.getElementById("drive-toggle-label");
+      const driveToggle = document.getElementById("drive-toggle");
+      const driveArrow = document.getElementById("drive-arrow");
+      const driveBody = document.getElementById("drive-body");
 
       const STORAGE_KEYS = {
         clientId: "video-dl.web.drive.clientId",
@@ -377,26 +231,28 @@
       }
 
       function bindEvents() {
+        driveToggle.addEventListener("click", () => {
+          driveBody.classList.toggle("collapsed");
+          driveBody.classList.toggle("expanded");
+          driveArrow.classList.toggle("open");
+        });
+
         driveClientIdInput.addEventListener("input", () => {
           storeValue(STORAGE_KEYS.clientId, driveClientIdInput.value.trim());
           syncDriveUiState();
         });
-
         driveClientSecretInput.addEventListener("input", () => {
           storeValue(STORAGE_KEYS.clientSecret, driveClientSecretInput.value.trim());
           syncDriveUiState();
         });
-
         driveFolderSelect.addEventListener("change", () => {
           storeValue(STORAGE_KEYS.folderId, driveFolderSelect.value);
           syncDriveUiState();
         });
-
         uploadToDriveInput.addEventListener("change", () => {
           storeValue(STORAGE_KEYS.upload, uploadToDriveInput.checked ? "1" : "0");
           syncDriveUiState();
         });
-
         deleteLocalAfterUploadInput.addEventListener("change", () => {
           storeValue(STORAGE_KEYS.deleteLocal, deleteLocalAfterUploadInput.checked ? "1" : "0");
         });
@@ -418,18 +274,17 @@
           setFailure("Connect Google Drive before enabling upload.");
           return;
         }
-
         if (uploadToDrive && !driveFolderId) {
           setFailure("Choose a Google Drive folder before enabling upload.");
           return;
         }
 
         submit.disabled = true;
-        headline.textContent = uploadToDrive ? "Downloading and uploading..." : "Downloading...";
-        headline.className = "";
+        headline.textContent = "Downloading...";
+        headline.style.color = "var(--text-main)";
         details.textContent = uploadToDrive
-          ? "Fetching media, then uploading it to Google Drive."
-          : "Fetching media and writing files locally.";
+          ? "Fetching media, then uploading to Drive."
+          : "Fetching media...";
 
         const payload = {
           url: document.getElementById("url").value.trim(),
@@ -443,19 +298,17 @@
         try {
           const data = await api("/api/download", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
 
           const driveUpload = data.driveUpload || null;
           headline.textContent = driveUpload
             ? deleteLocalAfterUpload
-              ? "Uploaded to Google Drive. Local file removed."
-              : "Downloaded and uploaded to Google Drive."
+              ? "Uploaded to Drive. Local file removed."
+              : "Downloaded & uploaded to Drive."
             : data.message;
-          headline.className = "success";
+          headline.style.color = "var(--success)";
           details.textContent = renderDownloadDetails(data, driveUpload, deleteLocalAfterUpload);
         } catch (error) {
           setFailure(error.message);
@@ -468,17 +321,14 @@
         const clientId = driveClientIdInput.value.trim();
         const clientSecret = driveClientSecretInput.value.trim();
         if (!clientId || !clientSecret) {
-          driveNote.textContent = "Paste your Google Desktop App client ID and secret first.";
+          driveNote.textContent = "Paste client ID and secret first.";
           return;
         }
-
         setDriveBusy(true);
-        driveNote.textContent = "Opening Google sign-in in this tab...";
+        driveNote.textContent = "Opening Google sign-in...";
         storeValue(STORAGE_KEYS.clientId, clientId);
         storeValue(STORAGE_KEYS.clientSecret, clientSecret);
-
-        const connectUrl = `/api/drive/connect-start?clientId=${encodeURIComponent(clientId)}&clientSecret=${encodeURIComponent(clientSecret)}`;
-        window.location.assign(connectUrl);
+        window.location.assign(`/api/drive/connect-start?clientId=${encodeURIComponent(clientId)}&clientSecret=${encodeURIComponent(clientSecret)}`);
       }
 
       async function disconnectDrive() {
@@ -500,12 +350,12 @@
           const status = await api("/api/drive/status");
           driveConnected = !!status.connected;
           if (!driveClientIdInput.value.trim() && status.clientId) {
-            driveClientIdInput.value = status.clientId;
-            storeValue(STORAGE_KEYS.clientId, status.clientId);
+             driveClientIdInput.value = status.clientId;
+             storeValue(STORAGE_KEYS.clientId, status.clientId);
           }
           if (!driveClientSecretInput.value.trim() && status.clientSecret) {
-            driveClientSecretInput.value = status.clientSecret;
-            storeValue(STORAGE_KEYS.clientSecret, status.clientSecret);
+             driveClientSecretInput.value = status.clientSecret;
+             storeValue(STORAGE_KEYS.clientSecret, status.clientSecret);
           }
           syncDriveUiState(status.email || "");
           if (driveConnected && loadFolders) {
@@ -517,16 +367,8 @@
       }
 
       async function loadDriveFolders(showLoading) {
-        if (!driveConnected) {
-          populateFolders([], "");
-          syncDriveUiState();
-          return;
-        }
-
-        if (showLoading) {
-          driveNote.textContent = "Loading Google Drive folders...";
-        }
-
+        if (!driveConnected) { populateFolders([], ""); syncDriveUiState(); return; }
+        if (showLoading) driveNote.textContent = "Loading folders...";
         setDriveBusy(true);
         try {
           const result = await api("/api/drive/folders");
@@ -540,23 +382,19 @@
 
       async function createDriveFolder() {
         if (!driveConnected) return;
-        const name = window.prompt("Enter new folder name:");
+        const name = window.prompt("New folder name:");
         if (!name || !name.trim()) return;
-
         setDriveBusy(true);
-        driveNote.textContent = "Creating folder...";
         try {
           const result = await api("/api/drive/folders", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: name.trim() })
           });
-          
           await loadDriveFolders(false);
           driveFolderSelect.value = result.id;
           storeValue(STORAGE_KEYS.folderId, result.id);
           syncDriveUiState();
-          driveNote.textContent = `Folder "${result.name}" created and selected.`;
         } catch (error) {
           driveNote.textContent = error.message;
         } finally {
@@ -566,38 +404,41 @@
 
       function populateFolders(folders, selectedId) {
         driveFolderSelect.innerHTML = "";
-        const placeholder = document.createElement("option");
-        placeholder.value = "";
-        placeholder.textContent = folders.length ? "Choose Google Drive folder" : "No folders available";
-        driveFolderSelect.appendChild(placeholder);
-
-        for (const folder of folders) {
-          const option = document.createElement("option");
-          option.value = folder.id;
-          option.textContent = folder.name;
-          driveFolderSelect.appendChild(option);
+        const ph = document.createElement("option");
+        ph.value = "";
+        ph.textContent = folders.length ? "Choose folder" : "No folders";
+        driveFolderSelect.appendChild(ph);
+        for (const f of folders) {
+          const o = document.createElement("option");
+          o.value = f.id;
+          o.textContent = f.name;
+          driveFolderSelect.appendChild(o);
         }
-
-        if (selectedId && folders.some((folder) => folder.id === selectedId)) {
+        if (selectedId && folders.some(f => f.id === selectedId)) {
           driveFolderSelect.value = selectedId;
-        } else if (folders.some((folder) => folder.id === "root")) {
+        } else if (folders.some(f => f.id === "root")) {
           driveFolderSelect.value = "root";
           storeValue(STORAGE_KEYS.folderId, "root");
         } else {
           driveFolderSelect.value = "";
           storeValue(STORAGE_KEYS.folderId, "");
         }
-
         syncDriveUiState();
       }
 
       function syncDriveUiState(email = "") {
-        const hasClientId = !!driveClientIdInput.value.trim();
-        const hasClientSecret = !!driveClientSecretInput.value.trim();
-        const hasCredentials = hasClientId && hasClientSecret;
+        const hasCredentials = !!driveClientIdInput.value.trim() && !!driveClientSecretInput.value.trim();
         const hasFolder = !!driveFolderSelect.value;
 
-        driveStatus.textContent = driveConnected ? (email ? `Connected as ${email}` : "Connected") : "Not connected";
+        // Toggle label
+        if (driveConnected) {
+          driveDot.classList.add("on");
+          driveToggleLabel.textContent = email ? `Google Drive · ${email}` : "Google Drive · Connected";
+        } else {
+          driveDot.classList.remove("on");
+          driveToggleLabel.textContent = "Google Drive · Not connected";
+        }
+
         driveConnectButton.disabled = driveBusy || !hasCredentials;
         driveRefreshButton.disabled = driveBusy || !driveConnected;
         driveCreateFolderButton.disabled = driveBusy || !driveConnected;
@@ -610,37 +451,15 @@
           storeValue(STORAGE_KEYS.upload, "0");
         }
 
-        if (!uploadToDriveInput.checked) {
-          deleteLocalAfterUploadInput.checked = loadValue(STORAGE_KEYS.deleteLocal, "0") === "1";
+        if (!driveBusy) {
+          if (!hasCredentials) driveNote.textContent = "Paste client ID & secret, then connect.";
+          else if (!driveConnected) driveNote.textContent = "Click Connect to sign in with Google.";
+          else if (!hasFolder) driveNote.textContent = "Choose a folder or create a new one.";
+          else if (!uploadToDriveInput.checked) driveNote.textContent = "Enable upload to send downloads to Drive.";
+          else driveNote.textContent = deleteLocalAfterUploadInput.checked
+            ? "Downloads will upload to Drive, then local file removed."
+            : "Downloads will upload to Drive after saving locally.";
         }
-
-        if (driveBusy) {
-          return;
-        }
-
-        if (!hasClientId || !hasClientSecret) {
-          driveNote.textContent = "Step 1: paste your Google Desktop App client ID and secret.";
-          return;
-        }
-
-        if (!driveConnected) {
-          driveNote.textContent = "Step 2: connect Google Drive in this tab.";
-          return;
-        }
-
-        if (!hasFolder) {
-          driveNote.textContent = "Step 3: choose a Google Drive folder or use My Drive (Root).";
-          return;
-        }
-
-        if (!uploadToDriveInput.checked) {
-          driveNote.textContent = "Step 4: turn on upload if you want completed downloads sent to Google Drive.";
-          return;
-        }
-
-        driveNote.textContent = deleteLocalAfterUploadInput.checked
-          ? "Ready. New downloads will upload to Google Drive and then remove the local file."
-          : "Ready. New downloads will upload to Google Drive after the local download finishes.";
       }
 
       function loadPreferences() {
@@ -651,67 +470,32 @@
         syncDriveUiState();
       }
 
-      function loadValue(key, fallbackValue) {
-        try {
-          return window.localStorage.getItem(key) ?? fallbackValue;
-        } catch {
-          return fallbackValue;
-        }
+      function loadValue(k, fb) { try { return localStorage.getItem(k) ?? fb; } catch { return fb; } }
+      function storeValue(k, v) { try { localStorage.setItem(k, v); } catch {} }
+
+      async function api(url, opts = {}) {
+        const r = await fetch(url, opts);
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.error || "Request failed.");
+        return d;
       }
 
-      function storeValue(key, value) {
-        try {
-          window.localStorage.setItem(key, value);
-        } catch {
-          // Ignore storage failures.
-        }
-      }
-
-      async function api(url, options = {}) {
-        const response = await fetch(url, options);
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(data.error || "Request failed.");
-        }
-        return data;
-      }
-
-      function escapeHtml(value) {
-        return String(value)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#39;");
-      }
-
-      function renderDownloadDetails(data, driveUpload, deleteLocalAfterUpload) {
-        const lines = [];
+      function renderDownloadDetails(data, driveUpload, del) {
         if (driveUpload) {
-          lines.push(deleteLocalAfterUpload ? "Local file removed after upload." : `Saved to: ${data.filePath}`);
-          lines.push(`Google Drive file: ${driveUpload.name}`);
-          if (driveUpload.webViewLink) {
-            lines.push(driveUpload.webViewLink);
-          }
-          lines.push("");
-          lines.push(data.log || "Completed.");
+          const lines = [del ? "Local file removed." : `Saved: ${data.filePath}`];
+          lines.push(`Drive: ${driveUpload.name}`);
+          if (driveUpload.webViewLink) lines.push(driveUpload.webViewLink);
+          lines.push("", data.log || "Done.");
           return lines.join("\n");
         }
-
-        return data.filePath
-          ? `Saved to: ${data.filePath}\n\n${data.log}`
-          : data.log || "Completed.";
+        return data.filePath ? `Saved: ${data.filePath}\n\n${data.log}` : data.log || "Done.";
       }
 
-      function setDriveBusy(busy) {
-        driveBusy = !!busy;
-        syncDriveUiState();
-      }
-
-      function setFailure(message) {
-        headline.textContent = "Failed.";
-        headline.className = "error";
-        details.textContent = message;
+      function setDriveBusy(b) { driveBusy = !!b; syncDriveUiState(); }
+      function setFailure(msg) {
+        headline.textContent = "Failed";
+        headline.style.color = "var(--error)";
+        details.textContent = msg;
       }
     </script>
   </body>

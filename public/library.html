@@ -4,351 +4,179 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Library — Video DL</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://unpkg.com/feather-icons"></script>
     <style>
-      :root {
-        --bg: #f2efe8;
-        --panel: rgba(255, 252, 245, 0.9);
-        --ink: #1e1d1a;
-        --muted: #666156;
-        --accent: #c24d2c;
-        --accent-dark: #8f351d;
-        --line: rgba(30, 29, 26, 0.12);
-        --success: #226c4c;
-        --error: #9f2d2d;
-        --hover-bg: rgba(194, 77, 44, 0.07);
-      }
-
-      * { box-sizing: border-box; margin: 0; }
-
-      body {
-        min-height: 100vh;
-        font-family: Georgia, "Times New Roman", serif;
-        color: var(--ink);
-        background:
-          radial-gradient(circle at top left, rgba(194, 77, 44, 0.25), transparent 32%),
-          radial-gradient(circle at bottom right, rgba(34, 108, 76, 0.18), transparent 35%),
-          linear-gradient(135deg, #efe9dd, #f8f5ee 45%, #ece5d8);
-        display: grid;
-        place-items: start center;
-        padding: 24px;
-      }
-
-      .shell {
-        width: min(1000px, 100%);
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 28px;
-        box-shadow: 0 24px 80px rgba(52, 37, 24, 0.12);
-        overflow: hidden;
-        backdrop-filter: blur(14px);
-      }
-
-      /* ── Header ── */
-      .header {
-        padding: 28px 32px 18px;
-        border-bottom: 1px solid var(--line);
+      .stats-row {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        gap: 32px;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.9rem;
+        color: var(--text-muted);
         flex-wrap: wrap;
-        gap: 12px;
       }
-
-      .header-left { display: flex; flex-direction: column; gap: 4px; }
-
-      .eyebrow {
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-        font-size: 12px;
-        color: var(--accent-dark);
-      }
-
-      h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); line-height: 1; }
-
-      .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
-
-      .nav-link {
-        font-size: 0.88rem;
-        color: var(--accent);
-        text-decoration: none;
-        border: 1px solid var(--line);
-        padding: 7px 14px;
-        border-radius: 999px;
-        transition: background 120ms;
-        white-space: nowrap;
-      }
-      .nav-link:hover { background: var(--hover-bg); }
-
-      /* ── Stats bar ── */
-      .stats-bar {
-        display: flex;
-        gap: 24px;
-        padding: 14px 32px;
-        border-bottom: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.45);
-        font-size: 0.88rem;
-        color: var(--muted);
-        flex-wrap: wrap;
-        align-items: center;
-      }
-
       .stat { display: flex; align-items: center; gap: 6px; }
-      .stat-value { font-weight: 700; color: var(--ink); }
+      .stat-value { font-weight: 700; color: var(--text-main); }
 
-      /* ── Toolbar ── */
       .toolbar {
         display: flex;
-        gap: 10px;
-        padding: 14px 32px;
-        border-bottom: 1px solid var(--line);
+        gap: 12px;
+        padding: 14px 24px;
+        border-bottom: 1px solid var(--border);
         align-items: center;
         flex-wrap: wrap;
       }
 
-      .filter-group { display: flex; gap: 4px; }
-
-      .filter-btn {
-        font: inherit;
-        font-size: 0.82rem;
-        padding: 5px 14px;
-        border-radius: 999px;
-        border: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.7);
-        color: var(--muted);
-        cursor: pointer;
-        transition: all 120ms;
+      .filter-group {
+        display: flex; gap: 4px;
+        background: rgba(0,0,0,0.2); padding: 3px; border-radius: 99px;
       }
-      .filter-btn:hover { background: var(--hover-bg); color: var(--ink); }
+      .filter-btn {
+        font: inherit; font-size: 0.82rem; font-weight: 500;
+        padding: 5px 14px; border-radius: 99px; border: none;
+        background: transparent; color: var(--text-muted); cursor: pointer;
+        transition: all 0.15s;
+      }
+      .filter-btn:hover { color: var(--text-main); }
       .filter-btn.active {
-        background: linear-gradient(135deg, var(--accent), #db7345);
-        color: #fff8f0;
-        border-color: transparent;
-        font-weight: 700;
+        background: var(--bg-surface); color: var(--text-main);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
       }
 
       .toolbar-spacer { flex: 1; }
 
       .search-box {
-        font: inherit;
-        font-size: 0.85rem;
-        padding: 6px 14px;
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.85);
-        color: var(--ink);
-        width: 200px;
+        font: inherit; font-size: 0.85rem;
+        padding: 7px 14px;
+        border: 1px solid var(--border); border-radius: 99px;
+        background: var(--bg-surface); color: var(--text-main);
+        width: 200px; outline: none; transition: border-color 0.2s;
       }
+      .search-box:focus { border-color: var(--border-focus); }
 
-      /* ── Buttons ── */
-      button {
-        font: inherit;
-        border: 0;
-        border-radius: 999px;
-        padding: 8px 16px;
-        background: linear-gradient(135deg, var(--accent), #db7345);
-        color: #fff8f0;
-        font-weight: 700;
-        font-size: 0.84rem;
-        cursor: pointer;
-        transition: transform 120ms ease, box-shadow 120ms ease;
-        box-shadow: 0 6px 14px rgba(194, 77, 44, 0.2);
-      }
-      button:hover:not(:disabled) { transform: translateY(-1px); }
-      button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-      .secondary {
-        background: rgba(255, 255, 255, 0.8);
-        color: var(--ink);
-        border: 1px solid var(--line);
-        box-shadow: none;
-      }
-
-      .danger-btn {
-        background: var(--error);
-        box-shadow: 0 4px 10px rgba(159, 45, 45, 0.2);
-        font-size: 0.78rem;
-        padding: 5px 12px;
-      }
-
-      .small-btn {
-        padding: 5px 12px;
-        font-size: 0.82rem;
-      }
-
-      /* ── File list ── */
-      .file-list {
-        max-height: 600px;
-        overflow-y: auto;
-      }
+      .file-list { max-height: calc(100vh - 380px); overflow-y: auto; }
 
       .file-row {
         display: grid;
         grid-template-columns: 1fr auto auto auto;
-        gap: 16px;
-        align-items: center;
-        padding: 14px 32px;
-        border-bottom: 1px solid var(--line);
-        transition: background 100ms;
+        gap: 16px; align-items: center;
+        padding: 14px 24px;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.15s;
       }
-      .file-row:hover { background: var(--hover-bg); }
+      .file-row:hover { background: var(--bg-panel-hover); }
 
       .file-info { overflow: hidden; }
-
       .file-name {
-        font-size: 0.92rem;
-        font-weight: 600;
-        line-height: 1.3;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-size: 0.9rem; font-weight: 600; color: var(--text-main);
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
       }
-
       .file-meta {
-        font-size: 0.78rem;
-        color: var(--muted);
-        margin-top: 3px;
-        display: flex;
-        gap: 10px;
+        font-size: 0.8rem; color: var(--text-muted); margin-top: 3px;
+        display: flex; gap: 10px;
       }
 
       .file-badge {
-        display: inline-block;
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 3px 8px;
-        border-radius: 6px;
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px;
         white-space: nowrap;
       }
-      .file-badge.video { background: rgba(194, 77, 44, 0.12); color: var(--accent-dark); }
-      .file-badge.audio { background: rgba(34, 108, 76, 0.12); color: var(--success); }
+      .file-badge.video { background: rgba(138,43,226,0.12); color: #c084fc; }
+      .file-badge.audio { background: rgba(16,185,129,0.12); color: #34d399; }
 
       .file-size {
-        font-size: 0.84rem;
-        color: var(--muted);
-        white-space: nowrap;
-        text-align: right;
-        min-width: 70px;
+        font-size: 0.82rem; color: var(--text-muted);
+        white-space: nowrap; text-align: right; min-width: 60px;
       }
-
       .file-empty {
-        display: grid;
-        place-items: center;
-        min-height: 250px;
-        color: var(--muted);
-        font-size: 1.05rem;
-        padding: 32px;
-        text-align: center;
+        display: grid; place-items: center; min-height: 200px;
+        color: var(--text-muted); font-size: 0.95rem; padding: 32px; text-align: center;
       }
 
-      /* ── Status bar ── */
-      .status-bar {
-        padding: 14px 32px;
-        border-top: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.55);
-        font-size: 0.88rem;
-        color: var(--muted);
-        min-height: 48px;
-      }
-      .status-bar .success { color: var(--success); }
-      .status-bar .error { color: var(--error); }
-
-      /* ── Loading ── */
-      .spinner {
-        display: inline-block;
-        width: 18px;
-        height: 18px;
-        border: 2px solid var(--line);
-        border-top-color: var(--accent);
-        border-radius: 50%;
-        animation: spin 0.6s linear infinite;
-        vertical-align: middle;
-        margin-right: 8px;
-      }
-      @keyframes spin { to { transform: rotate(360deg); } }
-
-      /* ── Select all row ── */
       .select-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 32px;
-        background: rgba(255, 255, 255, 0.4);
-        border-bottom: 1px solid var(--line);
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 24px; border-bottom: 1px solid var(--border);
+        font-size: 0.85rem; color: var(--text-muted);
+      }
+
+      .file-row-with-cb { grid-template-columns: auto 1fr auto auto auto; }
+
+      .bottom-status {
+        padding: 14px 24px;
         font-size: 0.85rem;
-        color: var(--muted);
+        color: var(--text-muted);
+        border-top: 1px solid var(--border);
       }
-      .select-row input[type="checkbox"] {
-        width: 16px; height: 16px;
-        accent-color: var(--accent);
-        cursor: pointer;
-      }
+      .bottom-status .success { color: var(--success); }
+      .bottom-status .error { color: var(--error); }
 
-      .file-row input[type="checkbox"] {
-        width: 16px; height: 16px;
-        accent-color: var(--accent);
-        cursor: pointer;
-      }
-
-      .file-row-with-cb {
-        grid-template-columns: auto 1fr auto auto auto;
-      }
-
-      @media (max-width: 640px) {
-        .header, .stats-bar, .toolbar, .file-row, .select-row { padding-left: 18px; padding-right: 18px; }
+      @media (max-width: 768px) {
+        .stats-row, .toolbar, .file-row, .select-row { padding-left: 16px; padding-right: 16px; }
         .file-row { grid-template-columns: auto 1fr auto; }
         .file-badge, .file-size { display: none; }
-        .search-box { width: 140px; }
+        .search-box { width: 100%; }
       }
     </style>
   </head>
   <body>
-    <main class="shell">
-
-      <div class="header">
-        <div class="header-left">
-          <span class="eyebrow">Local Storage</span>
-          <h1>My Library</h1>
+    <div class="app-container">
+      <nav class="sidebar-nav">
+        <div class="brand">
+          <div class="brand-title">Video DL</div>
+          <div class="brand-version">v1.2.0</div>
         </div>
-        <div class="nav-links">
-          <a href="/" class="nav-link">← Downloader</a>
-          <a href="/channels.html" class="nav-link">Watch List</a>
+        <div class="nav-menu">
+          <a href="/" class="nav-item"><i data-feather="download"></i> Downloader</a>
+          <a href="/channels.html" class="nav-item"><i data-feather="list"></i> Watch List</a>
+          <a href="/library.html" class="nav-item active"><i data-feather="hard-drive"></i> Library</a>
         </div>
-      </div>
+      </nav>
 
-      <div class="stats-bar" id="stats-bar">
-        <div class="stat"><span>Files:</span> <span class="stat-value" id="stat-total">—</span></div>
-        <div class="stat"><span>Videos:</span> <span class="stat-value" id="stat-video">—</span></div>
-        <div class="stat"><span>Audio:</span> <span class="stat-value" id="stat-audio">—</span></div>
-        <div class="stat"><span>Total size:</span> <span class="stat-value" id="stat-size">—</span></div>
-      </div>
+      <main class="main-content" style="max-width:100%">
+        <div class="content-wrapper" style="max-width:1000px">
+          <header class="page-header">
+            <h1>Library</h1>
+            <p class="sub">Downloaded files on disk.</p>
+          </header>
 
-      <div class="toolbar">
-        <div class="filter-group">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="video">Video</button>
-          <button class="filter-btn" data-filter="audio">Audio</button>
+          <div class="glass-panel" style="display:flex;flex-direction:column">
+            <div class="stats-row" id="stats-bar">
+              <div class="stat">Files: <span class="stat-value" id="stat-total">—</span></div>
+              <div class="stat">Video: <span class="stat-value" id="stat-video">—</span></div>
+              <div class="stat">Audio: <span class="stat-value" id="stat-audio">—</span></div>
+              <div class="stat">Size: <span class="stat-value" id="stat-size">—</span></div>
+            </div>
+
+            <div class="toolbar">
+              <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="video">Video</button>
+                <button class="filter-btn" data-filter="audio">Audio</button>
+              </div>
+              <div class="toolbar-spacer"></div>
+              <input type="text" class="search-box" id="search" placeholder="Search..." />
+              <button class="secondary small" id="refresh-btn">Refresh</button>
+              <button class="danger small" id="delete-selected-btn" disabled>Delete selected</button>
+            </div>
+
+            <div class="select-row" id="select-row" style="display:none">
+              <input type="checkbox" id="select-all" />
+              <label for="select-all">Select all</label>
+              <span id="selected-count" style="margin-left:auto;color:var(--accent-primary);font-weight:500"></span>
+            </div>
+
+            <div class="file-list" id="file-list">
+              <div class="file-empty"><span class="spinner"></span> Loading...</div>
+            </div>
+
+            <div class="bottom-status" id="status-bar">Ready.</div>
+          </div>
         </div>
-        <div class="toolbar-spacer"></div>
-        <input type="text" class="search-box" id="search" placeholder="Search files..." />
-        <button class="secondary small-btn" id="refresh-btn">Refresh</button>
-        <button class="danger-btn" id="delete-selected-btn" disabled>Delete selected</button>
-      </div>
+      </main>
+    </div>
 
-      <div class="select-row" id="select-row" style="display: none;">
-        <input type="checkbox" id="select-all" />
-        <label for="select-all">Select all</label>
-        <span id="selected-count" style="margin-left: auto;"></span>
-      </div>
-
-      <div class="file-list" id="file-list">
-        <div class="file-empty"><span class="spinner"></span>Loading files...</div>
-      </div>
-
-      <div class="status-bar" id="status-bar">Ready.</div>
-
-    </main>
+    <script>feather.replace();</script>
 
     <script>
       const fileListEl = document.getElementById("file-list");
@@ -376,9 +204,9 @@
         selectAllCb.addEventListener("change", toggleSelectAll);
         searchInput.addEventListener("input", renderFiles);
 
-        document.querySelectorAll(".filter-btn").forEach((btn) => {
+        document.querySelectorAll(".filter-btn").forEach(btn => {
           btn.addEventListener("click", () => {
-            document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+            document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
             activeFilter = btn.dataset.filter;
             renderFiles();
@@ -391,28 +219,25 @@
       async function loadLibrary() {
         if (busy) return;
         busy = true;
-        fileListEl.innerHTML = `<div class="file-empty"><span class="spinner"></span>Loading files...</div>`;
+        fileListEl.innerHTML = `<div class="file-empty"><span class="spinner"></span> Loading...</div>`;
         selectRow.style.display = "none";
-
         try {
           const data = await api("/api/library");
           allFiles = data.files || [];
           updateStats();
           renderFiles();
-          setStatus("success", `Loaded ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}.`);
+          setStatus("success", `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} loaded.`);
         } catch (err) {
-          fileListEl.innerHTML = `<div class="file-empty" style="color: var(--error)">${esc(err.message)}</div>`;
+          fileListEl.innerHTML = `<div class="file-empty" style="color:var(--error)">${esc(err.message)}</div>`;
           setStatus("error", err.message);
-        } finally {
-          busy = false;
-        }
+        } finally { busy = false; }
       }
 
       function getFiltered() {
-        const query = searchInput.value.trim().toLowerCase();
-        return allFiles.filter((f) => {
+        const q = searchInput.value.trim().toLowerCase();
+        return allFiles.filter(f => {
           if (activeFilter !== "all" && f.category !== activeFilter) return false;
-          if (query && !f.name.toLowerCase().includes(query)) return false;
+          if (q && !f.name.toLowerCase().includes(q)) return false;
           return true;
         });
       }
@@ -425,38 +250,27 @@
         selectedCountEl.textContent = "";
 
         if (!files.length) {
-          const msg = allFiles.length
-            ? "No files match your filter."
-            : "No downloaded files yet. Go download something!";
-          fileListEl.innerHTML = `<div class="file-empty">${msg}</div>`;
+          fileListEl.innerHTML = `<div class="file-empty">${allFiles.length ? "No matches." : "No files yet."}</div>`;
           selectRow.style.display = "none";
           return;
         }
 
         selectRow.style.display = "flex";
-
-        for (let i = 0; i < files.length; i++) {
-          const f = files[i];
+        for (const f of files) {
           const row = document.createElement("div");
           row.className = "file-row file-row-with-cb";
-
-          const dateStr = formatDate(f.modified);
+          const dateStr = fmtDate(f.modified);
           const ext = f.name.split(".").pop().toUpperCase();
-
           row.innerHTML = `
             <input type="checkbox" class="file-cb" data-path="${esc(f.path)}" />
             <div class="file-info">
               <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
-              <div class="file-meta">
-                <span>${dateStr}</span>
-                <span>${ext}</span>
-              </div>
+              <div class="file-meta"><span>${dateStr}</span><span>${ext}</span></div>
             </div>
             <span class="file-badge ${f.category}">${f.category}</span>
             <span class="file-size">${f.size}</span>
-            <button class="danger-btn file-del" data-path="${esc(f.path)}" data-name="${esc(f.name)}">Delete</button>
+            <button class="danger small file-del" data-path="${esc(f.path)}">Delete</button>
           `;
-
           row.querySelector(".file-cb").addEventListener("change", syncSelection);
           row.querySelector(".file-del").addEventListener("click", () => deleteSingle(f));
           fileListEl.appendChild(row);
@@ -465,120 +279,84 @@
 
       function toggleSelectAll() {
         const checked = selectAllCb.checked;
-        fileListEl.querySelectorAll(".file-cb").forEach((cb) => { cb.checked = checked; });
+        fileListEl.querySelectorAll(".file-cb").forEach(cb => { cb.checked = checked; });
         syncSelection();
       }
 
       function syncSelection() {
-        const checkboxes = fileListEl.querySelectorAll(".file-cb");
-        const checkedBoxes = fileListEl.querySelectorAll(".file-cb:checked");
-        deleteSelectedBtn.disabled = checkedBoxes.length === 0;
-        selectAllCb.checked = checkboxes.length > 0 && checkedBoxes.length === checkboxes.length;
-        selectedCountEl.textContent = checkedBoxes.length ? `${checkedBoxes.length} selected` : "";
+        const all = fileListEl.querySelectorAll(".file-cb");
+        const checked = fileListEl.querySelectorAll(".file-cb:checked");
+        deleteSelectedBtn.disabled = checked.length === 0;
+        selectAllCb.checked = all.length > 0 && checked.length === all.length;
+        selectedCountEl.textContent = checked.length ? `${checked.length} selected` : "";
       }
 
       async function deleteSingle(f) {
         if (!confirm(`Delete "${f.name}"?`)) return;
         try {
-          await api("/api/library", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ path: f.path })
-          });
-          allFiles = allFiles.filter((x) => x.path !== f.path);
-          updateStats();
-          renderFiles();
+          await api("/api/library", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path: f.path }) });
+          allFiles = allFiles.filter(x => x.path !== f.path);
+          updateStats(); renderFiles();
           setStatus("success", `Deleted "${f.name}".`);
-        } catch (err) {
-          setStatus("error", err.message);
-        }
+        } catch (err) { setStatus("error", err.message); }
       }
 
       async function deleteSelected() {
-        const paths = [...fileListEl.querySelectorAll(".file-cb:checked")].map((cb) => cb.dataset.path);
+        const paths = [...fileListEl.querySelectorAll(".file-cb:checked")].map(cb => cb.dataset.path);
         if (!paths.length) return;
         if (!confirm(`Delete ${paths.length} file${paths.length > 1 ? "s" : ""}?`)) return;
-
-        busy = true;
-        deleteSelectedBtn.disabled = true;
-        let deleted = 0;
-        let lastError = "";
-
+        busy = true; deleteSelectedBtn.disabled = true;
+        let deleted = 0, lastError = "";
         for (const p of paths) {
           try {
-            await api("/api/library", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ path: p })
-            });
-            allFiles = allFiles.filter((x) => x.path !== p);
+            await api("/api/library", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path: p }) });
+            allFiles = allFiles.filter(x => x.path !== p);
             deleted++;
-          } catch (err) {
-            lastError = err.message;
-          }
+          } catch (err) { lastError = err.message; }
         }
-
-        updateStats();
-        renderFiles();
-        busy = false;
-
-        if (lastError) {
-          setStatus("error", `Deleted ${deleted}/${paths.length}. Error: ${lastError}`);
-        } else {
-          setStatus("success", `Deleted ${deleted} file${deleted > 1 ? "s" : ""}.`);
-        }
+        updateStats(); renderFiles(); busy = false;
+        if (lastError) setStatus("error", `${deleted}/${paths.length} deleted. ${lastError}`);
+        else setStatus("success", `${deleted} file${deleted > 1 ? "s" : ""} deleted.`);
       }
 
       function updateStats() {
-        const videoFiles = allFiles.filter((f) => f.category === "video");
-        const audioFiles = allFiles.filter((f) => f.category === "audio");
-        const totalBytes = allFiles.reduce((s, f) => s + f.sizeBytes, 0);
-
+        const v = allFiles.filter(f => f.category === "video");
+        const a = allFiles.filter(f => f.category === "audio");
+        const bytes = allFiles.reduce((s, f) => s + f.sizeBytes, 0);
         statTotal.textContent = allFiles.length;
-        statVideo.textContent = videoFiles.length;
-        statAudio.textContent = audioFiles.length;
-        statSize.textContent = formatSizeJS(totalBytes);
+        statVideo.textContent = v.length;
+        statAudio.textContent = a.length;
+        statSize.textContent = fmtSize(bytes);
       }
-
-      // ── Helpers ──
 
       function setStatus(type, msg) {
-        statusBar.innerHTML = type
-          ? `<span class="${type}">${esc(msg)}</span>`
-          : esc(msg);
+        statusBar.innerHTML = type ? `<span class="${type}">${esc(msg)}</span>` : esc(msg);
       }
 
-      function formatDate(isoStr) {
+      function fmtDate(iso) {
         try {
-          const d = new Date(isoStr);
-          return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) +
-            " " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-        } catch {
-          return "";
-        }
+          const d = new Date(iso);
+          return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" }) + " " +
+            d.toLocaleTimeString(undefined, { hour:"2-digit", minute:"2-digit" });
+        } catch { return ""; }
       }
 
-      function formatSizeJS(bytes) {
+      function fmtSize(bytes) {
         if (bytes === 0) return "0 B";
-        const units = ["B", "KB", "MB", "GB", "TB"];
+        const u = ["B","KB","MB","GB","TB"];
         const i = Math.floor(Math.log(bytes) / Math.log(1024));
-        return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + " " + units[i];
+        return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + " " + u[i];
       }
 
-      function esc(value) {
-        return String(value)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#39;");
+      function esc(v) {
+        return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
       }
 
-      async function api(url, options = {}) {
-        const response = await fetch(url, options);
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.error || "Request failed.");
-        return data;
+      async function api(url, opts = {}) {
+        const r = await fetch(url, opts);
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.error || "Request failed.");
+        return d;
       }
     </script>
   </body>
