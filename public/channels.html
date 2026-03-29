@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Watch List — Video DL</title>
+    <style>
+      :root {
+        --bg: #f2efe8;
+        --panel: rgba(255, 252, 245, 0.9);
+        --ink: #1e1d1a;
+        --muted: #666156;
+        --accent: #c24d2c;
+        --accent-dark: #8f351d;
+        --line: rgba(30, 29, 26, 0.12);
+        --success: #226c4c;
+        --error: #9f2d2d;
+        --hover-bg: rgba(194, 77, 44, 0.07);
+      }
+
+      * { box-sizing: border-box; margin: 0; }
+
+      body {
+        min-height: 100vh;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(194, 77, 44, 0.25), transparent 32%),
+          radial-gradient(circle at bottom right, rgba(34, 108, 76, 0.18), transparent 35%),
+          linear-gradient(135deg, #efe9dd, #f8f5ee 45%, #ece5d8);
+        display: grid;
+        place-items: start center;
+        padding: 24px;
+      }
+
+      .shell {
+        width: min(1100px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: 0 24px 80px rgba(52, 37, 24, 0.12);
+        overflow: hidden;
+        backdrop-filter: blur(14px);
+      }
+
+      /* ── Header ── */
+      .header {
+        padding: 28px 32px 18px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .header-left { display: flex; flex-direction: column; gap: 4px; }
+
+      .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-size: 12px;
+        color: var(--accent-dark);
+      }
+
+      h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); line-height: 1; }
+
+      .nav-link {
+        font-size: 0.92rem;
+        color: var(--accent);
+        text-decoration: none;
+        border: 1px solid var(--line);
+        padding: 8px 16px;
+        border-radius: 999px;
+        transition: background 120ms;
+      }
+      .nav-link:hover { background: var(--hover-bg); }
+
+      /* ── Layout ── */
+      .layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 520px;
+      }
+
+      /* ── Sidebar ── */
+      .sidebar {
+        border-right: 1px solid var(--line);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar-head {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .sidebar-head strong { font-size: 0.95rem; }
+
+      .sidebar-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 6px 0;
+      }
+
+      .ch-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 18px;
+        cursor: pointer;
+        transition: background 100ms;
+        border-left: 3px solid transparent;
+        font-size: 0.92rem;
+        line-height: 1.3;
+      }
+      .ch-item:hover { background: var(--hover-bg); }
+      .ch-item.active {
+        background: var(--hover-bg);
+        border-left-color: var(--accent);
+        font-weight: 700;
+      }
+
+      .ch-item .ch-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+      .ch-remove {
+        opacity: 0;
+        background: none;
+        border: none;
+        color: var(--error);
+        cursor: pointer;
+        font-size: 1.1rem;
+        padding: 0 4px;
+        transition: opacity 120ms;
+      }
+      .ch-item:hover .ch-remove { opacity: 0.6; }
+      .ch-remove:hover { opacity: 1 !important; }
+
+      /* ── Feed ── */
+      .feed {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .feed-head {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .feed-title { font-size: 1rem; font-weight: 700; }
+
+      .feed-actions { display: flex; gap: 8px; align-items: center; }
+
+      .feed-body {
+        flex: 1;
+        overflow-y: auto;
+        max-height: 600px;
+      }
+
+      .feed-empty {
+        display: grid;
+        place-items: center;
+        min-height: 300px;
+        color: var(--muted);
+        font-size: 1.05rem;
+        padding: 32px;
+        text-align: center;
+      }
+
+      /* ── Video rows ── */
+      .vid-row {
+        display: grid;
+        grid-template-columns: auto 96px 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 12px 24px;
+        border-bottom: 1px solid var(--line);
+        transition: background 100ms;
+      }
+      .vid-row:hover { background: var(--hover-bg); }
+
+      .vid-row input[type="checkbox"] {
+        width: 17px;
+        height: 17px;
+        cursor: pointer;
+        accent-color: var(--accent);
+      }
+
+      .vid-thumb {
+        width: 96px;
+        height: 54px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #e0dcd4;
+      }
+
+      .vid-info { overflow: hidden; }
+
+      .vid-title {
+        font-size: 0.92rem;
+        font-weight: 600;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .vid-meta {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+
+      .vid-open {
+        font-size: 0.8rem;
+        color: var(--accent);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .vid-open:hover { text-decoration: underline; }
+
+      /* ── Buttons ── */
+      button, .btn {
+        font: inherit;
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 18px;
+        background: linear-gradient(135deg, var(--accent), #db7345);
+        color: #fff8f0;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+        box-shadow: 0 8px 18px rgba(194, 77, 44, 0.22);
+      }
+      button:hover:not(:disabled) { transform: translateY(-1px); }
+      button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+      .secondary {
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--ink);
+        border: 1px solid var(--line);
+        box-shadow: none;
+      }
+
+      .small-btn {
+        padding: 5px 12px;
+        font-size: 0.82rem;
+      }
+
+      /* ── Status bar ── */
+      .status-bar {
+        padding: 14px 24px;
+        border-top: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.55);
+        font-size: 0.88rem;
+        color: var(--muted);
+        min-height: 48px;
+      }
+      .status-bar .success { color: var(--success); }
+      .status-bar .error { color: var(--error); }
+
+      /* ── Download mode picker ── */
+      .mode-pick {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .mode-pick select {
+        font: inherit;
+        font-size: 0.82rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 5px 10px;
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--ink);
+      }
+
+      /* ── Loading spinner ── */
+      .spinner {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--line);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* ── Select all row ── */
+      .select-all-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 24px;
+        background: rgba(255, 255, 255, 0.4);
+        border-bottom: 1px solid var(--line);
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .select-all-row input {
+        width: 17px;
+        height: 17px;
+        cursor: pointer;
+        accent-color: var(--accent);
+      }
+
+      /* ── Drive settings bar ── */
+      .drive-bar {
+        padding: 12px 24px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.45);
+        font-size: 0.85rem;
+      }
+
+      .drive-bar-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        color: var(--muted);
+        user-select: none;
+      }
+      .drive-bar-toggle:hover { color: var(--ink); }
+
+      .drive-bar-toggle .drive-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--muted);
+        flex-shrink: 0;
+      }
+      .drive-bar-toggle .drive-indicator.connected { background: var(--success); }
+
+      .drive-bar-toggle .drive-chevron {
+        margin-left: auto;
+        transition: transform 200ms;
+        font-size: 0.75rem;
+      }
+      .drive-bar-toggle .drive-chevron.open { transform: rotate(180deg); }
+
+      .drive-bar-body {
+        display: none;
+        padding-top: 12px;
+      }
+      .drive-bar-body.open { display: block; }
+
+      .drive-bar-body .drive-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .drive-bar-body .drive-row:last-child { margin-bottom: 0; }
+
+      .drive-bar-body select {
+        font: inherit;
+        font-size: 0.82rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 5px 10px;
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--ink);
+        min-width: 180px;
+      }
+
+      .drive-bar-body label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.84rem;
+        color: var(--muted);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .drive-bar-body input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        accent-color: var(--accent);
+        cursor: pointer;
+      }
+
+      .drive-bar-body .drive-link {
+        font-size: 0.82rem;
+        color: var(--accent);
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 720px) {
+        .layout { grid-template-columns: 1fr; }
+        .sidebar { border-right: none; border-bottom: 1px solid var(--line); max-height: 200px; }
+        .feed-body { max-height: 400px; }
+        .vid-row { grid-template-columns: auto 1fr auto; }
+        .vid-thumb { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+
+      <div class="header">
+        <div class="header-left">
+          <span class="eyebrow">Watch List</span>
+          <h1>My Channels</h1>
+        </div>
+        <div class="nav-links" style="display: flex; gap: 8px;">
+          <a href="/" class="nav-link">← Downloader</a>
+          <a href="/library.html" class="nav-link">Library</a>
+        </div>
+      </div>
+
+      <div class="layout">
+
+        <!-- Sidebar: Channel List -->
+        <aside class="sidebar">
+          <div class="sidebar-head">
+            <strong>Channels</strong>
+            <button class="small-btn" id="add-channel-btn">+ Add</button>
+          </div>
+          <div class="sidebar-list" id="channel-list">
+            <!-- populated by JS -->
+          </div>
+        </aside>
+
+        <!-- Feed: Video List -->
+        <section class="feed">
+          <div class="feed-head">
+            <span class="feed-title" id="feed-title">Select a channel</span>
+            <div class="feed-actions">
+              <div class="mode-pick">
+                <select id="dl-mode">
+                  <option value="video">Video</option>
+                  <option value="mp3">MP3</option>
+                </select>
+              </div>
+              <button class="secondary small-btn" id="refresh-btn" disabled>Refresh</button>
+              <button class="small-btn" id="download-btn" disabled>Download selected</button>
+            </div>
+          </div>
+
+          <!-- Drive settings bar -->
+          <div class="drive-bar" id="drive-bar">
+            <div class="drive-bar-toggle" id="drive-toggle">
+              <span class="drive-indicator" id="drive-indicator"></span>
+              <span id="drive-label">Google Drive: checking...</span>
+              <span class="drive-chevron" id="drive-chevron">▼</span>
+            </div>
+            <div class="drive-bar-body" id="drive-body">
+              <div class="drive-row" id="drive-not-connected" style="display: none;">
+                <span style="color: var(--muted);">Not connected.</span>
+                <a href="/" class="drive-link">Set up on the Downloader page →</a>
+              </div>
+              <div id="drive-connected-controls" style="display: none;">
+                <div class="drive-row">
+                  <select id="drive-folder"><option value="">Loading folders...</option></select>
+                  <button class="secondary small-btn" id="drive-reload-btn" type="button">Reload</button>
+                  <button class="secondary small-btn" id="drive-new-folder-btn" type="button">+ New</button>
+                </div>
+                <div class="drive-row">
+                  <label><input type="checkbox" id="drive-upload" /> Upload to Drive after download</label>
+                  <label><input type="checkbox" id="drive-delete-local" /> Delete local file after upload</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="select-all-row" id="select-all-row" style="display: none;">
+            <input type="checkbox" id="select-all" />
+            <label for="select-all">Select all</label>
+          </div>
+
+          <div class="feed-body" id="feed-body">
+            <div class="feed-empty" id="feed-empty">Pick a channel from the sidebar to see its latest videos.</div>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="status-bar" id="status-bar">Ready.</div>
+
+    </main>
+
+    <script>
+      const channelListEl = document.getElementById("channel-list");
+      const feedTitleEl = document.getElementById("feed-title");
+      const feedBodyEl = document.getElementById("feed-body");
+      const feedEmptyEl = document.getElementById("feed-empty");
+      const statusBar = document.getElementById("status-bar");
+      const refreshBtn = document.getElementById("refresh-btn");
+      const downloadBtn = document.getElementById("download-btn");
+      const addChannelBtn = document.getElementById("add-channel-btn");
+      const selectAllRow = document.getElementById("select-all-row");
+      const selectAllCb = document.getElementById("select-all");
+      const dlModeSelect = document.getElementById("dl-mode");
+
+      // Drive elements
+      const driveToggle = document.getElementById("drive-toggle");
+      const driveChevron = document.getElementById("drive-chevron");
+      const driveBody = document.getElementById("drive-body");
+      const driveIndicator = document.getElementById("drive-indicator");
+      const driveLabel = document.getElementById("drive-label");
+      const driveNotConnected = document.getElementById("drive-not-connected");
+      const driveConnectedControls = document.getElementById("drive-connected-controls");
+      const driveFolderSelect = document.getElementById("drive-folder");
+      const driveReloadBtn = document.getElementById("drive-reload-btn");
+      const driveNewFolderBtn = document.getElementById("drive-new-folder-btn");
+      const driveUploadCb = document.getElementById("drive-upload");
+      const driveDeleteLocalCb = document.getElementById("drive-delete-local");
+
+      // Shared localStorage keys (same as main page)
+      const DRIVE_KEYS = {
+        folderId: "video-dl.web.drive.folderId",
+        upload: "video-dl.web.drive.upload",
+        deleteLocal: "video-dl.web.drive.deleteLocal"
+      };
+
+      let channelsList = [];
+      let activeChannel = null;
+      let videos = [];
+      let busy = false;
+      const selectedVideos = new Map(); // url -> video object, persists across channels
+      let driveConnected = false;
+
+      boot();
+
+      async function boot() {
+        addChannelBtn.addEventListener("click", addChannel);
+        refreshBtn.addEventListener("click", () => loadVideos(activeChannel));
+        downloadBtn.addEventListener("click", downloadSelected);
+        selectAllCb.addEventListener("change", toggleSelectAll);
+
+        // Drive events
+        driveToggle.addEventListener("click", () => {
+          driveBody.classList.toggle("open");
+          driveChevron.classList.toggle("open");
+        });
+        driveReloadBtn.addEventListener("click", () => loadDriveFolders());
+        driveNewFolderBtn.addEventListener("click", createDriveFolder);
+        driveUploadCb.addEventListener("change", () => {
+          storeVal(DRIVE_KEYS.upload, driveUploadCb.checked ? "1" : "0");
+          syncDriveToggles();
+        });
+        driveDeleteLocalCb.addEventListener("change", () => {
+          storeVal(DRIVE_KEYS.deleteLocal, driveDeleteLocalCb.checked ? "1" : "0");
+        });
+        driveFolderSelect.addEventListener("change", () => {
+          storeVal(DRIVE_KEYS.folderId, driveFolderSelect.value);
+          syncDriveToggles();
+        });
+
+        await Promise.all([loadChannels(), initDrive()]);
+      }
+
+      // ── Channels ──
+
+      async function loadChannels() {
+        try {
+          const data = await api("/api/channels");
+          channelsList = data.channels || [];
+          renderChannels();
+        } catch (err) {
+          setStatus("error", err.message);
+        }
+      }
+
+      function renderChannels() {
+        channelListEl.innerHTML = "";
+        for (const ch of channelsList) {
+          const div = document.createElement("div");
+          div.className = "ch-item" + (activeChannel && activeChannel.url === ch.url ? " active" : "");
+          div.innerHTML = `<span class="ch-name">${esc(ch.name)}</span><button class="ch-remove" title="Remove">&times;</button>`;
+          div.querySelector(".ch-name").addEventListener("click", () => selectChannel(ch));
+          div.querySelector(".ch-remove").addEventListener("click", (e) => { e.stopPropagation(); removeChannel(ch); });
+          channelListEl.appendChild(div);
+        }
+      }
+
+      function selectChannel(ch) {
+        activeChannel = ch;
+        renderChannels();
+        refreshBtn.disabled = false;
+        loadVideos(ch);
+      }
+
+      async function addChannel() {
+        const url = prompt("YouTube channel URL:");
+        if (!url || !url.trim()) return;
+        const name = prompt("Channel display name (optional):", "");
+
+        try {
+          const data = await api("/api/channels", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: url.trim(), name: (name || "").trim() })
+          });
+          channelsList = data.channels || [];
+          renderChannels();
+          setStatus("success", `Added "${data.channel.name}".`);
+        } catch (err) {
+          setStatus("error", err.message);
+        }
+      }
+
+      async function removeChannel(ch) {
+        if (!confirm(`Remove "${ch.name}" from watch list?`)) return;
+
+        try {
+          const data = await api("/api/channels", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: ch.url })
+          });
+          channelsList = data.channels || [];
+          if (activeChannel && activeChannel.url === ch.url) {
+            activeChannel = null;
+            videos = [];
+            renderFeed();
+            feedTitleEl.textContent = "Select a channel";
+            refreshBtn.disabled = true;
+          }
+          renderChannels();
+          setStatus("success", `Removed "${ch.name}".`);
+        } catch (err) {
+          setStatus("error", err.message);
+        }
+      }
+
+      // ── Videos ──
+
+      async function loadVideos(ch) {
+        if (!ch || busy) return;
+        busy = true;
+        feedTitleEl.textContent = ch.name;
+        feedBodyEl.innerHTML = `<div class="feed-empty"><span class="spinner"></span>Loading videos...</div>`;
+        selectAllRow.style.display = "none";
+        downloadBtn.disabled = true;
+        refreshBtn.disabled = true;
+        setStatus("", `Fetching latest videos from ${ch.name}...`);
+
+        try {
+          const data = await api(`/api/channels/videos?url=${encodeURIComponent(ch.url)}&limit=15`);
+          videos = data.videos || [];
+          renderFeed();
+          setStatus("success", `Loaded ${videos.length} video${videos.length !== 1 ? "s" : ""} from ${ch.name}.`);
+        } catch (err) {
+          feedBodyEl.innerHTML = `<div class="feed-empty" style="color: var(--error)">Failed to load: ${esc(err.message)}</div>`;
+          videos = [];
+          setStatus("error", err.message);
+        } finally {
+          busy = false;
+          refreshBtn.disabled = false;
+        }
+      }
+
+      function renderFeed() {
+        feedBodyEl.innerHTML = "";
+        selectAllCb.checked = false;
+
+        if (!videos.length) {
+          feedBodyEl.innerHTML = `<div class="feed-empty">No videos found.</div>`;
+          selectAllRow.style.display = "none";
+          syncDownloadBtn();
+          return;
+        }
+
+        selectAllRow.style.display = "flex";
+
+        for (let i = 0; i < videos.length; i++) {
+          const v = videos[i];
+          const row = document.createElement("div");
+          row.className = "vid-row";
+
+          const dateStr = v.uploadDate
+            ? `${v.uploadDate.slice(0, 4)}-${v.uploadDate.slice(4, 6)}-${v.uploadDate.slice(6, 8)}`
+            : "";
+          const durStr = v.duration ? formatDuration(v.duration) : "";
+          const meta = [dateStr, durStr].filter(Boolean).join(" · ");
+          const isSelected = selectedVideos.has(v.url);
+
+          row.innerHTML = `
+            <input type="checkbox" class="vid-cb" data-idx="${i}" ${isSelected ? "checked" : ""} />
+            <img class="vid-thumb" src="${v.thumbnail || ""}" alt="" loading="lazy" onerror="this.style.visibility='hidden'" />
+            <div class="vid-info">
+              <div class="vid-title" title="${esc(v.title)}">${esc(v.title)}</div>
+              <div class="vid-meta">${esc(meta)}</div>
+            </div>
+            <a class="vid-open" href="${v.url}" target="_blank" rel="noopener">Open ↗</a>
+          `;
+
+          row.querySelector(".vid-cb").addEventListener("change", (e) => {
+            if (e.target.checked) {
+              selectedVideos.set(v.url, v);
+            } else {
+              selectedVideos.delete(v.url);
+            }
+            syncDownloadBtn();
+          });
+          feedBodyEl.appendChild(row);
+        }
+        syncDownloadBtn();
+      }
+
+      function toggleSelectAll() {
+        const checked = selectAllCb.checked;
+        feedBodyEl.querySelectorAll(".vid-cb").forEach((cb) => {
+          cb.checked = checked;
+          const v = videos[Number(cb.dataset.idx)];
+          if (v) {
+            if (checked) { selectedVideos.set(v.url, v); }
+            else { selectedVideos.delete(v.url); }
+          }
+        });
+        syncDownloadBtn();
+      }
+
+      function syncDownloadBtn() {
+        downloadBtn.disabled = selectedVideos.size === 0;
+        downloadBtn.textContent = selectedVideos.size > 0
+          ? `Download selected (${selectedVideos.size})`
+          : "Download selected";
+
+        // Sync select-all checkbox for visible videos
+        const allCbs = feedBodyEl.querySelectorAll(".vid-cb");
+        const allChecked = allCbs.length > 0 && [...allCbs].every((cb) => cb.checked);
+        selectAllCb.checked = allChecked;
+      }
+
+      // ── Download ──
+
+      async function downloadSelected() {
+        const selected = [...selectedVideos.values()];
+
+        if (!selected.length) return;
+
+        const uploadToDrive = driveUploadCb.checked && driveConnected;
+        const driveFolderId = driveFolderSelect.value;
+        const deleteLocalAfterUpload = driveDeleteLocalCb.checked;
+
+        if (uploadToDrive && !driveFolderId) {
+          setStatus("error", "Choose a Google Drive folder before enabling upload.");
+          return;
+        }
+
+        busy = true;
+        downloadBtn.disabled = true;
+        refreshBtn.disabled = true;
+        const mode = dlModeSelect.value;
+        const total = selected.length;
+        let completed = 0;
+        let failed = 0;
+        let uploaded = 0;
+
+        const suffix = uploadToDrive ? " + uploading to Drive" : "";
+        setStatus("", `Downloading 0/${total}${suffix}...`);
+
+        let lastError = "";
+        for (const v of selected) {
+          setStatus("", `${completed + 1}/${total}: ${v.title}${suffix}`);
+          try {
+            await api("/api/download", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                url: v.url,
+                mode,
+                uploadToDrive,
+                driveFolderId,
+                deleteLocalAfterUpload
+              })
+            });
+            completed++;
+            if (uploadToDrive) uploaded++;
+          } catch (err) {
+            failed++;
+            lastError = err.message;
+            console.error(`Failed "${v.title}":`, err.message);
+          }
+          setStatus("", `Progress: ${completed + failed}/${total} (${failed ? failed + " failed" : "all good"})`);
+        }
+
+        busy = false;
+        refreshBtn.disabled = false;
+
+        // Clear selection after downloads
+        selectedVideos.clear();
+        renderFeed();
+
+        if (failed) {
+          setStatus("error", `Done. ${completed} downloaded${uploaded ? `, ${uploaded} uploaded to Drive` : ""}, ${failed} failed. Last error: ${lastError}`);
+        } else {
+          const driveMsg = uploaded ? ` and uploaded to Google Drive` : "";
+          setStatus("success", `All ${completed} download${completed > 1 ? "s" : ""}${driveMsg} completed!`);
+        }
+      }
+
+      // ── Google Drive ──
+
+      async function initDrive() {
+        try {
+          const status = await api("/api/drive/status");
+          driveConnected = !!status.connected;
+          if (driveConnected) {
+            driveIndicator.classList.add("connected");
+            driveLabel.textContent = status.email
+              ? `Google Drive: ${status.email}`
+              : "Google Drive: Connected";
+            driveNotConnected.style.display = "none";
+            driveConnectedControls.style.display = "block";
+
+            // Restore saved preferences
+            driveUploadCb.checked = loadVal(DRIVE_KEYS.upload, "0") === "1";
+            driveDeleteLocalCb.checked = loadVal(DRIVE_KEYS.deleteLocal, "0") === "1";
+
+            await loadDriveFolders();
+            syncDriveToggles();
+          } else {
+            driveIndicator.classList.remove("connected");
+            driveLabel.textContent = "Google Drive: Not connected";
+            driveNotConnected.style.display = "flex";
+            driveConnectedControls.style.display = "none";
+          }
+        } catch {
+          driveLabel.textContent = "Google Drive: unavailable";
+          driveNotConnected.style.display = "flex";
+          driveConnectedControls.style.display = "none";
+        }
+      }
+
+      async function loadDriveFolders() {
+        if (!driveConnected) return;
+        try {
+          const data = await api("/api/drive/folders");
+          const folders = Array.isArray(data.folders) ? data.folders : [];
+          const savedId = loadVal(DRIVE_KEYS.folderId, "");
+          driveFolderSelect.innerHTML = "";
+
+          const placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = folders.length ? "Choose folder" : "No folders";
+          driveFolderSelect.appendChild(placeholder);
+
+          for (const f of folders) {
+            const opt = document.createElement("option");
+            opt.value = f.id;
+            opt.textContent = f.name;
+            driveFolderSelect.appendChild(opt);
+          }
+
+          if (savedId && folders.some((f) => f.id === savedId)) {
+            driveFolderSelect.value = savedId;
+          } else if (folders.some((f) => f.id === "root")) {
+            driveFolderSelect.value = "root";
+            storeVal(DRIVE_KEYS.folderId, "root");
+          }
+          syncDriveToggles();
+        } catch (err) {
+          setStatus("error", "Drive folders: " + err.message);
+        }
+      }
+
+      async function createDriveFolder() {
+        const name = window.prompt("Enter new folder name:");
+        if (!name || !name.trim()) return;
+        try {
+          const result = await api("/api/drive/folders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: name.trim() })
+          });
+          await loadDriveFolders();
+          driveFolderSelect.value = result.id;
+          storeVal(DRIVE_KEYS.folderId, result.id);
+          syncDriveToggles();
+          setStatus("success", `Folder "${result.name}" created.`);
+        } catch (err) {
+          setStatus("error", err.message);
+        }
+      }
+
+      function syncDriveToggles() {
+        const hasFolder = !!driveFolderSelect.value;
+        driveUploadCb.disabled = !driveConnected || !hasFolder;
+        driveDeleteLocalCb.disabled = !driveUploadCb.checked || driveUploadCb.disabled;
+        if ((!driveConnected || !hasFolder) && driveUploadCb.checked) {
+          driveUploadCb.checked = false;
+          storeVal(DRIVE_KEYS.upload, "0");
+        }
+      }
+
+      function loadVal(key, fallback) {
+        try { return window.localStorage.getItem(key) ?? fallback; } catch { return fallback; }
+      }
+      function storeVal(key, value) {
+        try { window.localStorage.setItem(key, value); } catch {}
+      }
+
+      // ── Helpers ──
+
+      function setStatus(type, msg) {
+        statusBar.innerHTML = type
+          ? `<span class="${type}">${esc(msg)}</span>`
+          : esc(msg);
+      }
+
+      function formatDuration(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        return `${m}:${String(s).padStart(2, "0")}`;
+      }
+
+      function esc(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      async function api(url, options = {}) {
+        const response = await fetch(url, options);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || "Request failed.");
+        return data;
+      }
+    </script>
+  </body>
+</html>

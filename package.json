@@ -1,0 +1,73 @@
+{
+  "name": "video-dl",
+  "version": "1.0.13",
+  "description": "Local video downloader with web and Windows desktop app builds",
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:web": "node server.js",
+    "launch:web": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\launch-web.ps1",
+    "start:desktop": "electron .",
+    "start:neutralino": "powershell -NoProfile -Command \"Set-Location 'neutralino-lite'; npx.cmd neu run --config-file neutralino.config.json\"",
+    "pack:win": "electron-packager . \"Video DL Desktop\" --platform=win32 --arch=x64 --out=dist-packager --overwrite --asar --ignore=\"(dist($|[\\\\/]))|(dist-packager($|[\\\\/]))|(downloads($|[\\\\/]))|(bin($|[\\\\/]))|(public($|[\\\\/]))|(server\\.js$)|(README\\.md$)|(package-lock\\.json$)\"",
+    "pack:win:portable": "electron-builder --win portable",
+    "pack:win:lite": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Set-Location 'neutralino-lite'; npx.cmd neu build --release --config-file neutralino.config.json; & .\\scripts\\postbuild-release.ps1; & .\\scripts\\unblock-local-build.ps1\"",
+    "unblock:lite": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Set-Location 'neutralino-lite'; & .\\scripts\\unblock-local-build.ps1\"",
+    "dist:win": "electron-builder --win nsis"
+  },
+  "keywords": [
+    "video",
+    "downloader",
+    "yt-dlp",
+    "mp3"
+  ],
+  "author": "Codex",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "sanitize-filename": "^1.6.3"
+  },
+  "devDependencies": {
+    "@neutralinojs/lib": "^6.5.0",
+    "@neutralinojs/neu": "^11.6.0",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12",
+    "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "local.video.dl.desktop",
+    "productName": "Video DL Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "desktop/**/*",
+      "lib/**/*",
+      "public/**/*",
+      "server.js",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "portable": {
+      "artifactName": "Video-DL-Desktop-Portable-${version}.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Video-DL-Desktop-Setup-${version}.exe"
+    }
+  }
+}
+
+
+
+
+
+
+
