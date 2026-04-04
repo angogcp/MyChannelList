@@ -98,7 +98,7 @@ switch($OpenMode) {
   }
   'app' {
     if(Open-AppWindow -Url $url) {
-      Write-Output "Opened desktop-style app window at $url"
+      Write-Output "Opened app-style window at $url"
     } else {
       Start-Process $url | Out-Null
       Write-Output "Opened browser window at $url"

@@ -3,8 +3,10 @@ bin/
 downloads/
 dist/
 dist-packager/
-neutralino-lite/dist-lite/
 data/google-drive-auth.json
+data/queue.json
 *.log
 .DS_Store
 Thumbs.db
+public/_inline-check.js
+public/_channels-inline-check.js
