@@ -1,10 +1,6 @@
 # Video DL
 
-Local downloader project with three app paths:
-
-- Web app served locally on `http://localhost:3000`
-- Electron desktop app for feature-rich packaging
-- Neutralino desktop app for much smaller Windows builds
+Local web app for downloading videos, tracking channels, and optionally uploading completed downloads to Google Drive.
 
 ## Install
 
@@ -12,71 +8,44 @@ Local downloader project with three app paths:
 npm.cmd install
 ```
 
-## Run the web app
+## Run
+
+Start the local web server:
 
 ```powershell
-npm.cmd start:web
+npm.cmd run start:web
 ```
 
-Or use the one-click local browser launcher:
+Open it in your browser:
+
+```text
+http://localhost:3010
+```
+
+## Launchers
+
+Open the web app in your default browser:
 
 ```powershell
 npm.cmd run launch:web
 ```
 
-For a desktop-style local window that avoids the blocked packaged EXE path:
+Open the web app in an app-style Edge/Chrome window:
 
 ```powershell
-npm.cmd run launch:desktopweb
+npm.cmd run launch:app
 ```
 
-You can also double-click [Launch Video DL Web.cmd](C:\apps\video-dl\Launch Video DL Web.cmd) or [Launch Video DL Desktop.cmd](C:\apps\video-dl\Launch Video DL Desktop.cmd).
+You can also double-click [Launch Video DL Web.cmd](C:\apps\video-dl\Launch Video DL Web.cmd) or [Launch Video DL App.cmd](C:\apps\video-dl\Launch Video DL App.cmd).
 
-Downloads are saved under `downloads/video` and `downloads/audio` in this project.
+## Data and downloads
 
-## Run the Electron desktop app
-
-```powershell
-npm.cmd start:desktop
-```
-
-## Build the Electron Windows app
-
-```powershell
-npm.cmd run pack:win
-```
-
-This creates a runnable Windows app folder at `dist-packager/Video DL Desktop-win32-x64/`.
-
-## Run the lightweight Windows app
-
-```powershell
-npm.cmd run start:neutralino
-```
-
-## Build the lightweight Windows app
-
-```powershell
-npm.cmd run pack:win:lite
-```
-
-This writes the smaller package to `neutralino-lite/dist-lite/` and runs the local unblock helper for built artifacts on this PC.
-
-If Windows still flags an older artifact you already downloaded or extracted, run:
-
-```powershell
-npm.cmd run unblock:lite
-```
-
-## Bootstrap behavior
-
-- The first real download fetches `yt-dlp` automatically.
-- The first video merge or MP3 conversion fetches `ffmpeg` automatically on Windows.
+- Downloads are saved under `downloads/video` and `downloads/audio`.
+- Local app data is stored under `data/`.
+- `yt-dlp` is fetched automatically on first use.
+- `ffmpeg` is fetched automatically on first video merge or MP3 conversion on Windows.
 
 ## Notes
 
 - Supported sites depend on `yt-dlp`.
-- The Electron app remains the more flexible desktop shell.
-- The Neutralino app is the smaller/faster-starting Windows-focused build.
-
-
+- This branch is web-only and does not include the previous desktop packaging code.
