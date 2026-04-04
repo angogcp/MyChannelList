@@ -228,7 +228,10 @@
           <section class="glass-panel" style="padding: 24px;">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               <strong style="color: var(--text-main);">Download Queue</strong>
-              <button class="secondary small" id="update-engine" type="button"><i data-feather="refresh-cw" style="width:14px;height:14px"></i> Update Engine</button>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button class="secondary small" id="clear-queue-btn" type="button">Clear finished</button>
+                <button class="secondary small" id="update-engine" type="button"><i data-feather="refresh-cw" style="width:14px;height:14px"></i> Update Engine</button>
+              </div>
             </div>
             <div id="queue-list" style="max-height: 400px; overflow-y: auto; padding-right: 4px;">
               <div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; padding: 20px;">No active downloads.</div>
@@ -244,6 +247,7 @@
       const form = document.getElementById("download-form");
       const submit = document.getElementById("submit");
       const queueList = document.getElementById("queue-list");
+      const clearQueueBtn = document.getElementById("clear-queue-btn");
       const updateEngineBtn = document.getElementById("update-engine");
       const modeSelect = document.getElementById("mode");
       const qualitySelect = document.getElementById("quality");
@@ -332,6 +336,21 @@
         }
       }
 
+      async function clearFinishedQueue() {
+        try {
+          const response = await fetch("/api/queue/clear", { method: "POST" });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(payload.error || "Failed to clear finished queue items.");
+          }
+
+          renderQueue(payload.queue || []);
+          setStatus("Finished queue items cleared.", "success");
+        } catch (error) {
+          setStatus(error.message || "Failed to clear finished queue items.", "error");
+        }
+      }
+
       function esc(str) {
         return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
       }
@@ -376,6 +395,7 @@
         driveCreateFolderButton.addEventListener("click", createDriveFolder);
         driveDisconnectButton.addEventListener("click", disconnectDrive);
         form.addEventListener("submit", handleSubmit);
+        clearQueueBtn.addEventListener("click", clearFinishedQueue);
         updateEngineBtn.addEventListener("click", updateYtDlpEngine);
       }
 
