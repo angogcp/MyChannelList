@@ -1,4 +1,5 @@
 const targetRootInput = document.getElementById("targetRoot");
+const qualitySelect = document.getElementById("quality");
 const runtimeEl = document.getElementById("runtime");
 const revisionEl = document.getElementById("revision");
 const headline = document.getElementById("headline");
@@ -35,7 +36,8 @@ let driveBusy = false;
 const STORAGE_KEYS = {
   driveClientId: "video-dl.drive.clientId",
   driveFolderId: "video-dl.drive.folderId",
-  uploadToDrive: "video-dl.drive.upload"
+  uploadToDrive: "video-dl.drive.upload",
+  quality: "video-dl.quality"
 };
 
 const RESOURCE_CANDIDATES = {
@@ -66,6 +68,7 @@ Neutralino.events.on("windowClose", () => Neutralino.app.exit());
 
 boot();
 bindEvents();
+renderQualityOptions(loadValue(STORAGE_KEYS.quality, ""));
 renderModeLabel();
 async function boot() {
   try {
@@ -155,8 +158,16 @@ function bindEvents() {
   driveDisconnectButton.addEventListener("click", disconnectDrive);
 
   for (const input of modeInputs) {
-    input.addEventListener("change", renderModeLabel);
+    input.addEventListener("change", () => {
+      renderQualityOptions();
+      renderModeLabel();
+    });
   }
+
+  qualitySelect.addEventListener("change", () => {
+    storeValue(STORAGE_KEYS.quality, qualitySelect.value);
+    renderModeLabel();
+  });
 
   form.addEventListener("submit", handleSubmit);
 }
@@ -192,6 +203,7 @@ async function handleSubmit(event) {
       url: document.getElementById("url").value.trim(),
       mode: getSelectedMode(),
       customName: document.getElementById("customName").value.trim(),
+      quality: qualitySelect.value,
       targetRoot: targetRootInput.value.trim()
     });
 
@@ -583,6 +595,46 @@ function extractJsonResult(output) {
   return null;
 }
 
+function getQualityOptions(mode) {
+  return mode === "mp3"
+    ? [
+        { value: "best", label: "Best available MP3" },
+        { value: "320k", label: "320 kbps" },
+        { value: "192k", label: "192 kbps" },
+        { value: "128k", label: "128 kbps" }
+      ]
+    : [
+        { value: "best", label: "Best available MP4" },
+        { value: "2160p", label: "4K / 2160p" },
+        { value: "1440p", label: "1440p" },
+        { value: "1080p", label: "1080p" },
+        { value: "720p", label: "720p" },
+        { value: "480p", label: "480p" }
+      ];
+}
+
+function renderQualityOptions(preferredValue = "") {
+  const options = getQualityOptions(getSelectedMode());
+  const nextValue = options.some((option) => option.value === preferredValue)
+    ? preferredValue
+    : options[0].value;
+
+  qualitySelect.innerHTML = "";
+  for (const option of options) {
+    const el = document.createElement("option");
+    el.value = option.value;
+    el.textContent = option.label;
+    qualitySelect.appendChild(el);
+  }
+
+  qualitySelect.value = nextValue;
+  storeValue(STORAGE_KEYS.quality, nextValue);
+}
+
+function getSelectedQualityLabel() {
+  const selected = qualitySelect.options[qualitySelect.selectedIndex];
+  return selected ? selected.textContent : "";
+}
 function startPseudoProgress() {
   clearInterval(progressTimer);
   currentProgress = 6;
@@ -612,7 +664,9 @@ function stopPseudoProgress(finalPercent) {
 }
 
 function renderModeLabel() {
-  modeLabel.textContent = getSelectedMode() === "mp3" ? "MP3" : "Video";
+  const mode = getSelectedMode();
+  const qualityLabel = getSelectedQualityLabel();
+  modeLabel.textContent = `${mode === "mp3" ? "MP3" : "Video"}${qualityLabel ? ` - ${qualityLabel}` : ""}`;
 }
 
 function getSelectedMode() {

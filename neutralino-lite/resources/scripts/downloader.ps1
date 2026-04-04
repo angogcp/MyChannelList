@@ -61,6 +61,33 @@ function Find-FileRecursive {
   if($null -eq $found) { return '' }
   return $found.FullName
 }
+function Get-JsRuntimeArguments {
+  $candidates = @()
+
+  if(-not [string]::IsNullOrWhiteSpace($env:VIDEO_DL_JS_RUNTIME)) {
+    $candidates += $env:VIDEO_DL_JS_RUNTIME
+  }
+
+  try {
+    $nodeCommand = Get-Command node -ErrorAction Stop
+    if($null -ne $nodeCommand -and -not [string]::IsNullOrWhiteSpace([string]$nodeCommand.Source)) {
+      $candidates += [string]$nodeCommand.Source
+    }
+  } catch {}
+
+  $programFiles = @($env:ProgramFiles, ${env:ProgramFiles(x86)}) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+  foreach($root in $programFiles) {
+    $candidates += (Join-Path $root 'nodejs\node.exe')
+  }
+
+  foreach($candidate in $candidates | Select-Object -Unique) {
+    if(-not [string]::IsNullOrWhiteSpace($candidate) -and (Test-Path $candidate)) {
+      return @('--js-runtimes', ('node:' + $candidate))
+    }
+  }
+
+  return @()
+}
 function Ensure-Ffmpeg {
   param($Paths)
   if(Test-Path $Paths.Ffmpeg) { return }
@@ -248,11 +275,23 @@ function Disconnect-Drive {
 function Get-DriveFolders {
   param($Paths)
   $accessToken = Get-DriveAccessToken $Paths
-  $query = [Uri]::EscapeDataString("mimeType='application/vnd.google-apps.folder' and trashed=false")
-  $uri = "https://www.googleapis.com/drive/v3/files?pageSize=100&orderBy=name_natural&fields=files(id,name)&q=$query&supportsAllDrives=true&includeItemsFromAllDrives=true"
-  $response = Invoke-RestMethod -Method Get -Uri $uri -Headers @{ Authorization = "Bearer $accessToken" }
+  $uri = "https://www.googleapis.com/drive/v3/files?pageSize=100&fields=files(id,name,mimeType,trashed)&spaces=drive"
+  try {
+    $response = Invoke-RestMethod -Method Get -Uri $uri -Headers @{ Authorization = "Bearer $accessToken" }
+  } catch {
+    $detail = $_.ErrorDetails.Message
+    if(-not [string]::IsNullOrWhiteSpace($detail)) {
+      throw $detail
+    }
+    throw
+  }
+
   $folders = @([pscustomobject]@{ id = 'root'; name = 'My Drive (Root)' })
-  foreach($folder in @($response.files)) {
+  $sorted = @($response.files | Where-Object {
+    $_ -and [string]$_.mimeType -eq 'application/vnd.google-apps.folder' -and -not [bool]$_.trashed
+  } | Sort-Object name)
+
+  foreach($folder in $sorted) {
     $folders += [pscustomobject]@{ id = [string]$folder.id; name = [string]$folder.name }
   }
   Write-JsonResult @{ ok = $true; folders = $folders }
@@ -344,6 +383,54 @@ function Get-DestinationFromLog {
   return ''
 }
 
+function Resolve-QualityPreset {
+  param(
+    [string]$Mode,
+    [string]$Quality
+  )
+
+  $normalized = [string]$Quality
+  if($null -eq $normalized) { $normalized = '' }
+  $normalized = $normalized.Trim().ToLowerInvariant()
+
+  if($Mode -eq 'mp3') {
+    $audioPresets = @{
+      'best' = @{ AudioQuality = '0' }
+      '320k' = @{ AudioQuality = '320K' }
+      '192k' = @{ AudioQuality = '192K' }
+      '128k' = @{ AudioQuality = '128K' }
+    }
+
+    if([string]::IsNullOrWhiteSpace($normalized)) {
+      return $audioPresets['best']
+    }
+
+    if(-not $audioPresets.ContainsKey($normalized)) {
+      throw 'Unsupported MP3 quality selected.'
+    }
+
+    return $audioPresets[$normalized]
+  }
+
+  $videoPresets = @{
+    'best' = @{ Format = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/bv*+ba/b' }
+    '2160p' = @{ Format = 'bestvideo[ext=mp4][height<=2160]+bestaudio[ext=m4a]/best[ext=mp4][height<=2160]/best[height<=2160]' }
+    '1440p' = @{ Format = 'bestvideo[ext=mp4][height<=1440]+bestaudio[ext=m4a]/best[ext=mp4][height<=1440]/best[height<=1440]' }
+    '1080p' = @{ Format = 'bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4][height<=1080]/best[height<=1080]' }
+    '720p' = @{ Format = 'bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best[ext=mp4][height<=720]/best[height<=720]' }
+    '480p' = @{ Format = 'bestvideo[ext=mp4][height<=480]+bestaudio[ext=m4a]/best[ext=mp4][height<=480]/best[height<=480]' }
+  }
+
+  if([string]::IsNullOrWhiteSpace($normalized)) {
+    return $videoPresets['best']
+  }
+
+  if(-not $videoPresets.ContainsKey($normalized)) {
+    throw 'Unsupported video quality selected.'
+  }
+
+  return $videoPresets[$normalized]
+}
 function Start-Download {
   param($Paths, $Payload)
   $url = [string]$Payload.url
@@ -361,7 +448,9 @@ function Start-Download {
   $safeName = $customName.Trim()
   if([string]::IsNullOrWhiteSpace($safeName)) { $safeName = '%(title)s' }
   $outputTemplate = Join-Path $outputDir ($safeName + '.%(ext)s')
-  $arguments = @('--no-playlist','--restrict-filenames','--windows-filenames','--newline','--progress','--ffmpeg-location',$Paths.Ffmpeg)
+  $arguments = @('--no-playlist','--restrict-filenames','--windows-filenames','--newline','--progress','--extractor-args','youtube:player_client=default,android')
+  $arguments += Get-JsRuntimeArguments
+  $arguments += @('--ffmpeg-location',$Paths.Ffmpeg)
   if($mode -eq 'mp3') { $arguments += @('-x','--audio-format','mp3','--audio-quality','0') }
   else { $arguments += @('-f','bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/bv*+ba/b','--merge-output-format','mp4') }
   $arguments += @('-o',$outputTemplate,$url)

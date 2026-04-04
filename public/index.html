@@ -89,6 +89,46 @@
         font-style: italic;
       }
 
+      /* ── Queue ── */
+      .queue-item {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .queue-head {
+        display: flex; justify-content: space-between; align-items: flex-start;
+      }
+      .queue-title {
+        font-size: 0.9rem; font-weight: 600; color: var(--text-main);
+        word-break: break-all;
+      }
+      .queue-status-badge {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        padding: 2px 6px; border-radius: 4px;
+        background: rgba(255,255,255,0.1); color: var(--text-muted);
+        white-space: nowrap; margin-left: 12px;
+      }
+      .queue-status-badge.processing { background: rgba(138,43,226,0.2); color: #c084fc; }
+      .queue-status-badge.uploading { background: rgba(65,105,225,0.2); color: #82a5ff; }
+      .queue-status-badge.done { background: rgba(16,185,129,0.2); color: #34d399; }
+      .queue-status-badge.error { background: rgba(239,68,68,0.2); color: #f87171; }
+      
+      .queue-msg {
+        font-size: 0.82rem; color: var(--text-muted); white-space: pre-wrap;
+      }
+      .queue-track {
+        height: 6px; background: rgba(0,0,0,0.3); border-radius: 99px; overflow: hidden;
+      }
+      .queue-fill {
+        height: 100%; background: var(--gradient-btn); width: 0%;
+        transition: width 0.3s linear;
+      }
+
       @media (max-width: 768px) {
         .row { grid-template-columns: 1fr; }
       }
@@ -134,6 +174,11 @@
                 <input id="customName" name="customName" type="text" placeholder="Optional" />
               </label>
             </div>
+
+            <label>
+              <span class="label-text">Quality</span>
+              <select id="quality" name="quality"></select>
+            </label>
 
             <!-- Collapsible Google Drive -->
             <div class="drive-toggle" id="drive-toggle">
@@ -181,8 +226,13 @@
           </form>
 
           <section class="glass-panel" style="padding: 24px;">
-            <strong id="headline" style="display:block; margin-bottom: 12px; color: var(--text-main);">Ready</strong>
-            <div class="log-pane" id="details">Output will appear here.</div>
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <strong style="color: var(--text-main);">Download Queue</strong>
+              <button class="secondary small" id="update-engine" type="button"><i data-feather="refresh-cw" style="width:14px;height:14px"></i> Update Engine</button>
+            </div>
+            <div id="queue-list" style="max-height: 400px; overflow-y: auto; padding-right: 4px;">
+              <div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; padding: 20px;">No active downloads.</div>
+            </div>
           </section>
         </div>
       </main>
@@ -193,8 +243,10 @@
     <script>
       const form = document.getElementById("download-form");
       const submit = document.getElementById("submit");
-      const headline = document.getElementById("headline");
-      const details = document.getElementById("details");
+      const queueList = document.getElementById("queue-list");
+      const updateEngineBtn = document.getElementById("update-engine");
+      const modeSelect = document.getElementById("mode");
+      const qualitySelect = document.getElementById("quality");
       const driveClientIdInput = document.getElementById("driveClientId");
       const driveClientSecretInput = document.getElementById("driveClientSecret");
       const driveFolderSelect = document.getElementById("driveFolder");
@@ -216,7 +268,8 @@
         clientSecret: "video-dl.web.drive.clientSecret",
         folderId: "video-dl.web.drive.folderId",
         upload: "video-dl.web.drive.upload",
-        deleteLocal: "video-dl.web.drive.deleteLocal"
+        deleteLocal: "video-dl.web.drive.deleteLocal",
+        quality: "video-dl.web.quality"
       };
 
       let driveConnected = false;
@@ -227,7 +280,60 @@
 
       async function boot() {
         loadPreferences();
+        renderQualityOptions(loadValue(STORAGE_KEYS.quality, ""));
         await refreshDriveStatus(true);
+        initQueueStream();
+      }
+
+      function initQueueStream() {
+        const source = new EventSource("/api/queue/stream");
+        source.onmessage = (event) => {
+          try {
+            const jobs = JSON.parse(event.data);
+            renderQueue(jobs);
+          } catch (err) {}
+        };
+      }
+
+      function renderQueue(jobs) {
+        if (!jobs || jobs.length === 0) {
+          queueList.innerHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; padding: 20px;">No active downloads.</div>`;
+          return;
+        }
+        
+        queueList.innerHTML = "";
+        for (const job of jobs) {
+          const div = document.createElement("div");
+          div.className = "queue-item";
+          
+          let trackHtml = "";
+          if (job.status === "processing" || job.status === "uploading") {
+            trackHtml = `
+              <div class="queue-track">
+                <div class="queue-fill" style="width: ${job.percent}%"></div>
+              </div>
+            `;
+          }
+
+          let linkHtml = "";
+          if (job.driveLink) {
+            linkHtml = ` <a href="${job.driveLink}" target="_blank" style="color:var(--accent-primary)">View in Drive</a>`;
+          }
+
+          div.innerHTML = `
+            <div class="queue-head">
+              <div class="queue-title">${esc(job.title)}</div>
+              <div class="queue-status-badge ${job.status}">${job.status}</div>
+            </div>
+            <div class="queue-msg">${esc(job.message)}${linkHtml}</div>
+            ${trackHtml}
+          `;
+          queueList.appendChild(div);
+        }
+      }
+
+      function esc(str) {
+        return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
       }
 
       function bindEvents() {
@@ -235,6 +341,14 @@
           driveBody.classList.toggle("collapsed");
           driveBody.classList.toggle("expanded");
           driveArrow.classList.toggle("open");
+        });
+
+        modeSelect.addEventListener("change", () => {
+          renderQualityOptions();
+        });
+
+        qualitySelect.addEventListener("change", () => {
+          storeValue(STORAGE_KEYS.quality, qualitySelect.value);
         });
 
         driveClientIdInput.addEventListener("input", () => {
@@ -262,6 +376,7 @@
         driveCreateFolderButton.addEventListener("click", createDriveFolder);
         driveDisconnectButton.addEventListener("click", disconnectDrive);
         form.addEventListener("submit", handleSubmit);
+        updateEngineBtn.addEventListener("click", updateYtDlpEngine);
       }
 
       async function handleSubmit(event) {
@@ -271,49 +386,52 @@
         const deleteLocalAfterUpload = deleteLocalAfterUploadInput.checked;
 
         if (uploadToDrive && !driveConnected) {
-          setFailure("Connect Google Drive before enabling upload.");
+          alert("Connect Google Drive before enabling upload.");
           return;
         }
         if (uploadToDrive && !driveFolderId) {
-          setFailure("Choose a Google Drive folder before enabling upload.");
+          alert("Choose a Google Drive folder before enabling upload.");
           return;
         }
 
         submit.disabled = true;
-        headline.textContent = "Downloading...";
-        headline.style.color = "var(--text-main)";
-        details.textContent = uploadToDrive
-          ? "Fetching media, then uploading to Drive."
-          : "Fetching media...";
-
         const payload = {
           url: document.getElementById("url").value.trim(),
           mode: document.getElementById("mode").value,
           customName: document.getElementById("customName").value.trim(),
+          quality: qualitySelect.value,
           uploadToDrive,
           driveFolderId,
           deleteLocalAfterUpload
         };
 
         try {
-          const data = await api("/api/download", {
+          await api("/api/download", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
-
-          const driveUpload = data.driveUpload || null;
-          headline.textContent = driveUpload
-            ? deleteLocalAfterUpload
-              ? "Uploaded to Drive. Local file removed."
-              : "Downloaded & uploaded to Drive."
-            : data.message;
-          headline.style.color = "var(--success)";
-          details.textContent = renderDownloadDetails(data, driveUpload, deleteLocalAfterUpload);
+          document.getElementById("url").value = "";
+          document.getElementById("customName").value = "";
         } catch (error) {
-          setFailure(error.message);
+          alert("Failed to add job: " + error.message);
         } finally {
           submit.disabled = false;
+        }
+      }
+
+      async function updateYtDlpEngine() {
+        updateEngineBtn.disabled = true;
+        updateEngineBtn.innerHTML = `<span class="spinner" style="width:14px;height:14px;border-width:2px;margin-right:6px"></span> Updating...`;
+        try {
+          const res = await api("/api/system/update-engine", { method: "POST" });
+          alert("Update complete:\\n" + res.log);
+        } catch (err) {
+          alert("Update failed: " + err.message);
+        } finally {
+          updateEngineBtn.disabled = false;
+          updateEngineBtn.innerHTML = `<i data-feather="refresh-cw" style="width:14px;height:14px"></i> Update Engine`;
+          feather.replace();
         }
       }
 
@@ -462,6 +580,41 @@
         }
       }
 
+      function getQualityOptions(mode) {
+        return mode === "mp3"
+          ? [
+              { value: "best", label: "Best available MP3" },
+              { value: "320k", label: "320 kbps" },
+              { value: "192k", label: "192 kbps" },
+              { value: "128k", label: "128 kbps" }
+            ]
+          : [
+              { value: "best", label: "Best available MP4" },
+              { value: "2160p", label: "4K / 2160p" },
+              { value: "1440p", label: "1440p" },
+              { value: "1080p", label: "1080p" },
+              { value: "720p", label: "720p" },
+              { value: "480p", label: "480p" }
+            ];
+      }
+
+      function renderQualityOptions(preferredValue = "") {
+        const options = getQualityOptions(modeSelect.value);
+        const nextValue = options.some((option) => option.value === preferredValue)
+          ? preferredValue
+          : options[0].value;
+
+        qualitySelect.innerHTML = "";
+        for (const option of options) {
+          const el = document.createElement("option");
+          el.value = option.value;
+          el.textContent = option.label;
+          qualitySelect.appendChild(el);
+        }
+
+        qualitySelect.value = nextValue;
+        storeValue(STORAGE_KEYS.quality, nextValue);
+      }
       function loadPreferences() {
         driveClientIdInput.value = loadValue(STORAGE_KEYS.clientId, "");
         driveClientSecretInput.value = loadValue(STORAGE_KEYS.clientSecret, "");

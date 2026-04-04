@@ -4,6 +4,7 @@ const { createDownloader } = require("./lib/downloader");
 const { createGoogleDriveManager } = require("./lib/googleDrive");
 const { createChannelManager } = require("./lib/channels");
 const { createLibraryManager } = require("./lib/library");
+const { createDownloadQueue } = require("./lib/queue");
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -24,6 +25,11 @@ const channels = createChannelManager({
 const library = createLibraryManager({
   appRoot: ROOT_DIR,
   downloadsDir: path.join(ROOT_DIR, "downloads")
+});
+const queue = createDownloadQueue({
+  dataRoot: path.join(ROOT_DIR, "data"),
+  downloader,
+  drive
 });
 
 app.use(express.json({ limit: "1mb" }));
@@ -146,28 +152,51 @@ app.post("/api/drive/upload", async (req, res) => {
   }
 });
 
-app.post("/api/download", async (req, res) => {
+app.post("/api/download", (req, res) => {
   try {
     const payload = req.body || {};
-    const result = await downloader.download(payload);
-
-    let driveResult = null;
-    if (payload.uploadToDrive) {
-      driveResult = await drive.uploadFile({
-        filePath: result.filePath,
-        folderId: payload.driveFolderId,
-        deleteLocal: !!payload.deleteLocalAfterUpload
-      });
-    }
-
-    res.json({
-      ...result,
-      driveUpload: driveResult
-    });
+    const job = queue.addJob(payload);
+    res.status(202).json(job);
   } catch (error) {
-    res.status(500).json({
-      error: error.message || "Download failed."
-    });
+    res.status(500).json({ error: error.message || "Failed to add job to queue." });
+  }
+});
+
+app.get("/api/queue/stream", (req, res) => {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive"
+  });
+
+  const sendState = () => {
+    res.write(`data: ${JSON.stringify(queue.getQueueState())}\n\n`);
+  };
+
+  sendState(); // send initial state
+
+  queue.on("update", sendState);
+
+  req.on("close", () => {
+    queue.removeListener("update", sendState);
+  });
+});
+
+app.post("/api/queue/clear", (_req, res) => {
+  try {
+    queue.clearCompleted();
+    res.json({ ok: true, queue: queue.getQueueState() });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Failed to clear completed queue items." });
+  }
+});
+
+app.post("/api/system/update-engine", async (_req, res) => {
+  try {
+    const result = await downloader.updateYtDlp();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Engine update failed." });
   }
 });
 
@@ -233,8 +262,10 @@ app.delete("/api/library", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Video downloader running at http://localhost:${PORT}`);
+queue.start().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Video downloader running at http://localhost:${PORT}`);
+  });
 });
 
 function escapeHtml(value) {

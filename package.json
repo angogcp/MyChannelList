@@ -1,12 +1,13 @@
 {
   "name": "video-dl",
-  "version": "1.0.13",
+  "version": "1.0.18",
   "description": "Local video downloader with web and Windows desktop app builds",
   "main": "desktop/main.js",
   "scripts": {
     "start": "node server.js",
     "start:web": "node server.js",
     "launch:web": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\launch-web.ps1",
+    "launch:desktopweb": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\launch-web.ps1 -OpenMode app",
     "start:desktop": "electron .",
     "start:neutralino": "powershell -NoProfile -Command \"Set-Location 'neutralino-lite'; npx.cmd neu run --config-file neutralino.config.json\"",
     "pack:win": "electron-packager . \"Video DL Desktop\" --platform=win32 --arch=x64 --out=dist-packager --overwrite --asar --ignore=\"(dist($|[\\\\/]))|(dist-packager($|[\\\\/]))|(downloads($|[\\\\/]))|(bin($|[\\\\/]))|(public($|[\\\\/]))|(server\\.js$)|(README\\.md$)|(package-lock\\.json$)\"",

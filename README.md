@@ -24,7 +24,13 @@ Or use the one-click local browser launcher:
 npm.cmd run launch:web
 ```
 
-You can also double-click [Launch Video DL Web.cmd](C:\apps\video-dl\Launch Video DL Web.cmd).
+For a desktop-style local window that avoids the blocked packaged EXE path:
+
+```powershell
+npm.cmd run launch:desktopweb
+```
+
+You can also double-click [Launch Video DL Web.cmd](C:\apps\video-dl\Launch Video DL Web.cmd) or [Launch Video DL Desktop.cmd](C:\apps\video-dl\Launch Video DL Desktop.cmd).
 
 Downloads are saved under `downloads/video` and `downloads/audio` in this project.
 
