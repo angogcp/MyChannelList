@@ -1,6 +1,8 @@
 # Video DL
 
-Local web app for downloading videos, tracking channels, and optionally uploading completed downloads to Google Drive.
+Version `1.0.21`
+
+Local web app for downloading videos, tracking channel watch lists, choosing MP4/MP3 quality, and optionally uploading completed downloads to Google Drive.
 
 ## Install
 
@@ -38,6 +40,15 @@ npm.cmd run launch:app
 
 You can also double-click [Launch Video DL Web.cmd](C:\apps\video-dl\Launch Video DL Web.cmd) or [Launch Video DL App.cmd](C:\apps\video-dl\Launch Video DL App.cmd).
 
+## Current Features
+
+- Single URL downloads for `MP4` video or `MP3` audio.
+- Quality selection for both downloader and watch list flows.
+- Watch List page for tracking channels and batch downloading selected videos.
+- Download queue with `Clear finished` on both Downloader and Watch List pages.
+- Google Drive connection, folder selection, optional upload after download, and optional local file cleanup after upload.
+- Local Library page for browsing and deleting downloaded files.
+
 ## Data and downloads
 
 - Downloads are saved under `downloads/video` and `downloads/audio`.
@@ -48,4 +59,4 @@ You can also double-click [Launch Video DL Web.cmd](C:\apps\video-dl\Launch Vide
 ## Notes
 
 - Supported sites depend on `yt-dlp`.
-- This branch is web-only and does not include the previous desktop packaging code.
+- This project is now web-only and no longer includes the previous desktop packaging code.
