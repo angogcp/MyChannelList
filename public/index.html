@@ -143,7 +143,8 @@
         </div>
         <div class="nav-menu">
           <a href="/" class="nav-item active"><i data-feather="download"></i> Downloader</a>
-          <a href="/channels.html" class="nav-item"><i data-feather="list"></i> Watch List</a>
+          <a href="/channels.html" class="nav-item"><i data-feather="list"></i> Inbox</a>
+          <a href="/analysis.html" class="nav-item"><i data-feather="sparkles"></i> Analysis</a>
           <a href="/library.html" class="nav-item"><i data-feather="hard-drive"></i> Library</a>
         </div>
       </nav>
@@ -236,6 +237,7 @@
             <div id="queue-list" style="max-height: 400px; overflow-y: auto; padding-right: 4px;">
               <div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; padding: 20px;">No active downloads.</div>
             </div>
+            <div id="page-status" style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted);">Ready.</div>
           </section>
         </div>
       </main>
@@ -247,6 +249,7 @@
       const form = document.getElementById("download-form");
       const submit = document.getElementById("submit");
       const queueList = document.getElementById("queue-list");
+      const pageStatus = document.getElementById("page-status");
       const clearQueueBtn = document.getElementById("clear-queue-btn");
       const updateEngineBtn = document.getElementById("update-engine");
       const modeSelect = document.getElementById("mode");
@@ -275,6 +278,8 @@
         deleteLocal: "video-dl.web.drive.deleteLocal",
         quality: "video-dl.web.quality"
       };
+      const DEFAULT_GOOGLE_CLIENT_ID = "";
+      const DEFAULT_GOOGLE_CLIENT_SECRET = "";
 
       let driveConnected = false;
       let driveBusy = false;
@@ -466,7 +471,17 @@
         driveNote.textContent = "Opening Google sign-in...";
         storeValue(STORAGE_KEYS.clientId, clientId);
         storeValue(STORAGE_KEYS.clientSecret, clientSecret);
-        window.location.assign(`/api/drive/connect-start?clientId=${encodeURIComponent(clientId)}&clientSecret=${encodeURIComponent(clientSecret)}`);
+        try {
+          const result = await api("/api/drive/connect-init", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ clientId, clientSecret })
+          });
+          window.location.assign(result.authUrl);
+        } catch (error) {
+          driveNote.textContent = error.message || "Failed to start Google sign-in.";
+          setDriveBusy(false);
+        }
       }
 
       async function disconnectDrive() {
@@ -571,10 +586,10 @@
         // Toggle label
         if (driveConnected) {
           driveDot.classList.add("on");
-          driveToggleLabel.textContent = email ? `Google Drive · ${email}` : "Google Drive · Connected";
+          driveToggleLabel.textContent = email ? `Google Drive - ${email}` : "Google Drive - Connected";
         } else {
           driveDot.classList.remove("on");
-          driveToggleLabel.textContent = "Google Drive · Not connected";
+          driveToggleLabel.textContent = "Google Drive - Not connected";
         }
 
         driveConnectButton.disabled = driveBusy || !hasCredentials;
@@ -636,8 +651,8 @@
         storeValue(STORAGE_KEYS.quality, nextValue);
       }
       function loadPreferences() {
-        driveClientIdInput.value = loadValue(STORAGE_KEYS.clientId, "");
-        driveClientSecretInput.value = loadValue(STORAGE_KEYS.clientSecret, "");
+        driveClientIdInput.value = loadValue(STORAGE_KEYS.clientId, DEFAULT_GOOGLE_CLIENT_ID);
+        driveClientSecretInput.value = loadValue(STORAGE_KEYS.clientSecret, DEFAULT_GOOGLE_CLIENT_SECRET);
         uploadToDriveInput.checked = loadValue(STORAGE_KEYS.upload, "0") === "1";
         deleteLocalAfterUploadInput.checked = loadValue(STORAGE_KEYS.deleteLocal, "0") === "1";
         syncDriveUiState();
@@ -645,6 +660,15 @@
 
       function loadValue(k, fb) { try { return localStorage.getItem(k) ?? fb; } catch { return fb; } }
       function storeValue(k, v) { try { localStorage.setItem(k, v); } catch {} }
+      function setStatus(message, type = "") {
+        if (!pageStatus) return;
+        pageStatus.textContent = message;
+        pageStatus.style.color = type === "error"
+          ? "var(--error)"
+          : type === "success"
+            ? "var(--success)"
+            : "var(--text-muted)";
+      }
 
       async function api(url, opts = {}) {
         const r = await fetch(url, opts);
@@ -665,11 +689,6 @@
       }
 
       function setDriveBusy(b) { driveBusy = !!b; syncDriveUiState(); }
-      function setFailure(msg) {
-        headline.textContent = "Failed";
-        headline.style.color = "var(--error)";
-        details.textContent = msg;
-      }
     </script>
   </body>
 </html>

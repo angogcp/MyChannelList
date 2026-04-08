@@ -2,34 +2,54 @@ const express = require("express");
 const path = require("path");
 const { createDownloader } = require("./lib/downloader");
 const { createGoogleDriveManager } = require("./lib/googleDrive");
-const { createChannelManager } = require("./lib/channels");
+const { createChannelManager, normalizeChannelUrl } = require("./lib/channels");
 const { createLibraryManager } = require("./lib/library");
 const { createDownloadQueue } = require("./lib/queue");
+const { createContentTracker } = require("./lib/contentTracker");
+const { createLlmAnalyzer } = require("./lib/llmAnalysis");
+const { loadLocalConfig } = require("./lib/localConfig");
 
 const app = express();
-const PORT = Number(process.env.PORT || 3000);
+const PORT = Number(process.env.PORT || 3010);
 const ROOT_DIR = __dirname;
+const localConfig = loadLocalConfig(ROOT_DIR);
+const DEFAULT_GOOGLE_CLIENT_ID = String(process.env.GOOGLE_CLIENT_ID || localConfig.GOOGLE_CLIENT_ID || "").trim();
+const DEFAULT_GOOGLE_CLIENT_SECRET = String(process.env.GOOGLE_CLIENT_SECRET || localConfig.GOOGLE_CLIENT_SECRET || "").trim();
+const OPENAI_API_KEY = String(process.env.OPENAI_API_KEY || localConfig.OPENAI_API_KEY || "").trim();
+const OPENAI_ANALYSIS_MODEL = String(process.env.OPENAI_ANALYSIS_MODEL || localConfig.OPENAI_ANALYSIS_MODEL || "gpt-5").trim();
 const downloader = createDownloader({
   appRoot: ROOT_DIR,
   dataRoot: ROOT_DIR
 });
 const drive = createGoogleDriveManager({
   appRoot: ROOT_DIR,
-  dataDir: path.join(ROOT_DIR, "data")
+  dataDir: path.join(ROOT_DIR, "data"),
+  defaultClientId: DEFAULT_GOOGLE_CLIENT_ID,
+  defaultClientSecret: DEFAULT_GOOGLE_CLIENT_SECRET
 });
 const channels = createChannelManager({
   appRoot: ROOT_DIR,
   dataDir: path.join(ROOT_DIR, "data"),
-  ytDlpPath: downloader.ytDlpPath
+  ytDlpPath: () => downloader.ytDlpPath
 });
 const library = createLibraryManager({
   appRoot: ROOT_DIR,
   downloadsDir: path.join(ROOT_DIR, "downloads")
 });
+const contentTracker = createContentTracker({
+  appRoot: ROOT_DIR,
+  dataDir: path.join(ROOT_DIR, "data")
+});
 const queue = createDownloadQueue({
   dataRoot: path.join(ROOT_DIR, "data"),
   downloader,
-  drive
+  drive,
+  contentTracker
+});
+const llmAnalyzer = createLlmAnalyzer({
+  apiKey: OPENAI_API_KEY,
+  model: OPENAI_ANALYSIS_MODEL,
+  timeoutMs: Number(process.env.OPENAI_ANALYSIS_TIMEOUT_MS || localConfig.OPENAI_ANALYSIS_TIMEOUT_MS || 45000)
 });
 
 app.use(express.json({ limit: "1mb" }));
@@ -229,10 +249,83 @@ app.delete("/api/channels", async (req, res) => {
 app.get("/api/channels/videos", async (req, res) => {
   try {
     const url = String(req.query.url || "").trim();
+    const normalizedUrl = normalizeChannelUrl(url);
     const limit = Math.min(Math.max(Number(req.query.limit) || 15, 1), 50);
-    res.json(await channels.fetchVideos(url, limit));
+    const channelList = await channels.loadChannels();
+    const channel = (channelList || []).find((entry) => normalizeChannelUrl(entry.url || "") === normalizedUrl);
+    const result = await channels.fetchVideos(normalizedUrl, limit, {
+      channelUrl: normalizedUrl,
+      channelName: channel?.name || ""
+    });
+    res.json(await contentTracker.enrichVideos({
+      channelName: channel?.name || "",
+      channelUrl: normalizedUrl,
+      videos: result.videos || []
+    }));
   } catch (error) {
     res.status(500).json({ error: error.message || "Failed to fetch videos." });
+  }
+});
+
+app.get("/api/content/history", async (req, res) => {
+  try {
+    const channelUrl = String(req.query.channelUrl || "").trim();
+    const limit = Math.min(Math.max(Number(req.query.limit) || 30, 1), 100);
+    res.json(await contentTracker.listHistory({ channelUrl, limit }));
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Failed to load content history." });
+  }
+});
+
+app.post("/api/content/state", async (req, res) => {
+  try {
+    res.json(await contentTracker.updateRecord(req.body || {}));
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Failed to update content state." });
+  }
+});
+
+app.get("/api/content/preferences", async (req, res) => {
+  try {
+    const channelUrl = String(req.query.channelUrl || "").trim();
+    res.json(await contentTracker.getPreferences({ channelUrl }));
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Failed to load preferences." });
+  }
+});
+
+app.post("/api/content/preferences", async (req, res) => {
+  try {
+    res.json(await contentTracker.updatePreferences(req.body || {}));
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Failed to save preferences." });
+  }
+});
+
+app.get("/api/content/ai-status", async (_req, res) => {
+  try {
+    res.json(llmAnalyzer.getStatus());
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Failed to load AI status." });
+  }
+});
+
+app.post("/api/content/ai-insight", async (req, res) => {
+  try {
+    const payload = req.body || {};
+    const aiInsight = await llmAnalyzer.analyzeContent(payload);
+    const result = await contentTracker.updateRecord({
+      ...payload,
+      aiInsight
+    });
+    res.json({
+      ok: true,
+      aiInsight,
+      record: result.record,
+      analysis: result.analysis
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Failed to generate AI insight." });
   }
 });
 

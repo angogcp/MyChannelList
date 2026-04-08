@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Watch List — Video DL</title>
+    <title>Inbox - Video DL</title>
     <link rel="stylesheet" href="/styles.css" />
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
@@ -67,6 +67,194 @@
       .feed-title { font-size: 1rem; font-weight: 600; color: var(--text-main); }
       .feed-actions { display: flex; gap: 8px; align-items: center; }
       .mode-pick select { padding: 7px 10px; font-size: 0.85rem; border-radius: var(--radius-sm); }
+      .triage-strip {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .flow-strip {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, rgba(147,197,253,0.06), rgba(255,255,255,0.01));
+      }
+      .flow-step {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(147,197,253,0.18);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+      }
+      .flow-step strong {
+        color: var(--text-main);
+        font-size: 0.78rem;
+      }
+      .triage-pill {
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--border);
+      }
+      .triage-pill strong { color: var(--text-main); }
+      .workspace-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255,255,255,0.02);
+      }
+      .workspace-tab-btn {
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.04);
+        color: var(--text-muted);
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+      .workspace-tab-btn.active {
+        color: var(--text-main);
+        border-color: rgba(147,197,253,0.35);
+        background: rgba(147,197,253,0.12);
+      }
+      .workspace-pane.hidden {
+        display: none;
+      }
+      .watchlist-simple .workspace-tabs,
+      .watchlist-simple #triage-card,
+      .watchlist-simple .session-panel,
+      .watchlist-simple [data-workspace-pane="activity"] {
+        display: none !important;
+      }
+      .watchlist-simple .feed-body {
+        max-height: calc(100vh - 280px);
+      }
+      .watchlist-simple .decision-bar {
+        display: flex !important;
+      }
+      .watchlist-simple .workspace-drawer[data-workspace-pane="organize"] {
+        display: block !important;
+      }
+      .watchlist-simple #analyze-ai-top-btn {
+        display: none !important;
+      }
+      .decision-bar {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255,255,255,0.02);
+      }
+      .filter-group {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .filter-chip {
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.04);
+        color: var(--text-muted);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        cursor: pointer;
+      }
+      .filter-chip.active {
+        color: var(--text-main);
+        border-color: rgba(147,197,253,0.35);
+        background: rgba(147,197,253,0.10);
+      }
+      .sort-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+      }
+      .sort-group select { min-width: 170px; }
+      .bulk-bar {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 10px 20px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255,255,255,0.015);
+      }
+      .bulk-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .workspace-drawer {
+        border-bottom: 1px solid var(--border);
+        background: rgba(255,255,255,0.015);
+      }
+      .workspace-drawer summary {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 20px;
+        cursor: pointer;
+        color: var(--text-main);
+        font-size: 0.88rem;
+        font-weight: 600;
+      }
+      .workspace-drawer summary::-webkit-details-marker { display: none; }
+      .workspace-drawer summary span {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 400;
+      }
+      .workspace-drawer summary::after {
+        content: "+";
+        color: var(--text-muted);
+        font-size: 1rem;
+        line-height: 1;
+      }
+      .workspace-drawer[open] summary::after {
+        content: "-";
+      }
+      .drawer-body {
+        border-top: 1px solid var(--border);
+      }
+      .preference-bar {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255,255,255,0.02);
+      }
+      .preference-controls {
+        display: flex;
+        gap: 12px;
+        align-items: end;
+        flex-wrap: wrap;
+      }
+      .preference-controls label {
+        min-width: 150px;
+      }
+      .preference-controls .wide {
+        min-width: 220px;
+        flex: 1;
+      }
 
       .feed-body { flex: 1; overflow-y: auto; max-height: calc(100vh - 340px); }
       .feed-empty {
@@ -76,7 +264,7 @@
 
       .vid-row {
         display: grid;
-        grid-template-columns: auto 100px 1fr auto;
+        grid-template-columns: auto 100px 1fr auto auto;
         gap: 14px;
         align-items: center;
         padding: 12px 20px;
@@ -84,6 +272,7 @@
         transition: background 0.15s;
       }
       .vid-row:hover { background: var(--bg-panel-hover); }
+      .vid-row.selected { background: rgba(65, 105, 225, 0.10); }
       .vid-thumb {
         width: 100px; height: 56px; object-fit: cover;
         border-radius: 6px; background: var(--bg-surface);
@@ -94,12 +283,302 @@
         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
       }
       .vid-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+      .vid-tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        line-height: 1;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        background: rgba(255,255,255,0.04);
+      }
+      .tag.high { color: #fcd34d; border-color: rgba(252,211,77,0.25); background: rgba(252,211,77,0.08); }
+      .tag.mid { color: #93c5fd; border-color: rgba(147,197,253,0.25); background: rgba(147,197,253,0.08); }
+      .tag.low { color: #fca5a5; border-color: rgba(252,165,165,0.22); background: rgba(252,165,165,0.08); }
+      .tag.state { color: #c4b5fd; border-color: rgba(196,181,253,0.25); background: rgba(196,181,253,0.08); }
+      .tag.conf-high { color: #86efac; border-color: rgba(134,239,172,0.25); background: rgba(134,239,172,0.08); }
+      .tag.conf-mid { color: #93c5fd; border-color: rgba(147,197,253,0.25); background: rgba(147,197,253,0.08); }
+      .tag.conf-low { color: #fca5a5; border-color: rgba(252,165,165,0.22); background: rgba(252,165,165,0.08); }
       .vid-open {
         font-size: 0.8rem; color: var(--text-muted); text-decoration: none;
         padding: 4px 10px; border: 1px solid var(--border); border-radius: 99px;
         transition: all 0.15s;
       }
       .vid-open:hover { color: var(--text-main); border-color: rgba(255,255,255,0.2); }
+      .row-quick-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s;
+      }
+      .vid-row:hover .row-quick-actions,
+      .vid-row.selected .row-quick-actions {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .row-quick-btn {
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.04);
+        color: var(--text-muted);
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 0.72rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .row-quick-btn:hover {
+        color: var(--text-main);
+        border-color: rgba(255,255,255,0.22);
+      }
+      .row-quick-btn.ai {
+        color: #93c5fd;
+        border-color: rgba(147,197,253,0.24);
+        background: rgba(147,197,253,0.08);
+      }
+      .row-quick-btn.ai:hover {
+        color: #dbeafe;
+        border-color: rgba(147,197,253,0.38);
+      }
+      .triage-card {
+        padding: 16px 20px 18px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255,255,255,0.02);
+      }
+      .triage-card.hidden { display: none; }
+      .triage-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+        margin-bottom: 12px;
+      }
+      .triage-title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        color: var(--text-main);
+      }
+      .triage-score {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .triage-summary {
+        color: var(--text-main);
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+      .triage-reasons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .score-breakdown {
+        margin-top: 14px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: rgba(255,255,255,0.03);
+      }
+      .score-breakdown.hidden { display: none; }
+      .score-breakdown-title {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 10px;
+      }
+      .score-breakdown-list {
+        display: grid;
+        gap: 8px;
+      }
+      .ai-insight {
+        margin-top: 14px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: rgba(147,197,253,0.06);
+      }
+      .ai-insight.hidden { display: none; }
+      .ai-insight-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .ai-insight-title {
+        font-size: 0.8rem;
+        color: var(--text-main);
+        font-weight: 600;
+      }
+      .ai-insight-copy {
+        font-size: 0.84rem;
+        color: var(--text-main);
+        line-height: 1.5;
+      }
+      .ai-insight-meta {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-top: 8px;
+      }
+      .score-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+        font-size: 0.84rem;
+      }
+      .score-row-label {
+        color: var(--text-main);
+      }
+      .score-row-value {
+        font-variant-numeric: tabular-nums;
+        font-weight: 700;
+      }
+      .score-row.positive .score-row-value { color: #86efac; }
+      .score-row.negative .score-row-value { color: #fca5a5; }
+      .score-row.neutral .score-row-value { color: var(--text-muted); }
+      .triage-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+      .decision-presets {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+      .triage-notes {
+        margin-top: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .triage-notes textarea {
+        min-height: 76px;
+        resize: vertical;
+      }
+      .triage-note-tools {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .triage-muted {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+      }
+      .history-panel {
+        border-top: 1px solid var(--border);
+        padding: 16px 20px;
+      }
+      .session-panel {
+        border-top: 1px solid var(--border);
+        padding: 16px 20px;
+        background: rgba(255,255,255,0.015);
+      }
+      .session-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .session-item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: rgba(255,255,255,0.03);
+      }
+      .session-item-title {
+        font-size: 0.88rem;
+        color: var(--text-main);
+        font-weight: 600;
+      }
+      .session-item-meta {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+      .session-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .recap-panel {
+        border-top: 1px solid var(--border);
+        padding: 16px 20px;
+      }
+      .recap-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .recap-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: rgba(255,255,255,0.03);
+        padding: 12px;
+      }
+      .recap-label {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .recap-value {
+        font-size: 1.1rem;
+        color: var(--text-main);
+        font-weight: 700;
+        margin-top: 6px;
+      }
+      .recap-sub {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+      .history-list {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .history-item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: rgba(255,255,255,0.03);
+      }
+      .history-name {
+        font-size: 0.86rem;
+        color: var(--text-main);
+        font-weight: 600;
+      }
+      .history-meta {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
 
       .select-all-row {
         display: flex; align-items: center; gap: 10px;
@@ -183,8 +662,11 @@
       @media (max-width: 900px) {
         .layout { grid-template-columns: 1fr; }
         .ch-sidebar { max-height: 200px; border-right: none; border-bottom: 1px solid var(--border); }
-        .vid-row { grid-template-columns: auto 1fr auto; }
+        .vid-row { grid-template-columns: auto 1fr; }
         .vid-thumb { display: none; }
+        .triage-top, .history-item, .session-item, .recap-grid { grid-template-columns: 1fr; }
+        .row-quick-actions { justify-content: flex-start; }
+        .row-quick-actions { opacity: 1; pointer-events: auto; }
       }
     </style>
   </head>
@@ -197,7 +679,8 @@
         </div>
         <div class="nav-menu">
           <a href="/" class="nav-item"><i data-feather="download"></i> Downloader</a>
-          <a href="/channels.html" class="nav-item active"><i data-feather="list"></i> Watch List</a>
+          <a href="/channels.html" class="nav-item active"><i data-feather="list"></i> Inbox</a>
+          <a href="/analysis.html" class="nav-item"><i data-feather="sparkles"></i> Analysis</a>
           <a href="/library.html" class="nav-item"><i data-feather="hard-drive"></i> Library</a>
         </div>
       </nav>
@@ -205,12 +688,12 @@
       <main class="main-content" style="max-width:100%">
         <div class="content-wrapper" style="max-width:1100px">
           <header class="page-header">
-            <h1>Watch List</h1>
-            <p class="sub">Track channels and batch download their latest videos.</p>
+            <h1>Inbox</h1>
+            <p class="sub">Review incoming channel items and queue downloads. Use Analysis for AI review, notes, and completion decisions.</p>
           </header>
 
           <div class="glass-panel">
-            <div class="layout">
+            <div class="layout watchlist-simple">
               <aside class="ch-sidebar">
                 <div class="sidebar-head">
                   <strong>Channels</strong>
@@ -223,6 +706,7 @@
                 <div class="feed-head">
                   <span class="feed-title" id="feed-title">Select a channel</span>
                   <div class="feed-actions">
+                    <button class="secondary small" id="analyze-ai-top-btn" type="button" disabled>AI review selected</button>
                     <div class="mode-pick">
                       <select id="dl-mode">
                         <option value="video">Video</option>
@@ -236,57 +720,239 @@
                     <button class="primary small" id="download-btn" disabled>Download selected</button>
                   </div>
                 </div>
-
-                <!-- Compact drive bar -->
-                <div class="drive-bar" id="drive-bar">
-                  <div class="drive-bar-toggle" id="drive-toggle">
-                    <span class="drive-dot" id="drive-indicator"></span>
-                    <span id="drive-label">Google Drive</span>
-                    <span class="drive-chevron" id="drive-chevron"><i data-feather="chevron-down" style="width:14px;height:14px"></i></span>
-                  </div>
-                  <div class="drive-bar-body" id="drive-body">
-                    <div class="drive-row" id="drive-not-connected" style="display:none">
-                      <span>Not connected.</span>
-                      <a href="/" class="drive-link">Set up on Downloader page →</a>
-                    </div>
-                    <div id="drive-connected-controls" style="display:none">
-                      <div class="drive-row">
-                        <select id="drive-folder" style="min-width:160px"><option value="">Loading...</option></select>
-                        <button class="secondary small" id="drive-reload-btn" type="button">↻</button>
-                        <button class="secondary small" id="drive-new-folder-btn" type="button">+ New</button>
-                      </div>
-                      <div class="drive-row">
-                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-muted);cursor:pointer">
-                          <input type="checkbox" id="drive-upload" /> Upload to Drive
-                        </label>
-                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-muted);cursor:pointer">
-                          <input type="checkbox" id="drive-delete-local" /> Delete local
-                        </label>
-                      </div>
-                    </div>
-                  </div>
+                <div class="flow-strip">
+                  <span class="flow-step"><strong>1</strong> Choose a channel</span>
+                  <span class="flow-step"><strong>2</strong> Pick what to download</span>
+                  <span class="flow-step"><strong>3</strong> Use Analysis for deep review</span>
                 </div>
+                <div class="triage-strip" id="triage-strip">
+                  <span class="triage-pill"><strong>0</strong> items loaded</span>
+                </div>
+                <div class="workspace-tabs" id="workspace-tabs">
+                  <button class="workspace-tab-btn active" type="button" data-workspace-tab="review">Review</button>
+                  <button class="workspace-tab-btn" type="button" data-workspace-tab="organize">Organize</button>
+                  <button class="workspace-tab-btn" type="button" data-workspace-tab="activity">Activity</button>
+                </div>
+                <div class="decision-bar" data-workspace-pane="organize">
+                  <div class="filter-group" id="filter-group">
+                    <button class="filter-chip active" type="button" data-filter="all">All</button>
+                    <button class="filter-chip" type="button" data-filter="high_value">High value</button>
+                    <button class="filter-chip" type="button" data-filter="unseen">Unseen</button>
+                    <button class="filter-chip" type="button" data-filter="never_downloaded">Never downloaded</button>
+                    <button class="filter-chip" type="button" data-filter="not_started">Not started</button>
+                    <button class="filter-chip" type="button" data-filter="downloaded">Downloaded</button>
+                    <button class="filter-chip" type="button" data-filter="completed">Completed</button>
+                    <button class="filter-chip" type="button" data-filter="review_later">Review later</button>
+                  </div>
+                  <label class="sort-group">
+                    <span>Sort</span>
+                    <select id="sort-mode">
+                      <option value="best_first">Best first</option>
+                      <option value="freshest">Freshest</option>
+                      <option value="shortest">Shortest</option>
+                      <option value="longest">Longest</option>
+                      <option value="recent_activity">Recent activity</option>
+                    </select>
+                  </label>
+                </div>
+                <details class="workspace-drawer" data-workspace-pane="organize">
+                  <summary>More Options <span>Bulk actions and Drive upload settings. Use Analysis for AI review, notes, and completion tracking.</span></summary>
+                  <div class="drawer-body">
+                    <div class="preference-bar">
+                      <div class="triage-muted" id="preference-caption">Preferences guide recommendation scoring for this channel.</div>
+                      <div class="preference-controls">
+                        <label>
+                          <span>Preferred length</span>
+                          <select id="length-preference">
+                            <option value="any">Any length</option>
+                            <option value="short">Prefer short</option>
+                            <option value="medium">Prefer medium</option>
+                            <option value="long">Prefer long</option>
+                          </select>
+                        </label>
+                        <label>
+                          <span>Preferred style</span>
+                          <select id="style-preference">
+                            <option value="any">Any style</option>
+                            <option value="informational">Informational</option>
+                            <option value="ambient">Ambient / conversational</option>
+                          </select>
+                        </label>
+                        <label class="wide">
+                          <span>Preferred topics</span>
+                          <input id="preferred-topics" type="text" placeholder="Comma separated, e.g. review, update, tutorial" />
+                        </label>
+                        <label class="wide">
+                          <span>Avoid topics</span>
+                          <input id="avoided-topics" type="text" placeholder="Comma separated, e.g. reaction, podcast, livestream" />
+                        </label>
+                        <button class="secondary small" type="button" id="save-preferences-btn">Save preferences</button>
+                      </div>
+                    </div>
+                    <div class="bulk-bar">
+                      <div class="triage-muted" id="bulk-caption">Bulk actions apply to the current filtered view.</div>
+                      <div class="bulk-actions">
+                        <button class="secondary small" type="button" id="select-filtered-btn">Select filtered</button>
+                        <button class="secondary small" type="button" id="download-filtered-btn">Download filtered</button>
+                        <button class="secondary small" type="button" id="bulk-complete-btn">Filtered -> Complete</button>
+                        <button class="secondary small" type="button" id="bulk-review-later-btn">Filtered -> Review later</button>
+                        <button class="secondary small" type="button" id="bulk-skip-btn">Filtered -> Skip</button>
+                        <button class="secondary small" type="button" id="bulk-reset-btn">Reset filtered</button>
+                      </div>
+                    </div>
+                    <div class="drive-bar" id="drive-bar">
+                      <div class="drive-bar-toggle" id="drive-toggle">
+                        <span class="drive-dot" id="drive-indicator"></span>
+                        <span id="drive-label">Google Drive</span>
+                        <span class="drive-chevron" id="drive-chevron"><i data-feather="chevron-down" style="width:14px;height:14px"></i></span>
+                      </div>
+                      <div class="drive-bar-body" id="drive-body">
+                        <div class="drive-row" id="drive-not-connected" style="display:none">
+                          <span>Not connected.</span>
+                          <a href="/" class="drive-link">Set up on Downloader page -></a>
+                        </div>
+                        <div id="drive-connected-controls" style="display:none">
+                          <div class="drive-row">
+                            <select id="drive-folder" style="min-width:160px"><option value="">Loading...</option></select>
+                            <button class="secondary small" id="drive-reload-btn" type="button">Reload</button>
+                            <button class="secondary small" id="drive-new-folder-btn" type="button">+ New</button>
+                          </div>
+                          <div class="drive-row">
+                            <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-muted);cursor:pointer">
+                              <input type="checkbox" id="drive-upload" /> Upload to Drive
+                            </label>
+                            <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-muted);cursor:pointer">
+                              <input type="checkbox" id="drive-delete-local" /> Delete local
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </details>
 
-                <div class="select-all-row" id="select-all-row" style="display:none">
+                <div class="select-all-row" data-workspace-pane="review" id="select-all-row" style="display:none">
                   <input type="checkbox" id="select-all" />
                   <label for="select-all">Select all</label>
                 </div>
 
-                <div class="feed-body" id="feed-body">
+                <section class="triage-card hidden workspace-pane" data-workspace-pane="review" id="triage-card">
+                  <div class="triage-top">
+                    <div>
+                      <div class="triage-title" id="triage-title">Select an item</div>
+                      <div class="vid-tags" id="triage-badges"></div>
+                    </div>
+                    <div class="triage-score" id="triage-score"></div>
+                  </div>
+                  <div class="triage-summary" id="triage-summary"></div>
+                  <div class="triage-reasons" id="triage-reasons"></div>
+                  <div class="decision-presets">
+                    <button class="primary small" type="button" id="preset-watch-now-btn">Watch now</button>
+                    <button class="secondary small" type="button" id="preset-queue-later-btn">Queue for later</button>
+                    <button class="secondary small" type="button" id="preset-ignore-btn">Ignore</button>
+                    <button class="secondary small" type="button" id="analyze-ai-btn">Analyze with AI</button>
+                  </div>
+                  <div class="ai-insight hidden" id="ai-insight">
+                    <div class="ai-insight-head">
+                      <div class="ai-insight-title">AI Insight</div>
+                      <div class="vid-tags" id="ai-insight-badges"></div>
+                    </div>
+                    <div class="ai-insight-copy" id="ai-insight-summary"></div>
+                    <div class="triage-reasons" id="ai-insight-reasons"></div>
+                    <div class="ai-insight-meta" id="ai-insight-meta"></div>
+                  </div>
+                  <div class="score-breakdown hidden" id="score-breakdown">
+                    <div class="score-breakdown-title">Why this scored this way</div>
+                    <div class="score-breakdown-list" id="score-breakdown-list"></div>
+                  </div>
+                  <div class="triage-actions">
+                    <button class="secondary small" type="button" id="mark-started-btn">Mark in progress</button>
+                    <button class="primary small" type="button" id="mark-completed-btn">Mark completed</button>
+                    <button class="secondary small" type="button" id="mark-review-later-btn">Review later</button>
+                    <button class="secondary small" type="button" id="mark-skipped-btn">Skip for now</button>
+                    <button class="secondary small" type="button" id="mark-reset-btn">Reset</button>
+                  </div>
+                  <div class="triage-notes">
+                    <label>
+                      <span>Personal note</span>
+                      <textarea id="triage-note" placeholder="Why this matters, what to listen for, or why you skipped it"></textarea>
+                    </label>
+                    <div class="triage-note-tools">
+                      <label>
+                        <span>Rating</span>
+                        <select id="triage-rating">
+                          <option value="0">No rating</option>
+                          <option value="1">1/5</option>
+                          <option value="2">2/5</option>
+                          <option value="3">3/5</option>
+                          <option value="4">4/5</option>
+                          <option value="5">5/5</option>
+                        </select>
+                      </label>
+                      <button class="secondary small" type="button" id="save-note-btn">Save note</button>
+                      <span class="triage-muted" id="triage-state-line"></span>
+                    </div>
+                  </div>
+                </section>
+
+                <div class="feed-body" data-workspace-pane="review" id="feed-body">
                   <div class="feed-empty" id="feed-empty">Pick a channel to see its latest videos.</div>
                 </div>
               </section>
             </div>
 
-            <div style="border-top: 1px solid var(--border); padding: 16px 20px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom: 12px;">
-                <strong style="color: var(--text-main); font-size: 0.95rem;">Download Queue</strong>
-                <button class="secondary small" id="clear-queue-btn" type="button">Clear finished</button>
+            <section class="session-panel workspace-pane" data-workspace-pane="review">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                <strong style="color: var(--text-main); font-size: 0.95rem;">Start Here</strong>
+                <div class="session-actions">
+                  <button class="secondary small" type="button" id="focus-top-btn">Focus top 3</button>
+                  <button class="primary small" type="button" id="download-top-btn">Download top 3</button>
+                </div>
               </div>
-              <div id="queue-list" style="max-height: 200px; overflow-y: auto; padding-right: 4px;">
-                <div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; padding: 10px;">No active downloads.</div>
+              <div class="triage-muted" id="session-caption">Recommended next items based on value, time cost, freshness, and your current progress.</div>
+              <div class="session-list" id="session-list">
+                <div class="feed-empty" style="min-height:120px">Load a channel to build a session plan.</div>
               </div>
-            </div>
+            </section>
+
+            <details class="workspace-drawer workspace-pane hidden" data-workspace-pane="activity">
+              <summary>Progress And Activity <span>Recap, history, and download queue</span></summary>
+              <div class="drawer-body">
+                <section class="recap-panel">
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <strong style="color: var(--text-main); font-size: 0.95rem;">Channel Recap</strong>
+                    <span class="triage-muted" id="recap-caption">A quick view of what is already done and what still deserves attention.</span>
+                  </div>
+                  <div class="recap-grid" id="recap-grid">
+                    <div class="recap-card">
+                      <div class="recap-label">Loaded</div>
+                      <div class="recap-value">0</div>
+                      <div class="recap-sub">Load a channel to see progress.</div>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="history-panel">
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <strong style="color: var(--text-main); font-size: 0.95rem;">Tracking Log</strong>
+                    <span class="triage-muted" id="history-caption">Recent decisions and downloads for this channel.</span>
+                  </div>
+                  <div class="history-list" id="history-list">
+                    <div class="feed-empty" style="min-height:120px">No tracked items yet.</div>
+                  </div>
+                </section>
+
+                <div style="border-top: 1px solid var(--border); padding: 16px 20px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom: 12px;">
+                    <strong style="color: var(--text-main); font-size: 0.95rem;">Download Queue</strong>
+                    <button class="secondary small" id="clear-queue-btn" type="button">Clear finished</button>
+                  </div>
+                  <div id="queue-list" style="max-height: 200px; overflow-y: auto; padding-right: 4px;">
+                    <div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; padding: 10px;">No active downloads.</div>
+                  </div>
+                </div>
+              </div>
+            </details>
             
             <div class="bottom-status" id="status-bar">Ready.</div>
           </div>
@@ -306,11 +972,64 @@
       const statusBar = document.getElementById("status-bar");
       const refreshBtn = document.getElementById("refresh-btn");
       const downloadBtn = document.getElementById("download-btn");
+      const analyzeAiTopBtn = document.getElementById("analyze-ai-top-btn");
       const addChannelBtn = document.getElementById("add-channel-btn");
       const selectAllRow = document.getElementById("select-all-row");
       const selectAllCb = document.getElementById("select-all");
       const dlModeSelect = document.getElementById("dl-mode");
       const dlQualitySelect = document.getElementById("dl-quality");
+      const filterGroup = document.getElementById("filter-group");
+      const sortModeSelect = document.getElementById("sort-mode");
+      const preferenceCaption = document.getElementById("preference-caption");
+      const lengthPreferenceSelect = document.getElementById("length-preference");
+      const stylePreferenceSelect = document.getElementById("style-preference");
+      const preferredTopicsInput = document.getElementById("preferred-topics");
+      const avoidedTopicsInput = document.getElementById("avoided-topics");
+      const savePreferencesBtn = document.getElementById("save-preferences-btn");
+      const bulkCaption = document.getElementById("bulk-caption");
+      const selectFilteredBtn = document.getElementById("select-filtered-btn");
+      const downloadFilteredBtn = document.getElementById("download-filtered-btn");
+      const bulkCompleteBtn = document.getElementById("bulk-complete-btn");
+      const bulkReviewLaterBtn = document.getElementById("bulk-review-later-btn");
+      const bulkSkipBtn = document.getElementById("bulk-skip-btn");
+      const bulkResetBtn = document.getElementById("bulk-reset-btn");
+      const triageStrip = document.getElementById("triage-strip");
+      const workspaceTabs = document.getElementById("workspace-tabs");
+      const triageCard = document.getElementById("triage-card");
+      const triageTitle = document.getElementById("triage-title");
+      const triageBadges = document.getElementById("triage-badges");
+      const triageScore = document.getElementById("triage-score");
+      const triageSummary = document.getElementById("triage-summary");
+      const triageReasons = document.getElementById("triage-reasons");
+      const presetWatchNowBtn = document.getElementById("preset-watch-now-btn");
+      const presetQueueLaterBtn = document.getElementById("preset-queue-later-btn");
+      const presetIgnoreBtn = document.getElementById("preset-ignore-btn");
+      const analyzeAiBtn = document.getElementById("analyze-ai-btn");
+      const aiInsight = document.getElementById("ai-insight");
+      const aiInsightBadges = document.getElementById("ai-insight-badges");
+      const aiInsightSummary = document.getElementById("ai-insight-summary");
+      const aiInsightReasons = document.getElementById("ai-insight-reasons");
+      const aiInsightMeta = document.getElementById("ai-insight-meta");
+      const scoreBreakdown = document.getElementById("score-breakdown");
+      const scoreBreakdownList = document.getElementById("score-breakdown-list");
+      const triageNote = document.getElementById("triage-note");
+      const triageRating = document.getElementById("triage-rating");
+      let lastChannelRefreshAt = "";
+      const triageStateLine = document.getElementById("triage-state-line");
+      const markStartedBtn = document.getElementById("mark-started-btn");
+      const markCompletedBtn = document.getElementById("mark-completed-btn");
+      const markReviewLaterBtn = document.getElementById("mark-review-later-btn");
+      const markSkippedBtn = document.getElementById("mark-skipped-btn");
+      const markResetBtn = document.getElementById("mark-reset-btn");
+      const saveNoteBtn = document.getElementById("save-note-btn");
+      const focusTopBtn = document.getElementById("focus-top-btn");
+      const downloadTopBtn = document.getElementById("download-top-btn");
+      const sessionList = document.getElementById("session-list");
+      const sessionCaption = document.getElementById("session-caption");
+      const recapGrid = document.getElementById("recap-grid");
+      const recapCaption = document.getElementById("recap-caption");
+      const historyList = document.getElementById("history-list");
+      const historyCaption = document.getElementById("history-caption");
 
       const driveToggle = document.getElementById("drive-toggle");
       const driveChevron = document.getElementById("drive-chevron");
@@ -327,6 +1046,8 @@
 
       const QUALITY_KEY = "video-dl.web.channels.quality";
       const DISMISSED_QUEUE_KEY = "video-dl.web.queue.dismissed";
+      const FILTER_KEY = "video-dl.web.channels.filter";
+      const SORT_KEY = "video-dl.web.channels.sort";
 
       const DRIVE_KEYS = {
         folderId: "video-dl.web.drive.folderId",
@@ -337,10 +1058,17 @@
       let channelsList = [];
       let activeChannel = null;
       let videos = [];
+      let historyItems = [];
       let busy = false;
       const selectedVideos = new Map();
       const dismissedQueueIds = new Set();
       let driveConnected = false;
+      let focusedVideoKey = "";
+      let activeFilter = "all";
+      let activeSort = "best_first";
+      let activeWorkspaceTab = "review";
+      let currentPreferences = { lengthPreference: "any", stylePreference: "any", preferredTopics: [], avoidedTopics: [] };
+      let aiConfigured = false;
 
       boot();
 
@@ -348,10 +1076,39 @@
         addChannelBtn.addEventListener("click", addChannel);
         refreshBtn.addEventListener("click", () => loadVideos(activeChannel));
         downloadBtn.addEventListener("click", downloadSelected);
+        analyzeAiTopBtn.addEventListener("click", runAiAnalysis);
         clearQueueBtn.addEventListener("click", clearFinishedQueue);
         dlModeSelect.addEventListener("change", () => renderQualityOptions());
         dlQualitySelect.addEventListener("change", () => storeVal(QUALITY_KEY, dlQualitySelect.value));
         selectAllCb.addEventListener("change", toggleSelectAll);
+        filterGroup.querySelectorAll("[data-filter]").forEach((button) => {
+          button.addEventListener("click", () => {
+            activeFilter = button.dataset.filter || "all";
+            storeVal(FILTER_KEY, activeFilter);
+            syncFilterUi();
+            ensureFocusedVideoIsVisible();
+            renderFeed();
+            renderInsightPanel();
+            renderTriageStrip();
+            renderSessionPlan();
+            renderRecap();
+          });
+        });
+        workspaceTabs.querySelectorAll("[data-workspace-tab]").forEach((button) => {
+          button.addEventListener("click", () => {
+            activeWorkspaceTab = button.dataset.workspaceTab || "review";
+            syncWorkspaceTab();
+          });
+        });
+        sortModeSelect.addEventListener("change", () => {
+          activeSort = sortModeSelect.value || "best_first";
+          storeVal(SORT_KEY, activeSort);
+          ensureFocusedVideoIsVisible();
+          renderFeed();
+          renderInsightPanel();
+          renderSessionPlan();
+          renderRecap();
+        });
 
         driveToggle.addEventListener("click", () => {
           driveBody.classList.toggle("open");
@@ -370,10 +1127,41 @@
           storeVal(DRIVE_KEYS.folderId, driveFolderSelect.value);
           syncDriveToggles();
         });
+        markStartedBtn.addEventListener("click", () => updateFocusedContentState("in_progress"));
+        markCompletedBtn.addEventListener("click", () => updateFocusedContentState("completed"));
+        markReviewLaterBtn.addEventListener("click", () => updateFocusedContentState("review_later"));
+        markSkippedBtn.addEventListener("click", () => updateFocusedContentState("skipped"));
+        markResetBtn.addEventListener("click", () => updateFocusedContentState("new"));
+        presetWatchNowBtn.addEventListener("click", () => runDecisionPreset("watch_now"));
+        presetQueueLaterBtn.addEventListener("click", () => runDecisionPreset("queue_for_later"));
+        presetIgnoreBtn.addEventListener("click", () => runDecisionPreset("ignore"));
+        analyzeAiBtn.addEventListener("click", runAiAnalysis);
+        saveNoteBtn.addEventListener("click", saveFocusedNote);
+        savePreferencesBtn.addEventListener("click", savePreferences);
+        focusTopBtn.addEventListener("click", focusTopItems);
+        downloadTopBtn.addEventListener("click", downloadTopItems);
+        selectFilteredBtn.addEventListener("click", selectFilteredItems);
+        downloadFilteredBtn.addEventListener("click", downloadFilteredItems);
+        bulkCompleteBtn.addEventListener("click", () => applyBulkStateToFiltered("completed"));
+        bulkReviewLaterBtn.addEventListener("click", () => applyBulkStateToFiltered("review_later"));
+        bulkSkipBtn.addEventListener("click", () => applyBulkStateToFiltered("skipped"));
+        bulkResetBtn.addEventListener("click", () => applyBulkStateToFiltered("new"));
+        document.addEventListener("keydown", handleKeyboardShortcuts);
 
+        loadDismissedQueueIds();
+        activeFilter = loadVal(FILTER_KEY, "all");
+        activeSort = loadVal(SORT_KEY, "best_first");
+        sortModeSelect.value = activeSort;
+        syncFilterUi();
         renderQualityOptions(loadVal(QUALITY_KEY, ""));
+        renderTriageStrip();
+        syncWorkspaceTab();
+        renderInsightPanel();
+        renderSessionPlan();
+        renderRecap();
+        renderHistory();
         initQueueStream();
-        await Promise.all([loadChannels(), initDrive()]);
+        await Promise.all([loadChannels(), initDrive(), loadAiStatus()]);
       }
 
       function initQueueStream() {
@@ -396,6 +1184,7 @@
         for (const job of visibleJobs) {
           const div = document.createElement("div");
           div.className = "queue-item";
+          div.dataset.jobId = job.id || "";
           
           let trackHtml = "";
           if (job.status === "processing" || job.status === "uploading") {
@@ -467,7 +1256,7 @@
             const badge = card.querySelector(".queue-status-badge");
             const title = card.querySelector(".queue-title");
             const status = badge ? String(badge.textContent || "").trim().toLowerCase() : "";
-            const key = title ? String(title.textContent || "").trim() : "";
+            const key = card.dataset.jobId ? String(card.dataset.jobId) : "";
             if ((status === "done" || status === "error") && key) {
               dismissedQueueIds.add(key);
               cleared += 1;
@@ -536,6 +1325,7 @@
         activeChannel = ch;
         renderChannels();
         refreshBtn.disabled = false;
+        lastChannelRefreshAt = "";
         loadVideos(ch);
       }
 
@@ -565,7 +1355,12 @@
           });
           channelsList = data.channels || [];
           if (activeChannel && activeChannel.url === ch.url) {
-            activeChannel = null; videos = []; renderFeed();
+            activeChannel = null; videos = []; historyItems = []; focusedVideoKey = ""; renderFeed();
+            renderInsightPanel();
+            renderSessionPlan();
+            renderRecap();
+            renderHistory();
+            renderTriageStrip();
             feedTitleEl.textContent = "Select a channel";
             refreshBtn.disabled = true;
           }
@@ -577,6 +1372,7 @@
       async function loadVideos(ch) {
         if (!ch || busy) return;
         busy = true;
+        focusedVideoKey = "";
         feedTitleEl.textContent = ch.name;
         feedBodyEl.innerHTML = `<div class="feed-empty"><span class="spinner"></span> Loading...</div>`;
         selectAllRow.style.display = "none";
@@ -586,57 +1382,641 @@
         try {
           const data = await api(`/api/channels/videos?url=${encodeURIComponent(ch.url)}&limit=15`);
           videos = data.videos || [];
+          historyItems = data.history || [];
+          currentPreferences = data.preferences || { lengthPreference: "any", stylePreference: "any", preferredTopics: [], avoidedTopics: [] };
+          lastChannelRefreshAt = new Date().toISOString();
+          syncPreferenceUi();
+          focusedVideoKey = videos[0] ? videos[0].trackerKey : "";
+          ensureFocusedVideoIsVisible();
           renderFeed();
-          setStatus("success", `${videos.length} video${videos.length !== 1 ? "s" : ""} loaded.`);
+          renderInsightPanel();
+          renderSessionPlan();
+          renderRecap();
+          renderHistory();
+          renderTriageStrip();
+          setStatus("success", `${videos.length} video${videos.length !== 1 ? "s" : ""} loaded from the latest channel fetch.`);
         } catch (err) {
           feedBodyEl.innerHTML = `<div class="feed-empty" style="color:var(--error)">Failed: ${esc(err.message)}</div>`;
           videos = [];
+          historyItems = [];
+          currentPreferences = { lengthPreference: "any", stylePreference: "any", preferredTopics: [], avoidedTopics: [] };
+          syncPreferenceUi();
+          ensureFocusedVideoIsVisible();
+          renderInsightPanel();
+          renderSessionPlan();
+          renderRecap();
+          renderHistory();
+          renderTriageStrip();
           setStatus("error", err.message);
         } finally { busy = false; refreshBtn.disabled = false; }
       }
 
       function renderFeed() {
+        const visibleVideos = getVisibleVideos();
         feedBodyEl.innerHTML = "";
         selectAllCb.checked = false;
         if (!videos.length) {
           feedBodyEl.innerHTML = `<div class="feed-empty">No videos found.</div>`;
           selectAllRow.style.display = "none";
+          focusedVideoKey = "";
+          syncDownloadBtn();
+          return;
+        }
+        if (!visibleVideos.length) {
+          feedBodyEl.innerHTML = `<div class="feed-empty">No items match the current filter.</div>`;
+          selectAllRow.style.display = "none";
           syncDownloadBtn();
           return;
         }
         selectAllRow.style.display = "flex";
-        for (let i = 0; i < videos.length; i++) {
-          const v = videos[i];
+        for (let i = 0; i < visibleVideos.length; i++) {
+          const v = visibleVideos[i];
           const row = document.createElement("div");
-          row.className = "vid-row";
+          row.className = "vid-row" + (focusedVideoKey === v.trackerKey ? " selected" : "");
           const dateStr = v.uploadDate ? `${v.uploadDate.slice(0,4)}-${v.uploadDate.slice(4,6)}-${v.uploadDate.slice(6,8)}` : "";
           const durStr = v.duration ? fmtDur(v.duration) : "";
-          const meta = [dateStr, durStr].filter(Boolean).join(" · ");
+          const meta = [dateStr, durStr].filter(Boolean).join(" - ");
           const sel = selectedVideos.has(v.url);
+          const scoreTone = v.analysis && v.analysis.score >= 72 ? "high" : v.analysis && v.analysis.score >= 55 ? "mid" : "low";
+          const confidenceTone = getConfidenceTone(v.analysis && v.analysis.confidence);
+          const trackingLabel = getTrackingLabel(v.tracking && v.tracking.status);
+          const downloadedLabel = v.tracking && v.tracking.downloadCount ? `Downloaded ${v.tracking.downloadCount}x` : "";
           row.innerHTML = `
-            <input type="checkbox" class="vid-cb" data-idx="${i}" ${sel?"checked":""} />
+            <input type="checkbox" class="vid-cb" data-key="${esc(v.trackerKey)}" ${sel?"checked":""} />
             <img class="vid-thumb" src="${v.thumbnail||""}" alt="" loading="lazy" onerror="this.style.visibility='hidden'" />
             <div class="vid-info">
               <div class="vid-title" title="${esc(v.title)}">${esc(v.title)}</div>
               <div class="vid-meta">${esc(meta)}</div>
+              <div class="vid-tags">
+                <span class="tag ${scoreTone}">${esc(v.analysis ? v.analysis.recommendation : "Maybe")}</span>
+                <span class="tag ${confidenceTone}" title="${esc(v.analysis && v.analysis.confidenceSummary ? v.analysis.confidenceSummary : "")}">${esc(v.analysis ? v.analysis.confidenceLabel : "Low confidence")}</span>
+                <span class="tag state">${esc(trackingLabel)}</span>
+                ${downloadedLabel ? `<span class="tag">${esc(downloadedLabel)}</span>` : ""}
+              </div>
             </div>
-            <a class="vid-open" href="${v.url}" target="_blank" rel="noopener">Open ↗</a>
+            <div class="row-quick-actions">
+              <button class="row-quick-btn" type="button" data-preset="watch_now">Watch now</button>
+              <button class="row-quick-btn" type="button" data-preset="queue_for_later">Later</button>
+              <button class="row-quick-btn" type="button" data-preset="ignore">Ignore</button>
+            </div>
+            <a class="vid-open" href="${v.url}" target="_blank" rel="noopener">Open -></a>
           `;
+          row.addEventListener("click", (event) => {
+            const target = event.target;
+            if (target.closest(".vid-cb") || target.closest(".vid-open") || target.closest(".row-quick-btn")) {
+              return;
+            }
+            focusedVideoKey = v.trackerKey;
+            renderFeed();
+            renderInsightPanel();
+          });
           row.querySelector(".vid-cb").addEventListener("change", (e) => {
             if (e.target.checked) selectedVideos.set(v.url, v);
             else selectedVideos.delete(v.url);
             syncDownloadBtn();
           });
+          row.querySelectorAll(".row-quick-btn").forEach((button) => {
+            button.addEventListener("click", async (event) => {
+              event.stopPropagation();
+              focusedVideoKey = v.trackerKey;
+              renderFeed();
+              renderInsightPanel();
+              await runDecisionPresetForVideo(v, button.dataset.preset || "");
+            });
+          });
+          row.querySelector(".vid-open").addEventListener("click", (event) => event.stopPropagation());
           feedBodyEl.appendChild(row);
         }
         syncDownloadBtn();
+      }
+
+      function renderTriageStrip() {
+        if (!triageStrip) return;
+        const visible = getVisibleVideos().length;
+        const selected = selectedVideos.size;
+        const downloaded = videos.filter((video) => video.tracking && video.tracking.downloadCount > 0).length;
+        const refreshedLabel = lastChannelRefreshAt ? `Last refreshed ${formatRefreshTime(lastChannelRefreshAt)}` : "Not refreshed yet";
+        triageStrip.innerHTML = `
+          <span class="triage-pill"><strong>${videos.length}</strong> items loaded</span>
+          <span class="triage-pill"><strong>${visible}</strong> shown</span>
+          <span class="triage-pill"><strong>${selected}</strong> selected</span>
+          <span class="triage-pill"><strong>${downloaded}</strong> downloaded before</span>
+          <span class="triage-pill"><strong>${esc(refreshedLabel)}</strong></span>
+          <span class="triage-pill"><a href="/analysis.html" style="color:inherit;text-decoration:none">Open Analysis for AI review</a></span>
+        `;
+      }
+
+      function formatRefreshTime(value) {
+        if (!value) return "";
+        try {
+          return new Date(value).toLocaleString(undefined, {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+          });
+        } catch {
+          return "";
+        }
+      }
+
+      function syncPreferenceUi() {
+        lengthPreferenceSelect.value = currentPreferences.lengthPreference || "any";
+        stylePreferenceSelect.value = currentPreferences.stylePreference || "any";
+        preferredTopicsInput.value = Array.isArray(currentPreferences.preferredTopics) ? currentPreferences.preferredTopics.join(", ") : "";
+        avoidedTopicsInput.value = Array.isArray(currentPreferences.avoidedTopics) ? currentPreferences.avoidedTopics.join(", ") : "";
+        preferenceCaption.textContent = activeChannel
+          ? `Preferences for ${activeChannel.name} guide recommendation scoring for this channel.`
+          : "Preferences guide recommendation scoring for this channel.";
+      }
+
+      function renderSessionPlan() {
+        if (!sessionList) return;
+        const planned = getSessionCandidates();
+        sessionCaption.textContent = activeChannel
+          ? `Recommended next items from ${activeChannel.name}, weighted toward value and low-friction progress.`
+          : "Recommended next items based on value, time cost, freshness, and your current progress.";
+
+        focusTopBtn.disabled = planned.length === 0;
+        downloadTopBtn.disabled = planned.length === 0;
+
+        if (!activeChannel) {
+          sessionList.innerHTML = `<div class="feed-empty" style="min-height:120px">Load a channel to build a session plan.</div>`;
+          return;
+        }
+        if (!planned.length) {
+          sessionList.innerHTML = `<div class="feed-empty" style="min-height:120px">No strong candidates right now. Try changing filters or resetting some items.</div>`;
+          return;
+        }
+
+        sessionList.innerHTML = "";
+        for (const video of planned) {
+          const item = document.createElement("div");
+          item.className = "session-item";
+          item.innerHTML = `
+            <div>
+              <div class="session-item-title">${esc(video.title)}</div>
+              <div class="session-item-meta">${esc(buildSessionLine(video))}</div>
+            </div>
+            <div class="vid-tags">
+              <span class="tag ${getScoreTone(video.analysis && video.analysis.score)}">${esc(video.analysis ? video.analysis.recommendation : "Maybe")}</span>
+              <span class="tag state">${esc(getTrackingLabel(video.tracking && video.tracking.status))}</span>
+            </div>
+          `;
+          item.addEventListener("click", () => {
+            focusedVideoKey = video.trackerKey;
+            renderFeed();
+            renderInsightPanel();
+          });
+          sessionList.appendChild(item);
+        }
+      }
+
+      function renderRecap() {
+        if (!recapGrid) return;
+        const visible = getVisibleVideos();
+        const completed = videos.filter((video) => video.tracking && video.tracking.status === "completed").length;
+        const inProgress = videos.filter((video) => video.tracking && video.tracking.status === "in_progress").length;
+        const reviewLater = videos.filter((video) => video.tracking && video.tracking.status === "review_later").length;
+        const downloaded = videos.filter((video) => video.tracking && video.tracking.downloadCount > 0).length;
+        const attention = videos.filter((video) => {
+          const status = video && video.tracking ? video.tracking.status : "new";
+          return (video.analysis && video.analysis.score >= 72) && !["completed", "skipped", "review_later"].includes(status);
+        }).length;
+        const completedThisWeek = videos.filter((video) => isWithinDays(video.tracking && video.tracking.lastCompletedAt, 7)).length;
+        const downloadedThisWeek = videos.filter((video) => isWithinDays(video.tracking && video.tracking.lastDownloadedAt, 7)).length;
+        const skippedThisWeek = videos.filter((video) => isWithinDays(video.tracking && video.tracking.lastSkippedAt, 7)).length;
+        const unseen = videos.filter((video) => !video.tracking || !video.tracking.hasHistory).length;
+        const backlog = videos.filter((video) => {
+          const status = video && video.tracking ? video.tracking.status : "new";
+          return !["completed", "skipped"].includes(status);
+        }).length;
+
+        recapCaption.textContent = activeChannel
+          ? `Current progress snapshot for ${activeChannel.name}.`
+          : "A quick view of what is already done and what still deserves attention.";
+
+        recapGrid.innerHTML = `
+          <div class="recap-card">
+            <div class="recap-label">Loaded</div>
+            <div class="recap-value">${videos.length}</div>
+            <div class="recap-sub">${visible.length} visible, ${unseen} unseen</div>
+          </div>
+          <div class="recap-card">
+            <div class="recap-label">Attention</div>
+            <div class="recap-value">${attention}</div>
+            <div class="recap-sub">High-value items not done yet</div>
+          </div>
+          <div class="recap-card">
+            <div class="recap-label">In Progress</div>
+            <div class="recap-value">${inProgress}</div>
+            <div class="recap-sub">${downloaded} downloaded overall</div>
+          </div>
+          <div class="recap-card">
+            <div class="recap-label">Completed</div>
+            <div class="recap-value">${completed}</div>
+            <div class="recap-sub">${reviewLater} parked for later review</div>
+          </div>
+          <div class="recap-card">
+            <div class="recap-label">This Week</div>
+            <div class="recap-value">${completedThisWeek}</div>
+            <div class="recap-sub">Completed in the last 7 days</div>
+          </div>
+          <div class="recap-card">
+            <div class="recap-label">Downloaded</div>
+            <div class="recap-value">${downloadedThisWeek}</div>
+            <div class="recap-sub">Downloaded in the last 7 days</div>
+          </div>
+          <div class="recap-card">
+            <div class="recap-label">Skipped</div>
+            <div class="recap-value">${skippedThisWeek}</div>
+            <div class="recap-sub">Skipped in the last 7 days</div>
+          </div>
+          <div class="recap-card">
+            <div class="recap-label">Backlog</div>
+            <div class="recap-value">${backlog}</div>
+            <div class="recap-sub">Still not completed</div>
+          </div>
+        `;
+      }
+
+      function getSessionCandidates() {
+        return videos
+          .filter((video) => {
+            const status = video && video.tracking ? video.tracking.status : "new";
+            return !["completed", "skipped"].includes(status);
+          })
+          .slice()
+          .sort((a, b) => compareSessionPriority(a, b))
+          .slice(0, 3);
+      }
+
+      function compareSessionPriority(a, b) {
+        return (getSessionPriority(b) - getSessionPriority(a))
+          || compareByScoreThenFreshness(a, b);
+      }
+
+      function getSessionPriority(video) {
+        let score = getScoreValue(video);
+        const status = video && video.tracking ? video.tracking.status : "new";
+        if (status === "in_progress") score += 18;
+        if (status === "downloaded") score += 12;
+        if (status === "queued") score += 6;
+        if (status === "review_later") score -= 6;
+        const duration = Number(video && video.duration ? video.duration : 0);
+        if (duration > 0 && duration <= 1200) score += 8;
+        else if (duration > 3600) score -= 5;
+        return score;
+      }
+
+      function buildSessionLine(video) {
+        const parts = [];
+        if (video.analysis && video.analysis.summary) parts.push(video.analysis.summary);
+        if (video.analysis && video.analysis.method === "metadata+history") parts.push("Adjusted using your past completions and ratings.");
+        if (hasTopicPreferences()) parts.push("Includes your topic preferences.");
+        if (video.tracking && video.tracking.note) parts.push(`Note: ${video.tracking.note}`);
+        return parts.join(" ");
+      }
+
+      function getVisibleVideos() {
+        return videos
+          .filter(matchesActiveFilter)
+          .slice()
+          .sort(compareVideosForActiveSort);
+      }
+
+      function matchesActiveFilter(video) {
+        const status = video && video.tracking ? video.tracking.status : "new";
+        switch (activeFilter) {
+          case "high_value":
+            return !!(video.analysis && video.analysis.score >= 72);
+          case "unseen":
+            return !video.tracking || !video.tracking.hasHistory;
+          case "never_downloaded":
+            return !(video.tracking && video.tracking.downloadCount > 0);
+          case "not_started":
+            return ["new", "queued", "review_later"].includes(status);
+          case "downloaded":
+            return !!(video.tracking && video.tracking.downloadCount > 0);
+          case "completed":
+            return status === "completed";
+          case "review_later":
+            return status === "review_later";
+          default:
+            return true;
+        }
+      }
+
+      function compareVideosForActiveSort(a, b) {
+        switch (activeSort) {
+          case "freshest":
+            return getUploadSortValue(b) - getUploadSortValue(a) || compareByScoreThenFreshness(a, b);
+          case "shortest":
+            return getDurationSortValue(a) - getDurationSortValue(b) || compareByScoreThenFreshness(a, b);
+          case "longest":
+            return getDurationSortValue(b) - getDurationSortValue(a) || compareByScoreThenFreshness(a, b);
+          case "recent_activity":
+            return getActivitySortValue(b) - getActivitySortValue(a) || compareByScoreThenFreshness(a, b);
+          default:
+            return compareByScoreThenFreshness(a, b);
+        }
+      }
+
+      function compareByScoreThenFreshness(a, b) {
+        return (getScoreValue(b) - getScoreValue(a))
+          || (getUploadSortValue(b) - getUploadSortValue(a))
+          || (getDurationSortValue(a) - getDurationSortValue(b));
+      }
+
+      function getScoreValue(video) {
+        return video && video.analysis ? Number(video.analysis.score || 0) : 0;
+      }
+
+      function getDurationSortValue(video) {
+        const value = Number(video && video.duration ? video.duration : 0);
+        return value > 0 ? value : Number.MAX_SAFE_INTEGER;
+      }
+
+      function getUploadSortValue(video) {
+        const raw = String(video && video.uploadDate ? video.uploadDate : "");
+        if (!/^\d{8}$/.test(raw)) return 0;
+        return Number(raw);
+      }
+
+      function getActivitySortValue(video) {
+        const tracking = video && video.tracking ? video.tracking : null;
+        const stamps = tracking ? [
+          tracking.updatedAt,
+          tracking.lastCompletedAt,
+          tracking.lastStartedAt,
+          tracking.lastDownloadedAt,
+          tracking.lastQueuedAt,
+          tracking.lastSkippedAt
+        ] : [];
+        return Math.max(0, ...stamps.map((value) => Date.parse(value || "") || 0));
+      }
+
+      function syncFilterUi() {
+        filterGroup.querySelectorAll("[data-filter]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.filter === activeFilter);
+        });
+        const count = getVisibleVideos().length;
+        bulkCaption.textContent = count > 0
+          ? `Bulk actions apply to ${count} item${count === 1 ? "" : "s"} in the current filtered view.`
+          : "No items in the current filtered view.";
+        selectFilteredBtn.disabled = count === 0;
+        downloadFilteredBtn.disabled = count === 0;
+        bulkCompleteBtn.disabled = count === 0;
+        bulkReviewLaterBtn.disabled = count === 0;
+        bulkSkipBtn.disabled = count === 0;
+        bulkResetBtn.disabled = count === 0;
+      }
+
+      function syncWorkspaceTab() {
+        if (!workspaceTabs) return;
+        workspaceTabs.querySelectorAll("[data-workspace-tab]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.workspaceTab === activeWorkspaceTab);
+        });
+        document.querySelectorAll("[data-workspace-pane]").forEach((pane) => {
+          pane.classList.toggle("hidden", pane.dataset.workspacePane !== activeWorkspaceTab);
+        });
+      }
+
+      function ensureFocusedVideoIsVisible() {
+        const visible = getVisibleVideos();
+        if (!visible.length) {
+          focusedVideoKey = "";
+          return;
+        }
+        if (!visible.some((video) => video.trackerKey === focusedVideoKey)) {
+          focusedVideoKey = visible[0].trackerKey;
+        }
+      }
+
+      async function handleKeyboardShortcuts(event) {
+        if (shouldIgnoreShortcut(event)) return;
+
+        const key = String(event.key || "").toLowerCase();
+        if (!key) return;
+
+        if (key === "j" || key === "arrowdown") {
+          event.preventDefault();
+          moveFocusedVideo(1);
+          return;
+        }
+        if (key === "k" || key === "arrowup") {
+          event.preventDefault();
+          moveFocusedVideo(-1);
+          return;
+        }
+        if (key === "w") {
+          event.preventDefault();
+          await runDecisionPreset("watch_now");
+          return;
+        }
+        if (key === "l") {
+          event.preventDefault();
+          await runDecisionPreset("queue_for_later");
+          return;
+        }
+        if (key === "i") {
+          event.preventDefault();
+          await runDecisionPreset("ignore");
+          return;
+        }
+      }
+
+      function shouldIgnoreShortcut(event) {
+        if (!activeChannel || busy) return true;
+        const target = event.target;
+        if (!target) return false;
+        const tagName = String(target.tagName || "").toLowerCase();
+        if (event.ctrlKey || event.metaKey || event.altKey) return true;
+        if (target.isContentEditable) return true;
+        return ["input", "textarea", "select", "button"].includes(tagName);
+      }
+
+      function moveFocusedVideo(direction) {
+        const visible = getVisibleVideos();
+        if (!visible.length) return;
+
+        const currentIndex = visible.findIndex((video) => video.trackerKey === focusedVideoKey);
+        const nextIndex = currentIndex < 0
+          ? 0
+          : Math.max(0, Math.min(visible.length - 1, currentIndex + direction));
+
+        focusedVideoKey = visible[nextIndex].trackerKey;
+        renderFeed();
+        renderInsightPanel();
+        scrollFocusedRowIntoView();
+      }
+
+      function scrollFocusedRowIntoView() {
+        const row = feedBodyEl.querySelector(".vid-row.selected");
+        if (row && typeof row.scrollIntoView === "function") {
+          row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+      }
+
+      function renderInsightPanel() {
+        const video = getFocusedVideo();
+        if (!video) {
+          triageCard.classList.add("hidden");
+          triageTitle.textContent = "Select an item";
+          triageSummary.textContent = "";
+          triageReasons.innerHTML = "";
+          aiInsight.classList.add("hidden");
+          aiInsightBadges.innerHTML = "";
+          aiInsightSummary.textContent = "";
+          aiInsightReasons.innerHTML = "";
+          aiInsightMeta.textContent = "";
+          scoreBreakdown.classList.add("hidden");
+          scoreBreakdownList.innerHTML = "";
+          triageBadges.innerHTML = "";
+          triageScore.textContent = "";
+          triageStateLine.textContent = "";
+          triageNote.value = "";
+          triageRating.value = "0";
+          analyzeAiTopBtn.disabled = true;
+          analyzeAiTopBtn.textContent = aiConfigured ? "AI review selected" : "AI not configured";
+          return;
+        }
+
+        triageCard.classList.remove("hidden");
+        triageTitle.textContent = video.title || video.url || "Selected item";
+        triageSummary.textContent = video.analysis && video.analysis.summary
+          ? `${video.analysis.summary} This recommendation is based on title, age, length, and your own tracking history.`
+          : "No recommendation available yet.";
+        triageScore.textContent = video.analysis
+          ? `Score ${video.analysis.score}/100 • ${video.analysis.confidenceLabel || "Low confidence"}`
+          : "";
+        triageBadges.innerHTML = `
+          <span class="tag ${getScoreTone(video.analysis && video.analysis.score)}">${esc(video.analysis ? video.analysis.recommendation : "Maybe")}</span>
+          <span class="tag ${getConfidenceTone(video.analysis && video.analysis.confidence)}" title="${esc(video.analysis && video.analysis.confidenceSummary ? video.analysis.confidenceSummary : "")}">${esc(video.analysis ? video.analysis.confidenceLabel : "Low confidence")}</span>
+          <span class="tag state">${esc(getTrackingLabel(video.tracking && video.tracking.status))}</span>
+          <span class="tag">${esc(video.analysis ? video.analysis.timeLabel : "Unknown length")}</span>
+          <span class="tag">${esc(video.analysis ? video.analysis.freshnessLabel : "Unknown publish date")}</span>
+          <span class="tag">${esc(video.analysis && video.analysis.method === "metadata+history" ? "Personalized" : "Metadata-based")}</span>
+          ${hasTopicPreferences() ? `<span class="tag">${esc("Topic-tuned")}</span>` : ""}
+        `;
+        triageReasons.innerHTML = (video.analysis && Array.isArray(video.analysis.reasons) && video.analysis.reasons.length
+          ? video.analysis.reasons
+          : ["No strong signals yet."]).map((reason) => `<span class="tag">${esc(reason)}</span>`).join("");
+        renderAiInsight(video);
+        renderScoreBreakdown(video.analysis && Array.isArray(video.analysis.breakdown) ? video.analysis.breakdown : []);
+        triageNote.value = video.tracking && video.tracking.note ? video.tracking.note : "";
+        triageRating.value = String(video.tracking && video.tracking.rating ? video.tracking.rating : 0);
+        triageStateLine.textContent = buildTrackingStateLine(video.tracking);
+        analyzeAiBtn.disabled = !aiConfigured || busy;
+        analyzeAiBtn.textContent = aiConfigured ? "Analyze with AI" : "AI not configured";
+        analyzeAiTopBtn.disabled = !aiConfigured || busy;
+        analyzeAiTopBtn.textContent = aiConfigured ? "AI review selected" : "AI not configured";
+      }
+
+      function renderAiInsight(video) {
+        const insight = video && video.tracking ? video.tracking.aiInsight : null;
+        if (!insight || !insight.summary) {
+          aiInsight.classList.add("hidden");
+          aiInsightBadges.innerHTML = "";
+          aiInsightSummary.textContent = "";
+          aiInsightReasons.innerHTML = "";
+          aiInsightMeta.textContent = aiConfigured
+            ? ""
+            : "Set OPENAI_API_KEY on the server to enable AI analysis.";
+          return;
+        }
+
+        aiInsight.classList.remove("hidden");
+        aiInsightBadges.innerHTML = `
+          <span class="tag ${insight.timeWorth === "high" ? "high" : insight.timeWorth === "low" ? "low" : "mid"}">${esc(insight.recommendation || "AI reviewed")}</span>
+          <span class="tag">${esc(insight.timeWorth || "medium")} time value</span>
+        `;
+        aiInsightSummary.textContent = insight.summary || "";
+        aiInsightReasons.innerHTML = (Array.isArray(insight.reasons) && insight.reasons.length
+          ? insight.reasons
+          : []).map((reason) => `<span class="tag">${esc(reason)}</span>`).join("");
+        aiInsightMeta.textContent = [
+          insight.bestFor ? `Best for: ${insight.bestFor}` : "",
+          insight.skipIf ? `Skip if: ${insight.skipIf}` : "",
+          insight.updatedAt ? `Updated ${fmtStamp(insight.updatedAt)}` : "",
+          insight.model ? `Model: ${insight.model}` : ""
+        ].filter(Boolean).join(" • ");
+      }
+
+      function renderScoreBreakdown(items) {
+        if (!scoreBreakdown || !scoreBreakdownList) return;
+        if (!Array.isArray(items) || !items.length) {
+          scoreBreakdown.classList.add("hidden");
+          scoreBreakdownList.innerHTML = "";
+          return;
+        }
+
+        scoreBreakdown.classList.remove("hidden");
+        scoreBreakdownList.innerHTML = items
+          .filter((item) => item && typeof item.delta === "number" && item.label)
+          .map((item) => {
+            const tone = item.delta > 0 ? "positive" : item.delta < 0 ? "negative" : "neutral";
+            const value = item.delta > 0 ? `+${item.delta}` : `${item.delta}`;
+            return `
+              <div class="score-row ${tone}">
+                <span class="score-row-label">${esc(item.label)}</span>
+                <span class="score-row-value">${esc(value)}</span>
+              </div>
+            `;
+          })
+          .join("");
+
+        if (!scoreBreakdownList.innerHTML) {
+          scoreBreakdown.classList.add("hidden");
+        }
+      }
+
+      function getConfidenceTone(value) {
+        const confidence = Number(value || 0);
+        if (confidence >= 78) return "conf-high";
+        if (confidence >= 56) return "conf-mid";
+        return "conf-low";
+      }
+
+      function renderHistory() {
+        if (!historyList) return;
+        historyCaption.textContent = activeChannel
+          ? `Recent decisions and downloads for ${activeChannel.name}.`
+          : "Recent decisions and downloads for this channel.";
+
+        if (!historyItems.length) {
+          historyList.innerHTML = `<div class="feed-empty" style="min-height:120px">No tracked items yet.</div>`;
+          return;
+        }
+
+        historyList.innerHTML = "";
+        for (const item of historyItems) {
+          const row = document.createElement("div");
+          row.className = "history-item";
+          row.innerHTML = `
+            <div>
+              <div class="history-name">${esc(item.title)}</div>
+              <div class="history-meta">${esc(buildHistoryLine(item))}</div>
+            </div>
+            <div class="vid-tags">
+              <span class="tag state">${esc(getTrackingLabel(item.status))}</span>
+              <span class="tag ${getScoreTone(item.analysis && item.analysis.score)}">${esc(item.analysis ? item.analysis.recommendation : "Maybe")}</span>
+            </div>
+          `;
+          historyList.appendChild(row);
+        }
+      }
+
+      function getFocusedVideo() {
+        return getVisibleVideos().find((video) => video.trackerKey === focusedVideoKey) || null;
       }
 
       function toggleSelectAll() {
         const checked = selectAllCb.checked;
         feedBodyEl.querySelectorAll(".vid-cb").forEach(cb => {
           cb.checked = checked;
-          const v = videos[Number(cb.dataset.idx)];
+          const v = getVisibleVideos().find((item) => item.trackerKey === cb.dataset.key);
           if (v) { if (checked) selectedVideos.set(v.url, v); else selectedVideos.delete(v.url); }
         });
         syncDownloadBtn();
@@ -649,9 +2029,8 @@
         selectAllCb.checked = cbs.length > 0 && [...cbs].every(cb => cb.checked);
       }
 
-      async function downloadSelected() {
-        const selected = [...selectedVideos.values()];
-        if (!selected.length) return;
+      async function queueVideosForDownload(selected, options = {}) {
+        if (!selected.length) return 0;
         const uploadToDrive = driveUploadCb.checked && driveConnected;
         const driveFolderId = driveFolderSelect.value;
         const deleteLocalAfterUpload = driveDeleteLocalCb.checked;
@@ -659,22 +2038,349 @@
 
         busy = true; downloadBtn.disabled = true; refreshBtn.disabled = true;
         const mode = dlModeSelect.value;
-        
+        let queued = 0;
+
         for (const v of selected) {
           try {
             await api("/api/download", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ url: v.url, mode, quality: dlQualitySelect.value, uploadToDrive, driveFolderId, deleteLocalAfterUpload, title: v.title })
+              body: JSON.stringify({
+                url: v.url,
+                mode,
+                quality: dlQualitySelect.value,
+                uploadToDrive,
+                driveFolderId,
+                deleteLocalAfterUpload,
+                title: v.title,
+                trackerItem: buildTrackerPayload(v)
+              })
             });
+            queued += 1;
           } catch (err) {
             console.error("Failed to add job:", err);
           }
         }
 
         busy = false; refreshBtn.disabled = false;
-        selectedVideos.clear();
+        if (options.clearSelection !== false) {
+          selectedVideos.clear();
+        }
+        await refreshHistory();
         renderFeed();
+        renderInsightPanel();
+        renderTriageStrip();
+        renderSessionPlan();
+        renderRecap();
+        return queued;
+      }
+
+      async function downloadSelected() {
+        const selected = [...selectedVideos.values()];
+        if (!selected.length) return;
+        const queued = await queueVideosForDownload(selected);
+        if (queued > 0) {
+          setStatus("success", `Queued ${queued} item${queued === 1 ? "" : "s"} for download.`);
+        }
+      }
+
+      async function refreshHistory() {
+        if (!activeChannel) {
+          historyItems = [];
+          renderHistory();
+          return;
+        }
+        try {
+          const result = await api(`/api/content/history?channelUrl=${encodeURIComponent(activeChannel.url)}&limit=20`);
+          historyItems = result.history || [];
+          renderHistory();
+        } catch (err) {
+          setStatus("error", "History: " + err.message);
+        }
+      }
+
+      async function loadAiStatus() {
+        try {
+          const result = await api("/api/content/ai-status");
+          aiConfigured = !!result.configured;
+        } catch {
+          aiConfigured = false;
+        }
+      }
+
+      async function runAiAnalysis() {
+        const video = getFocusedVideo();
+        if (!video || !aiConfigured) return;
+        try {
+          analyzeAiBtn.disabled = true;
+          analyzeAiTopBtn.disabled = true;
+          analyzeAiBtn.textContent = "Analyzing...";
+          analyzeAiTopBtn.textContent = "Analyzing...";
+          const result = await api("/api/content/ai-insight", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...buildTrackerPayload(video),
+              tracking: video.tracking || {},
+              analysis: video.analysis || {},
+              preferences: currentPreferences || {}
+            })
+          });
+          mergeUpdatedRecord(video.trackerKey, result);
+          await refreshHistory();
+          renderFeed();
+          renderInsightPanel();
+          renderRecap();
+          setStatus("success", `Generated AI insight for "${video.title}".`);
+        } catch (err) {
+          setStatus("error", err.message);
+        } finally {
+          analyzeAiBtn.disabled = !aiConfigured;
+          analyzeAiBtn.textContent = aiConfigured ? "Analyze with AI" : "AI not configured";
+          analyzeAiTopBtn.disabled = !aiConfigured || !getFocusedVideo();
+          analyzeAiTopBtn.textContent = aiConfigured ? "AI review selected" : "AI not configured";
+        }
+      }
+
+      async function savePreferences() {
+        if (!activeChannel) return;
+        try {
+          savePreferencesBtn.disabled = true;
+          const result = await api("/api/content/preferences", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              channelUrl: activeChannel.url,
+              lengthPreference: lengthPreferenceSelect.value,
+              stylePreference: stylePreferenceSelect.value,
+              preferredTopics: preferredTopicsInput.value,
+              avoidedTopics: avoidedTopicsInput.value
+            })
+          });
+          currentPreferences = result.preferences || currentPreferences;
+          syncPreferenceUi();
+          await loadVideos(activeChannel);
+          setStatus("success", "Saved channel preferences.");
+        } catch (err) {
+          setStatus("error", err.message);
+        } finally {
+          savePreferencesBtn.disabled = false;
+        }
+      }
+
+      async function updateFocusedContentState(status) {
+        const video = getFocusedVideo();
+        if (!video) return;
+        await updateContentStateForVideo(video, status);
+      }
+
+      async function saveFocusedNote() {
+        const video = getFocusedVideo();
+        if (!video) return;
+        try {
+          const result = await api("/api/content/state", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...buildTrackerPayload(video),
+              status: video.tracking && video.tracking.status ? video.tracking.status : "new",
+              note: triageNote.value.trim(),
+              rating: Number(triageRating.value || 0)
+            })
+          });
+          mergeUpdatedRecord(video.trackerKey, result);
+          await refreshHistory();
+          ensureFocusedVideoIsVisible();
+          renderFeed();
+          renderInsightPanel();
+          renderSessionPlan();
+          renderRecap();
+          setStatus("success", "Saved note.");
+        } catch (err) {
+          setStatus("error", err.message);
+        }
+      }
+
+      async function runDecisionPreset(preset) {
+        const video = getFocusedVideo();
+        if (!video) return;
+        await runDecisionPresetForVideo(video, preset);
+      }
+
+      async function runDecisionPresetForVideo(video, preset) {
+        if (!video) return;
+
+        if (preset === "queue_for_later") {
+          await updateContentStateForVideo(video, "review_later");
+          return;
+        }
+        if (preset === "ignore") {
+          await updateContentStateForVideo(video, "skipped");
+          return;
+        }
+        if (preset !== "watch_now") return;
+
+        try {
+          const status = video.tracking && video.tracking.status ? video.tracking.status : "new";
+          const alreadyAvailable = ["queued", "downloaded", "in_progress", "completed"].includes(status);
+
+          if (!alreadyAvailable) {
+            const queued = await queueVideosForDownload([video], { clearSelection: false });
+            if (!queued) {
+              setStatus("error", `Could not queue "${video.title}" for download.`);
+              return;
+            }
+          }
+
+          await updateContentStateForVideo(
+            video,
+            "in_progress",
+            alreadyAvailable
+              ? `Marked "${video.title}" as in progress.`
+              : `Queued "${video.title}" and marked it in progress.`,
+            true
+          );
+        } catch (err) {
+          setStatus("error", err.message);
+        }
+      }
+
+      async function updateContentStateForVideo(video, status, successMessage = "", suppressStatus = false) {
+        if (!video) return null;
+        try {
+          const result = await api("/api/content/state", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...buildTrackerPayload(video),
+              status,
+              note: focusedVideoKey === video.trackerKey ? triageNote.value.trim() : (video.tracking && video.tracking.note ? video.tracking.note : ""),
+              rating: focusedVideoKey === video.trackerKey ? Number(triageRating.value || 0) : (video.tracking && video.tracking.rating ? Number(video.tracking.rating) : 0)
+            })
+          });
+          mergeUpdatedRecord(video.trackerKey, result);
+          await refreshHistory();
+          ensureFocusedVideoIsVisible();
+          renderFeed();
+          renderInsightPanel();
+          renderTriageStrip();
+          renderSessionPlan();
+          renderRecap();
+          if (!suppressStatus) {
+            setStatus("success", successMessage || `Updated "${video.title}" to ${getTrackingLabel(status)}.`);
+          }
+          return result;
+        } catch (err) {
+          setStatus("error", err.message);
+          throw err;
+        }
+      }
+
+      function mergeUpdatedRecord(trackerKey, payload) {
+        const record = payload && payload.record ? payload.record : null;
+        const analysis = payload && payload.analysis ? payload.analysis : null;
+        videos = videos.map((video) => {
+          if (video.trackerKey !== trackerKey) return video;
+          return {
+            ...video,
+            tracking: record ? { ...(video.tracking || {}), ...record } : video.tracking,
+            analysis: analysis || video.analysis
+          };
+        });
+      }
+
+      function buildTrackerPayload(video) {
+        return {
+          key: video.trackerKey,
+          id: video.id,
+          url: video.url,
+          title: video.title,
+          duration: video.duration,
+          uploadDate: video.uploadDate,
+          thumbnail: video.thumbnail,
+          channelName: activeChannel ? activeChannel.name : "",
+          channelUrl: activeChannel ? activeChannel.url : ""
+        };
+      }
+
+      function focusTopItems() {
+        const candidates = getSessionCandidates();
+        if (!candidates.length) return;
+        activeFilter = "all";
+        storeVal(FILTER_KEY, activeFilter);
+        syncFilterUi();
+        focusedVideoKey = candidates[0].trackerKey;
+        renderFeed();
+        renderInsightPanel();
+        renderTriageStrip();
+        renderSessionPlan();
+        setStatus("success", `Focused the top ${candidates.length} recommendation${candidates.length === 1 ? "" : "s"}.`);
+      }
+
+      async function downloadTopItems() {
+        const candidates = getSessionCandidates();
+        if (!candidates.length) return;
+        selectedVideos.clear();
+        for (const video of candidates) {
+          selectedVideos.set(video.url, video);
+        }
+        renderFeed();
+        syncDownloadBtn();
+        await downloadSelected();
+      }
+
+      async function downloadFilteredItems() {
+        const candidates = getVisibleVideos();
+        if (!candidates.length) return;
+        selectedVideos.clear();
+        for (const video of candidates) {
+          selectedVideos.set(video.url, video);
+        }
+        renderFeed();
+        syncDownloadBtn();
+        await downloadSelected();
+      }
+
+      function selectFilteredItems() {
+        selectedVideos.clear();
+        for (const video of getVisibleVideos()) {
+          selectedVideos.set(video.url, video);
+        }
+        renderFeed();
+        syncDownloadBtn();
+        setStatus("success", `Selected ${selectedVideos.size} filtered item${selectedVideos.size === 1 ? "" : "s"}.`);
+      }
+
+      async function applyBulkStateToFiltered(status) {
+        const targets = getVisibleVideos();
+        if (!targets.length) return;
+        let updated = 0;
+        for (const video of targets) {
+          try {
+            const result = await api("/api/content/state", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...buildTrackerPayload(video),
+                status,
+                note: video.tracking && video.tracking.note ? video.tracking.note : "",
+                rating: video.tracking && video.tracking.rating ? Number(video.tracking.rating) : 0
+              })
+            });
+            mergeUpdatedRecord(video.trackerKey, result);
+            updated += 1;
+          } catch (err) {
+            console.error("Bulk update failed:", err);
+          }
+        }
+        await refreshHistory();
+        ensureFocusedVideoIsVisible();
+        renderFeed();
+        renderInsightPanel();
+        renderTriageStrip();
+        renderSessionPlan();
+        renderRecap();
+        setStatus("success", `Updated ${updated} item${updated === 1 ? "" : "s"} to ${getTrackingLabel(status)}.`);
       }
 
       async function initDrive() {
@@ -683,7 +2389,7 @@
           driveConnected = !!status.connected;
           if (driveConnected) {
             driveIndicator.classList.add("on");
-            driveLabel.textContent = status.email ? `Drive · ${status.email}` : "Drive · Connected";
+            driveLabel.textContent = status.email ? `Drive - ${status.email}` : "Drive - Connected";
             driveNotConnected.style.display = "none";
             driveConnectedControls.style.display = "block";
             driveUploadCb.checked = loadVal(DRIVE_KEYS.upload, "0") === "1";
@@ -691,12 +2397,12 @@
             await loadDriveFolders();
             syncDriveToggles();
           } else {
-            driveLabel.textContent = "Drive · Not connected";
+            driveLabel.textContent = "Drive - Not connected";
             driveNotConnected.style.display = "flex";
             driveConnectedControls.style.display = "none";
           }
         } catch {
-          driveLabel.textContent = "Drive · unavailable";
+          driveLabel.textContent = "Drive - unavailable";
           driveNotConnected.style.display = "flex";
           driveConnectedControls.style.display = "none";
         }
@@ -737,6 +2443,51 @@
         if ((!driveConnected || !hasFolder) && driveUploadCb.checked) { driveUploadCb.checked = false; storeVal(DRIVE_KEYS.upload, "0"); }
       }
 
+      function getTrackingLabel(status) {
+        switch (String(status || "new")) {
+          case "queued": return "Queued";
+          case "downloaded": return "Downloaded";
+          case "in_progress": return "In progress";
+          case "completed": return "Completed";
+          case "review_later": return "Review later";
+          case "skipped": return "Skipped";
+          default: return "New";
+        }
+      }
+
+      function getScoreTone(score) {
+        return score >= 72 ? "high" : score >= 55 ? "mid" : "low";
+      }
+
+      function buildTrackingStateLine(tracking) {
+        if (!tracking) return "No history yet.";
+        const parts = [];
+        if (tracking.downloadCount) parts.push(`Downloaded ${tracking.downloadCount}x`);
+        if (tracking.lastCompletedAt) parts.push(`Completed ${fmtStamp(tracking.lastCompletedAt)}`);
+        else if (tracking.lastStartedAt) parts.push(`Started ${fmtStamp(tracking.lastStartedAt)}`);
+        else if (tracking.lastDownloadedAt) parts.push(`Last download ${fmtStamp(tracking.lastDownloadedAt)}`);
+        else if (tracking.lastSkippedAt) parts.push(`Skipped ${fmtStamp(tracking.lastSkippedAt)}`);
+        return parts.length ? parts.join(" | ") : "No history yet.";
+      }
+
+      function buildHistoryLine(item) {
+        const parts = [getTrackingLabel(item.status)];
+        if (item.downloadCount) parts.push(`Downloaded ${item.downloadCount}x`);
+        if (item.lastCompletedAt) parts.push(`Completed ${fmtStamp(item.lastCompletedAt)}`);
+        else if (item.lastDownloadedAt) parts.push(`Downloaded ${fmtStamp(item.lastDownloadedAt)}`);
+        else if (item.updatedAt) parts.push(`Updated ${fmtStamp(item.updatedAt)}`);
+        if (item.note) parts.push(item.note);
+        return parts.join(" | ");
+      }
+
+      function hasTopicPreferences() {
+        return !!(
+          currentPreferences &&
+          ((Array.isArray(currentPreferences.preferredTopics) && currentPreferences.preferredTopics.length > 0) ||
+           (Array.isArray(currentPreferences.avoidedTopics) && currentPreferences.avoidedTopics.length > 0))
+        );
+      }
+
       function loadVal(k, fb) { try { return localStorage.getItem(k) ?? fb; } catch { return fb; } }
       function storeVal(k, v) { try { localStorage.setItem(k, v); } catch {} }
 
@@ -748,6 +2499,22 @@
       function fmtDur(s) {
         const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = Math.floor(s%60);
         return h > 0 ? `${h}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}` : `${m}:${String(sec).padStart(2,"0")}`;
+      }
+
+      function fmtStamp(value) {
+        if (!value) return "";
+        try {
+          return new Date(value).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+        } catch {
+          return "";
+        }
+      }
+
+      function isWithinDays(value, days) {
+        if (!value) return false;
+        const stamp = Date.parse(value);
+        if (!Number.isFinite(stamp)) return false;
+        return (Date.now() - stamp) <= days * 86400000;
       }
 
       function esc(v) {

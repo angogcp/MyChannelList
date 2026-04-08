@@ -1,0 +1,260 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analysis - Video DL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    .analysis-shell { display:grid; grid-template-columns:240px 320px 1fr; min-height:700px; }
+    .pane { min-width:0; }
+    .pane + .pane { border-left:1px solid var(--border); }
+    .pane-head { padding:16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .pane-head strong { color:var(--text-main); font-size:0.96rem; }
+    .pane-sub { color:var(--text-muted); font-size:0.8rem; }
+    .channel-list, .item-list, .detail-body { overflow:auto; min-height:0; }
+    .channel-list, .item-list { padding:10px; }
+    .channel-btn, .item-btn { width:100%; text-align:left; background:transparent; border:1px solid transparent; border-radius:var(--radius-sm); color:var(--text-muted); }
+    .channel-btn { padding:10px 12px; font-weight:500; }
+    .channel-btn:hover, .item-btn:hover { background:var(--bg-panel-hover); color:var(--text-main); }
+    .channel-btn.active, .item-btn.active { background:rgba(96,165,250,0.1); border-color:rgba(96,165,250,0.2); color:#bfdbfe; }
+    .item-btn { padding:12px; display:grid; gap:8px; }
+    .item-title { color:var(--text-main); font-size:0.9rem; font-weight:600; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .item-meta, .muted { color:var(--text-muted); font-size:0.78rem; line-height:1.55; }
+    .chips, .actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .chip { display:inline-flex; align-items:center; padding:4px 9px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,0.04); color:var(--text-muted); font-size:0.72rem; }
+    .chip.good { color:#bfdbfe; border-color:rgba(96,165,250,0.22); background:rgba(96,165,250,0.08); }
+    .chip.mid { color:#fde68a; border-color:rgba(251,191,36,0.2); background:rgba(251,191,36,0.08); }
+    .chip.low { color:#fca5a5; border-color:rgba(252,165,165,0.2); background:rgba(252,165,165,0.08); }
+    .chip.state { color:#c4b5fd; border-color:rgba(196,181,253,0.22); background:rgba(196,181,253,0.08); }
+    .summary-strip { padding:12px 16px 0; display:flex; gap:8px; flex-wrap:wrap; }
+    .stat { border:1px solid var(--border); border-radius:999px; padding:6px 10px; color:var(--text-muted); font-size:0.78rem; }
+    .stat strong { color:var(--text-main); }
+    .detail-body { padding:16px; display:grid; gap:14px; }
+    .hero, .card { border:1px solid var(--border); border-radius:var(--radius-sm); background:rgba(255,255,255,0.02); padding:16px; display:grid; gap:12px; }
+    .hero-title { color:var(--text-main); font-size:1.05rem; font-weight:700; line-height:1.55; }
+    .lead { color:var(--text-main); font-size:0.94rem; line-height:1.75; }
+    .section-title { color:var(--text-main); font-size:0.9rem; font-weight:700; }
+    .bullet-list { display:grid; gap:8px; }
+    .bullet { color:var(--text-main); font-size:0.86rem; line-height:1.6; }
+    .fold { border:1px solid var(--border); border-radius:var(--radius-sm); background:rgba(255,255,255,0.02); }
+    .fold summary { cursor:pointer; list-style:none; padding:12px 14px; color:var(--text-main); font-size:0.88rem; font-weight:600; }
+    .fold summary::-webkit-details-marker { display:none; }
+    .fold-body { padding:0 14px 14px; display:grid; gap:10px; }
+    .score-row { display:grid; grid-template-columns:1fr auto; gap:10px; font-size:0.84rem; }
+    .history-row { border:1px solid var(--border); border-radius:var(--radius-sm); background:rgba(255,255,255,0.03); padding:10px 12px; display:grid; gap:4px; }
+    .history-row strong { color:var(--text-main); font-size:0.84rem; }
+    .empty { min-height:220px; display:grid; place-items:center; text-align:center; color:var(--text-muted); padding:24px; line-height:1.6; }
+    .status-bar { padding:12px 16px 16px; color:var(--text-muted); font-size:0.84rem; }
+    .status-bar .success { color:var(--success); }
+    .status-bar .error { color:var(--error); }
+    @media (max-width:1100px) { .analysis-shell { grid-template-columns:220px 280px 1fr; } }
+    @media (max-width:920px) { .analysis-shell { grid-template-columns:1fr; } .pane + .pane { border-left:none; border-top:1px solid var(--border); } }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <nav class="sidebar-nav">
+      <div class="brand"><div class="brand-title">Video DL</div><div class="brand-version">v1.0.21</div></div>
+      <div class="nav-menu">
+        <a href="/" class="nav-item"><i data-feather="download"></i> Downloader</a>
+        <a href="/channels.html" class="nav-item"><i data-feather="list"></i> Inbox</a>
+        <a href="/analysis.html" class="nav-item active"><i data-feather="sparkles"></i> Analysis</a>
+        <a href="/library.html" class="nav-item"><i data-feather="hard-drive"></i> Library</a>
+      </div>
+    </nav>
+    <main class="main-content" style="max-width:100%">
+      <div class="content-wrapper" style="max-width:1320px">
+        <header class="page-header">
+          <h1>Analysis</h1>
+          <p class="sub" id="page-sub"></p>
+        </header>
+        <div class="glass-panel analysis-shell">
+          <aside class="pane">
+            <div class="pane-head"><strong id="channels-title"></strong><button class="secondary small" id="refresh-channels-btn" type="button"></button></div>
+            <div class="channel-list" id="channel-list"></div>
+          </aside>
+          <section class="pane">
+            <div class="pane-head"><div><strong id="items-title"></strong><div class="pane-sub" id="items-sub"></div></div></div>
+            <div class="item-list" id="item-list"></div>
+          </section>
+          <section class="pane">
+            <div class="pane-head"><div><strong id="detail-title"></strong><div class="pane-sub" id="detail-sub"></div></div><button class="secondary small" id="refresh-videos-btn" type="button" disabled></button></div>
+            <div class="summary-strip" id="summary-strip"></div>
+            <div class="detail-body" id="detail-pane"></div>
+            <div class="status-bar" id="status-bar"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>feather.replace();</script>
+  <script>
+    const T = {
+      pageSub: "\u53ea\u4fdd\u7559\u4e00\u6761\u6e05\u6670\u8def\u5f84\uff1a\u9009\u9891\u9053\uff0c\u9009\u6761\u76ee\uff0c\u505a\u51b3\u5b9a\u3002",
+      channels: "\u9891\u9053",
+      refresh: "\u5237\u65b0",
+      items: "\u5019\u9009\u6761\u76ee",
+      itemsSub: "\u4ece\u8fd9\u91cc\u9009\u4e00\u6761\u6700\u503c\u5f97\u5224\u65ad\u7684\u5185\u5bb9\u3002",
+      detail: "\u5f53\u524d\u5224\u65ad",
+      detailSub: "\u53f3\u8fb9\u53ea\u4e13\u6ce8\u4e00\u6761\u3002",
+      refreshItems: "\u5237\u65b0\u6761\u76ee",
+      noChannels: "\u8fd8\u6ca1\u6709\u9891\u9053\u3002<br />\u8bf7\u5148\u53bb Inbox \u6dfb\u52a0\u9891\u9053\u3002",
+      noItems: "\u8fd9\u4e2a\u9891\u9053\u6682\u65f6\u6ca1\u6709\u53ef\u5206\u6790\u7684\u6761\u76ee\u3002",
+      noDetail: "\u5148\u4ece\u5de6\u8fb9\u9009\u4e00\u6761\u5185\u5bb9\uff0c\u8fd9\u91cc\u4f1a\u51fa\u73b0\u4e00\u4e2a\u66f4\u5b89\u9759\u7684\u5224\u65ad\u89c6\u56fe\u3002",
+      loaded: "\u5df2\u52a0\u8f7d",
+      priority: "\u5efa\u8bae\u4f18\u5148\u770b",
+      inProgress: "\u8fdb\u884c\u4e2d",
+      completed: "\u5df2\u5b8c\u6210",
+      later: "\u7a0d\u540e\u518d\u770b",
+      open: "\u6253\u5f00\u539f\u94fe\u63a5",
+      ai: "AI \u5206\u6790",
+      aiOff: "AI \u672a\u914d\u7f6e",
+      save: "\u4fdd\u5b58\u7b14\u8bb0",
+      skip: "\u5148\u8df3\u8fc7",
+      done: "\u6807\u8bb0\u5b8c\u6210",
+      notePlaceholder: "\u8bb0\u4e0b\u4f60\u4e3a\u4ec0\u4e48\u8981\u770b\uff0c\u6216\u4e3a\u4ec0\u4e48\u5148\u4e0d\u770b\u3002",
+      scoreDetail: "\u8bc4\u5206\u7ec6\u8282",
+      history: "\u5904\u7406\u8bb0\u5f55",
+      aiView: "AI \u7b2c\u4e8c\u610f\u89c1",
+      noHistory: "\u8fd8\u6ca1\u6709\u5386\u53f2\u8bb0\u5f55\u3002"
+    };
+    const channelListEl = document.getElementById("channel-list");
+    const itemListEl = document.getElementById("item-list");
+    const detailPane = document.getElementById("detail-pane");
+    const statusBar = document.getElementById("status-bar");
+    const summaryStrip = document.getElementById("summary-strip");
+    const refreshChannelsBtn = document.getElementById("refresh-channels-btn");
+    const refreshVideosBtn = document.getElementById("refresh-videos-btn");
+    let channels = [], activeChannel = null, videos = [], history = [], currentPreferences = { preferredTopics: [], avoidedTopics: [] }, focusedKey = "", aiConfigured = false, busy = false;
+    initText();
+    boot();
+    function initText() {
+      document.getElementById("page-sub").textContent = T.pageSub;
+      document.getElementById("channels-title").textContent = T.channels;
+      document.getElementById("items-title").textContent = T.items;
+      document.getElementById("items-sub").textContent = T.itemsSub;
+      document.getElementById("detail-title").textContent = T.detail;
+      document.getElementById("detail-sub").textContent = T.detailSub;
+      refreshChannelsBtn.textContent = T.refresh;
+      refreshVideosBtn.textContent = T.refreshItems;
+      statusBar.textContent = "\u51c6\u5907\u5c31\u7eea\u3002";
+      channelListEl.innerHTML = `<div class="empty">${T.noChannels}</div>`;
+      itemListEl.innerHTML = `<div class="empty">${T.noItems}</div>`;
+      detailPane.innerHTML = `<div class="empty">${T.noDetail}</div>`;
+    }
+    async function boot() { refreshChannelsBtn.addEventListener("click", loadChannels); refreshVideosBtn.addEventListener("click", () => loadVideos(activeChannel)); await Promise.all([loadAiStatus(), loadChannels()]); }
+    async function loadChannels() {
+      try { const result = await api("/api/channels"); channels = result.channels || []; renderChannels(); if (!activeChannel && channels[0]) selectChannel(channels[0]); }
+      catch (err) { setStatus("error", err.message); }
+    }
+    function renderChannels() {
+      if (!channels.length) { channelListEl.innerHTML = `<div class="empty">${T.noChannels}</div>`; return; }
+      channelListEl.innerHTML = "";
+      for (const channel of channels) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "channel-btn" + (activeChannel && activeChannel.url === channel.url ? " active" : "");
+        button.textContent = channel.name || channel.url || "Unnamed channel";
+        button.addEventListener("click", () => selectChannel(channel));
+        channelListEl.appendChild(button);
+      }
+    }
+    function selectChannel(channel) { activeChannel = channel; renderChannels(); refreshVideosBtn.disabled = false; loadVideos(channel); }
+    async function loadVideos(channel) {
+      if (!channel || busy) return; busy = true; focusedKey = ""; summaryStrip.innerHTML = ""; itemListEl.innerHTML = `<div class="empty"><span class="spinner"></span> \u6b63\u5728\u52a0\u8f7d...</div>`; detailPane.innerHTML = `<div class="empty">${T.noDetail}</div>`;
+      try {
+        const result = await api(`/api/channels/videos?url=${encodeURIComponent(channel.url)}&limit=15`);
+        videos = result.videos || []; history = result.history || []; currentPreferences = result.preferences || currentPreferences; focusedKey = videos[0] ? videos[0].trackerKey : "";
+        renderSummary(); renderItems(); renderDetail(); setStatus("success", `\u5df2\u52a0\u8f7d ${videos.length} \u6761\u5185\u5bb9\u3002`);
+      } catch (err) { videos = []; history = []; itemListEl.innerHTML = `<div class="empty">${esc(err.message)}</div>`; detailPane.innerHTML = `<div class="empty">${T.noDetail}</div>`; setStatus("error", err.message); }
+      finally { busy = false; }
+    }
+    function renderSummary() {
+      const ready = videos.filter((v) => getDecisionScore(v) >= 72).length;
+      const working = videos.filter((v) => getStatus(v) === "in_progress").length;
+      const done = videos.filter((v) => getStatus(v) === "completed").length;
+      const later = videos.filter((v) => getStatus(v) === "review_later").length;
+      summaryStrip.innerHTML = `<span class="stat"><strong>${videos.length}</strong> ${T.loaded}</span><span class="stat"><strong>${ready}</strong> ${T.priority}</span><span class="stat"><strong>${working}</strong> ${T.inProgress}</span><span class="stat"><strong>${done}</strong> ${T.completed}</span><span class="stat"><strong>${later}</strong> ${T.later}</span>`;
+    }
+    function renderItems() {
+      if (!videos.length) { itemListEl.innerHTML = `<div class="empty">${T.noItems}</div>`; return; }
+      itemListEl.innerHTML = "";
+      for (const video of videos) {
+        const score = getDecisionScore(video);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "item-btn" + (video.trackerKey === focusedKey ? " active" : "");
+        button.innerHTML = `<div class="item-title">${esc(video.title || "Untitled")}</div><div class="item-meta">${esc(buildMetaLine(video))}</div><div class="chips"><span class="chip ${toneClass(score)}">${esc(getDecisionLabel(video))}</span><span class="chip state">${esc(getTrackingLabel(getStatus(video)))}</span></div>`;
+        button.addEventListener("click", () => { focusedKey = video.trackerKey; renderItems(); renderDetail(); });
+        itemListEl.appendChild(button);
+      }
+    }
+    function renderDetail() {
+      const video = getFocusedVideo(); if (!video) { detailPane.innerHTML = `<div class="empty">${T.noDetail}</div>`; return; }
+      const insight = video.tracking && video.tracking.aiInsight ? video.tracking.aiInsight : null;
+      const breakdown = Array.isArray(video.analysis && video.analysis.breakdown) ? video.analysis.breakdown : [];
+      const score = getDecisionScore(video);
+      const reasons = collectReasons(video);
+      const shortHistory = history.slice(0, 5).map((item) => `<div class="history-row"><strong>${esc(item.title || "Untitled")}</strong><span>${esc(buildHistoryLine(item))}</span></div>`).join("");
+      detailPane.innerHTML = `
+        <section class="hero">
+          <div class="hero-title">${esc(video.title || video.url || "Selected item")}</div>
+          <div class="chips"><span class="chip ${toneClass(score)}">${esc(getDecisionLabel(video))}</span><span class="chip ${toneClass(score)}">\u7efc\u5408 ${esc(score)} \u5206</span><span class="chip state">${esc(getTrackingLabel(getStatus(video)))}</span>${video.analysis ? `<span class="chip">${esc(localizeConfidenceLabel(video.analysis.confidenceLabel || ""))}</span>` : ""}</div>
+          <div class="lead">${esc(buildDecisionSummary(video))}</div>
+          <div class="muted">${esc(buildTrackingStateLine(video.tracking))}</div>
+          <div class="actions"><a class="secondary small" href="${video.url}" target="_blank" rel="noopener" style="text-decoration:none">${esc(T.open)}</a><button class="secondary small" id="analyze-ai-btn" type="button" ${!aiConfigured ? "disabled" : ""}>${esc(aiConfigured ? T.ai : T.aiOff)}</button><button class="secondary small" id="mark-later-btn" type="button">${esc(T.later)}</button><button class="secondary small" id="mark-skip-btn" type="button">${esc(T.skip)}</button><button class="primary small" id="mark-complete-btn" type="button">${esc(T.done)}</button></div>
+        </section>
+        <section class="card"><div class="section-title">\u4e3b\u8981\u7406\u7531</div><div class="bullet-list">${reasons.length ? reasons.map((reason) => `<div class="bullet">${esc(reason)}</div>`).join("") : `<div class="muted">\u5f53\u524d\u53ef\u7528\u4fe1\u53f7\u6709\u9650\u3002</div>`}</div></section>
+        <section class="card"><div class="section-title">${esc(T.aiView)}</div>${insight && insight.summary ? `<div class="lead">${esc(localizeText(insight.summary))}</div><div class="chips"><span class="chip ${toneClass(Number(insight.score || 0))}">AI ${esc(insight.score || 0)} \u5206</span><span class="chip">${esc(localizeRecommendation(insight.recommendation || ""))}</span><span class="chip">${esc(formatAiConfidence(insight.confidence))}</span></div><div class="muted">${esc(buildAiMeta(insight))}</div>` : `<div class="muted">${esc(aiConfigured ? "\u70b9\u51fb\u201cAI \u5206\u6790\u201d\u53ef\u83b7\u5f97\u7b2c\u4e8c\u610f\u89c1\u3002" : "\u670d\u52a1\u5668\u8fd8\u6ca1\u6709\u914d\u7f6e OpenAI API Key\u3002")}</div>`}</section>
+        <section class="card"><div class="section-title">\u6211\u7684\u7b14\u8bb0</div><textarea id="note-input" placeholder="${esc(T.notePlaceholder)}">${escTextarea(video.tracking && video.tracking.note ? video.tracking.note : "")}</textarea><label class="muted">\u4e2a\u4eba\u8bc4\u5206<select id="rating-input"><option value="0">\u672a\u8bc4\u5206</option><option value="1">1 / 5</option><option value="2">2 / 5</option><option value="3">3 / 5</option><option value="4">4 / 5</option><option value="5">5 / 5</option></select></label><div class="actions"><button class="secondary small" id="save-note-btn" type="button">${esc(T.save)}</button></div></section>
+        <details class="fold"><summary>${esc(T.scoreDetail)}</summary><div class="fold-body">${breakdown.length ? breakdown.map((item) => `<div class="score-row"><span>${esc(localizeText(item.label))}</span><strong>${esc(item.delta > 0 ? `+${item.delta}` : `${item.delta}`)}</strong></div>`).join("") : `<div class="muted">\u6682\u65f6\u6ca1\u6709\u53ef\u5c55\u793a\u7684\u8bc4\u5206\u7ec6\u8282\u3002</div>`}</div></details>
+        <details class="fold"><summary>${esc(T.history)}</summary><div class="fold-body">${shortHistory || `<div class="muted">${esc(T.noHistory)}</div>`}</div></details>`;
+      document.getElementById("rating-input").value = String(video.tracking && video.tracking.rating ? video.tracking.rating : 0);
+      document.getElementById("save-note-btn").addEventListener("click", saveFocusedNote);
+      document.getElementById("mark-later-btn").addEventListener("click", () => updateFocusedState("review_later"));
+      document.getElementById("mark-skip-btn").addEventListener("click", () => updateFocusedState("skipped"));
+      document.getElementById("mark-complete-btn").addEventListener("click", () => updateFocusedState("completed"));
+      document.getElementById("analyze-ai-btn").addEventListener("click", runAiAnalysis);
+    }
+    function collectReasons(video) {
+      const out = [];
+      const insight = video && video.tracking ? video.tracking.aiInsight : null;
+      if (video && video.analysis && Array.isArray(video.analysis.reasons)) for (const reason of video.analysis.reasons) { const next = localizeText(reason); if (next && !out.includes(next)) out.push(next); }
+      if (insight && Array.isArray(insight.reasons)) for (const reason of insight.reasons) { const next = localizeText(reason); if (next && !out.includes(next) && out.length < 5) out.push(next); }
+      return out;
+    }
+    async function saveFocusedNote() { const video = getFocusedVideo(); if (!video) return; const note = document.getElementById("note-input").value.trim(); const rating = Number(document.getElementById("rating-input").value || 0); await persistVideoState(video, { status:getStatus(video), note, rating }, "\u5df2\u4fdd\u5b58\u7b14\u8bb0\u3002"); }
+    async function updateFocusedState(status) { const video = getFocusedVideo(); if (!video) return; const noteInput = document.getElementById("note-input"); const ratingInput = document.getElementById("rating-input"); await persistVideoState(video, { status, note: noteInput ? noteInput.value.trim() : "", rating: ratingInput ? Number(ratingInput.value || 0) : 0 }, `\u5df2\u66f4\u65b0\u4e3a\uff1a${getTrackingLabel(status)}\u3002`); }
+    async function persistVideoState(video, updates, successMessage) { try { const result = await api("/api/content/state", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ ...buildTrackerPayload(video), ...updates }) }); mergeUpdatedRecord(video.trackerKey, result); await refreshHistory(); renderSummary(); renderItems(); renderDetail(); setStatus("success", successMessage); } catch (err) { setStatus("error", err.message); } }
+    async function runAiAnalysis() { const video = getFocusedVideo(); if (!video || !aiConfigured) return; const button = document.getElementById("analyze-ai-btn"); try { if (button) { button.disabled = true; button.textContent = "\u5206\u6790\u4e2d..."; } const noteInput = document.getElementById("note-input"); const ratingInput = document.getElementById("rating-input"); const result = await api("/api/content/ai-insight", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ ...buildTrackerPayload(video), status:getStatus(video), note: noteInput ? noteInput.value.trim() : "", rating: ratingInput ? Number(ratingInput.value || 0) : 0, tracking: video.tracking || {}, analysis: video.analysis || {}, preferences: currentPreferences || {} }) }); mergeUpdatedRecord(video.trackerKey, result); await refreshHistory(); renderSummary(); renderItems(); renderDetail(); setStatus("success", `\u5df2\u5b8c\u6210 AI \u5206\u6790\uff1a${video.title}`); } catch (err) { setStatus("error", err.message); } finally { const currentButton = document.getElementById("analyze-ai-btn"); if (currentButton) { currentButton.disabled = !aiConfigured; currentButton.textContent = aiConfigured ? T.ai : T.aiOff; } } }
+    async function refreshHistory() { if (!activeChannel) { history = []; return; } const result = await api(`/api/content/history?channelUrl=${encodeURIComponent(activeChannel.url)}&limit=10`); history = result.history || []; }
+    async function loadAiStatus() { try { const result = await api("/api/content/ai-status"); aiConfigured = !!result.configured; } catch { aiConfigured = false; } }
+    function mergeUpdatedRecord(trackerKey, payload) { const record = payload && payload.record ? payload.record : null; const analysis = payload && payload.analysis ? payload.analysis : null; videos = videos.map((video) => video.trackerKey !== trackerKey ? video : { ...video, tracking: record ? { ...(video.tracking || {}), ...record } : video.tracking, analysis: analysis || video.analysis }); }
+    function buildTrackerPayload(video) { return { key: video.trackerKey, id: video.id, url: video.url, title: video.title, duration: video.duration, uploadDate: video.uploadDate, thumbnail: video.thumbnail, channelName: activeChannel ? activeChannel.name : "", channelUrl: activeChannel ? activeChannel.url : "" }; }
+    function getFocusedVideo() { return videos.find((video) => video.trackerKey === focusedKey) || null; }
+    function getStatus(video) { return video && video.tracking && video.tracking.status ? video.tracking.status : "new"; }
+    function getDecisionScore(video) { const ruleScore = video && video.analysis ? Number(video.analysis.score || 0) : NaN; const aiScore = video && video.tracking && video.tracking.aiInsight ? Number(video.tracking.aiInsight.score || 0) : NaN; const aiConfidence = video && video.tracking && video.tracking.aiInsight ? Number(video.tracking.aiInsight.confidence || 0) : 0; if (Number.isFinite(ruleScore) && Number.isFinite(aiScore)) { const aiWeight = Math.max(0.25, Math.min(0.75, aiConfidence / 100)); return Math.round(ruleScore * (1 - aiWeight) + aiScore * aiWeight); } if (Number.isFinite(aiScore)) return Math.round(aiScore); if (Number.isFinite(ruleScore)) return Math.round(ruleScore); return 50; }
+    function getDecisionLabel(video) { const score = getDecisionScore(video); if (score >= 78) return "\u5efa\u8bae\u73b0\u5728\u770b"; if (score >= 62) return "\u503c\u5f97\u4e00\u8bd5"; if (score >= 45) return "\u53ef\u9009"; return "\u6682\u65f6\u8df3\u8fc7"; }
+    function toneClass(score) { if (score >= 72) return "good"; if (score >= 55) return "mid"; return "low"; }
+    function getTrackingLabel(status) { switch (String(status || "new")) { case "queued": return "\u5df2\u6392\u961f"; case "downloaded": return "\u5df2\u4e0b\u8f7d"; case "in_progress": return "\u8fdb\u884c\u4e2d"; case "completed": return "\u5df2\u5b8c\u6210"; case "review_later": return "\u7a0d\u540e\u518d\u770b"; case "skipped": return "\u5df2\u8df3\u8fc7"; default: return "\u65b0\u6761\u76ee"; } }
+    function buildMetaLine(video) { const parts = []; if (video.uploadDate && /^\d{8}$/.test(video.uploadDate)) parts.push(`${video.uploadDate.slice(0, 4)}-${video.uploadDate.slice(4, 6)}-${video.uploadDate.slice(6, 8)}`); if (video.duration) parts.push(fmtDur(video.duration)); return parts.join(" | ") || "\u6ca1\u6709\u53d1\u5e03\u65e5\u671f\u6216\u65f6\u957f\u4fe1\u606f"; }
+    function buildTrackingStateLine(tracking) { if (!tracking) return T.noHistory; const parts = []; if (tracking.downloadCount) parts.push(`\u5df2\u4e0b\u8f7d ${tracking.downloadCount} \u6b21`); if (tracking.lastCompletedAt) parts.push(`\u5b8c\u6210\u4e8e ${fmtStamp(tracking.lastCompletedAt)}`); else if (tracking.lastStartedAt) parts.push(`\u5f00\u59cb\u4e8e ${fmtStamp(tracking.lastStartedAt)}`); else if (tracking.lastDownloadedAt) parts.push(`\u6700\u8fd1\u4e0b\u8f7d\u4e8e ${fmtStamp(tracking.lastDownloadedAt)}`); else if (tracking.lastSkippedAt) parts.push(`\u8df3\u8fc7\u4e8e ${fmtStamp(tracking.lastSkippedAt)}`); return parts.length ? parts.join(" | ") : T.noHistory; }
+    function buildDecisionSummary(video) { const insight = video && video.tracking ? video.tracking.aiInsight : null; if (insight && insight.summary) return `\u7efc\u5408\u5224\u65ad\uff1a${getDecisionLabel(video)}\u3002${localizeText(insight.summary)}`; if (video && video.analysis && video.analysis.summary) return `\u7efc\u5408\u5224\u65ad\uff1a${getDecisionLabel(video)}\u3002${localizeText(video.analysis.summary)}`; return `\u7efc\u5408\u5224\u65ad\uff1a${getDecisionLabel(video)}\u3002\u5f53\u524d\u4fe1\u606f\u4ecd\u7136\u6709\u9650\u3002`; }
+    function buildHistoryLine(item) { const parts = [getTrackingLabel(item.status)]; if (item.downloadCount) parts.push(`\u5df2\u4e0b\u8f7d ${item.downloadCount} \u6b21`); if (item.lastCompletedAt) parts.push(`\u5b8c\u6210\u4e8e ${fmtStamp(item.lastCompletedAt)}`); else if (item.lastDownloadedAt) parts.push(`\u4e0b\u8f7d\u4e8e ${fmtStamp(item.lastDownloadedAt)}`); else if (item.updatedAt) parts.push(`\u66f4\u65b0\u4e8e ${fmtStamp(item.updatedAt)}`); if (item.note) parts.push(item.note); return parts.join(" | "); }
+    function buildAiMeta(insight) { return [insight.bestFor ? `\u9002\u5408\uff1a${localizeText(insight.bestFor)}` : "", insight.skipIf ? `\u53ef\u8df3\u8fc7\u6761\u4ef6\uff1a${localizeText(insight.skipIf)}` : "", insight.updatedAt ? `\u66f4\u65b0\u4e8e ${fmtStamp(insight.updatedAt)}` : "", insight.model ? `\u6a21\u578b\uff1a${insight.model}` : ""].filter(Boolean).join(" | "); }
+    function formatAiConfidence(value) { const confidence = Number(value || 0); if (confidence >= 80) return `\u628a\u63e1\u9ad8 ${confidence}`; if (confidence >= 60) return `\u628a\u63e1\u4e2d ${confidence}`; return `\u628a\u63e1\u4f4e ${confidence}`; }
+    function localizeConfidenceLabel(value) { const normalized = String(value || "").trim().toLowerCase(); if (normalized === "high confidence" || normalized === "\u9ad8\u628a\u63e1") return "\u9ad8\u628a\u63e1"; if (normalized === "medium confidence" || normalized === "\u4e2d\u7b49\u628a\u63e1") return "\u4e2d\u7b49\u628a\u63e1"; if (normalized === "low confidence" || normalized === "\u4f4e\u628a\u63e1") return "\u4f4e\u628a\u63e1"; return String(value || "\u4f4e\u628a\u63e1").trim(); }
+    function localizeRecommendation(value) { const normalized = String(value || "").trim().toLowerCase(); if (normalized === "recommend now" || normalized === "watch now" || normalized === "\u5efa\u8bae\u73b0\u5728\u770b") return "\u5efa\u8bae\u73b0\u5728\u770b"; if (normalized === "worth a look" || normalized === "worth trying" || normalized === "high value" || normalized === "\u503c\u5f97\u4e00\u8bd5" || normalized === "\u503c\u5f97\u4e00\u770b") return "\u503c\u5f97\u4e00\u8bd5"; if (normalized === "optional" || normalized === "maybe" || normalized === "\u53ef\u9009") return "\u53ef\u9009"; if (normalized === "low priority" || normalized === "skip for now" || normalized === "\u6682\u65f6\u8df3\u8fc7") return "\u6682\u65f6\u8df3\u8fc7"; if (normalized === "done" || normalized === "\u5df2\u5b8c\u6210") return "\u5df2\u5b8c\u6210"; return String(value || "").trim(); }
+    function localizeText(value) { return String(value || "").replace(/Metadata is limited, but/gi, "\u5f53\u524d\u5143\u6570\u636e\u6709\u9650\uff0c\u4f46").replace(/the title suggests/gi, "\u6807\u9898\u770b\u8d77\u6765\u50cf\u662f").replace(/quick to consume/gi, "\u89c2\u770b\u6210\u672c\u4f4e").replace(/manageable runtime/gi, "\u65f6\u957f\u9002\u4e2d").replace(/fresh upload/gi, "\u65b0\u8fd1\u53d1\u5e03").replace(/recent upload/gi, "\u8fd1\u671f\u53d1\u5e03").replace(/Metadata-based estimate only\./gi, "\u76ee\u524d\u4ec5\u57fa\u4e8e\u5143\u6570\u636e\u4f30\u8ba1\u3002").trim(); }
+    function fmtDur(seconds) { const s = Number(seconds || 0); const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); const sec = Math.floor(s % 60); return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}` : `${m}:${String(sec).padStart(2, "0")}`; }
+    function fmtStamp(value) { if (!value) return ""; try { return new Date(value).toLocaleString("zh-CN", { month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" }); } catch { return ""; } }
+    function setStatus(type, message) { statusBar.innerHTML = type ? `<span class="${type}">${esc(message)}</span>` : esc(message); }
+    function esc(value) { return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+    function escTextarea(value) { return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+    async function api(url, options = {}) { const response = await fetch(url, options); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || "Request failed."); return data; }
+  </script>
+</body>
+</html>

@@ -3,6 +3,8 @@ bin/
 downloads/
 dist/
 dist-packager/
+.env.local
+data/local-config.json
 data/google-drive-auth.json
 data/queue.json
 *.log

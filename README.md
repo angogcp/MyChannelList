@@ -38,7 +38,7 @@ Open the web app in an app-style Edge/Chrome window:
 npm.cmd run launch:app
 ```
 
-You can also double-click [Launch Video DL Web.cmd](C:\apps\video-dl\Launch Video DL Web.cmd) or [Launch Video DL App.cmd](C:\apps\video-dl\Launch Video DL App.cmd).
+You can also double-click [Launch Video DL Web.cmd](C:\apps\MyChannelList\Launch Video DL Web.cmd) or [Launch Video DL App.cmd](C:\apps\MyChannelList\Launch Video DL App.cmd).
 
 ## Current Features
 
