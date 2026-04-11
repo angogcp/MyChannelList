@@ -327,7 +327,7 @@
       "queueCount": 0,
       "downloadCount": 0,
       "createdAt": "2026-04-08T07:23:19.336Z",
-      "updatedAt": "2026-04-08T07:23:19.336Z",
+      "updatedAt": "2026-04-11T04:09:35.706Z",
       "lastQueuedAt": "",
       "lastDownloadedAt": "",
       "lastStartedAt": "",
@@ -335,22 +335,22 @@
       "lastSkippedAt": "",
       "lastError": "",
       "aiInsight": {
-        "summary": "仅凭标题与元数据判断，这是一条偏哲思/科普讨论向的视频；标题有吸引力，但无法确认具体深度与论证质量，元数据支撑一般。",
+        "summary": "仅凭标题和基础元数据判断，这是一条偏哲思/意识形态探讨的视频，主题明确但内容深度与表达方式无法从元数据确认；信息仍较弱，存在一定不确定性。",
         "recommendation": "值得一试",
-        "score": 64,
-        "confidence": 56,
+        "score": 63,
+        "confidence": 48,
         "timeWorth": "medium",
-        "bestFor": "适合对哲学、意识、自我认知这类话题感兴趣，想用中等时间做一次轻松思考的人。",
-        "skipIf": "如果你只想要结论明确、信息密度高或完全实用的内容，可以先不看。",
+        "bestFor": "适合对哲学、意识、梦境与现实边界话题感兴趣，想花十几分钟听观点的人。",
+        "skipIf": "如果你更看重实用信息、明确结论或可快速获取的知识，可以先不看。",
         "reasons": [
-          "标题主题明确且有讨论空间",
-          "时长约16分钟，投入成本中等",
-          "发布时间较新，内容可能有时效性",
-          "缺少简介与内容细节，实际质量不确定"
+          "标题话题明确，具备讨论吸引力",
+          "时长约16分钟，投入成本不高",
+          "近期发布，可能有一定时效性",
+          "仅有标题可用，无法判断实际质量"
         ],
         "nextAction": "review_later",
         "model": "gpt-5.4-mini",
-        "updatedAt": "2026-04-08T07:23:19.332Z"
+        "updatedAt": "2026-04-11T04:09:35.701Z"
       }
     },
     "yt:TLrV5-_gjHk": {
@@ -502,6 +502,48 @@
         "nextAction": "review_later",
         "model": "gpt-5.4-mini",
         "updatedAt": "2026-04-11T04:09:11.772Z"
+      }
+    },
+    "yt:mUSJqvtrY74": {
+      "key": "yt:mUSJqvtrY74",
+      "id": "mUSJqvtrY74",
+      "url": "https://www.youtube.com/watch?v=mUSJqvtrY74",
+      "title": "還有比宗教更震撼的「洗腦」？因為他們看見了真相…",
+      "channelName": "老鳴TV",
+      "channelUrl": "https://www.youtube.com/@laoming/videos",
+      "duration": 887,
+      "uploadDate": "20260329",
+      "thumbnail": "https://i.ytimg.com/vi/mUSJqvtrY74/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLByItYiwFb4uDdG8TmhSA_MPWHLRA",
+      "status": "new",
+      "note": "",
+      "rating": 0,
+      "queueCount": 0,
+      "downloadCount": 0,
+      "createdAt": "2026-04-11T04:09:47.574Z",
+      "updatedAt": "2026-04-11T04:09:47.574Z",
+      "lastQueuedAt": "",
+      "lastDownloadedAt": "",
+      "lastStartedAt": "",
+      "lastCompletedAt": "",
+      "lastSkippedAt": "",
+      "lastError": "",
+      "aiInsight": {
+        "summary": "仅凭标题和时长判断：这是一个偏观点/争议向的视频，主题指向“宗教、洗脑、真相”等强情绪话题，信息含量和立场倾向都不确定。元数据较弱，难以判断是否真有实质内容。",
+        "recommendation": "可选",
+        "score": 52,
+        "confidence": 42,
+        "timeWorth": "medium",
+        "bestFor": "适合对宗教、心理影响或争议话题感兴趣，愿意接受观点型内容的人。",
+        "skipIf": "如果你想看的是客观、信息密度高、结论明确的内容，可以先不看。",
+        "reasons": [
+          "标题强烈但内容不明",
+          "时长约15分钟，试错成本不高",
+          "元数据不足，难判断质量",
+          "更像观点讨论而非确定性知识"
+        ],
+        "nextAction": "review_later",
+        "model": "gpt-5.4-mini",
+        "updatedAt": "2026-04-11T04:09:47.569Z"
       }
     }
   },
