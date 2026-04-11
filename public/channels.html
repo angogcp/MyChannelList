@@ -44,7 +44,12 @@
         margin-bottom: 2px;
       }
       .ch-item:hover { background: var(--bg-panel-hover); color: var(--text-main); }
-      .ch-item.active { background: rgba(138,43,226,0.12); color: #c084fc; }
+      .ch-item.active {
+        background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(20,184,166,0.08));
+        border: 1px solid rgba(20,184,166,0.2);
+        color: #fff7d6;
+        box-shadow: inset 3px 0 0 var(--accent-secondary);
+      }
       .ch-item .ch-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .ch-remove {
         opacity: 0; background: none; border: none; color: var(--error);
@@ -80,7 +85,7 @@
         flex-wrap: wrap;
         padding: 12px 20px;
         border-bottom: 1px solid var(--border);
-        background: linear-gradient(180deg, rgba(147,197,253,0.06), rgba(255,255,255,0.01));
+        background: linear-gradient(180deg, rgba(245,158,11,0.07), rgba(20,184,166,0.025));
       }
       .flow-step {
         display: inline-flex;
@@ -88,7 +93,7 @@
         gap: 8px;
         padding: 6px 10px;
         border-radius: 999px;
-        border: 1px solid rgba(147,197,253,0.18);
+        border: 1px solid rgba(20,184,166,0.2);
         background: rgba(255,255,255,0.03);
         color: var(--text-muted);
         font-size: 0.8rem;
@@ -125,8 +130,8 @@
       }
       .workspace-tab-btn.active {
         color: var(--text-main);
-        border-color: rgba(147,197,253,0.35);
-        background: rgba(147,197,253,0.12);
+        border-color: rgba(20,184,166,0.34);
+        background: rgba(20,184,166,0.11);
       }
       .workspace-pane.hidden {
         display: none;
@@ -174,8 +179,8 @@
       }
       .filter-chip.active {
         color: var(--text-main);
-        border-color: rgba(147,197,253,0.35);
-        background: rgba(147,197,253,0.10);
+        border-color: rgba(245,158,11,0.34);
+        background: rgba(245,158,11,0.1);
       }
       .sort-group {
         display: flex;
@@ -272,7 +277,10 @@
         transition: background 0.15s;
       }
       .vid-row:hover { background: var(--bg-panel-hover); }
-      .vid-row.selected { background: rgba(65, 105, 225, 0.10); }
+      .vid-row.selected {
+        background: linear-gradient(90deg, rgba(245,158,11,0.12), rgba(20,184,166,0.045));
+        box-shadow: inset 3px 0 0 var(--accent-secondary);
+      }
       .vid-thumb {
         width: 100px; height: 56px; object-fit: cover;
         border-radius: 6px; background: var(--bg-surface);
@@ -301,11 +309,11 @@
         background: rgba(255,255,255,0.04);
       }
       .tag.high { color: #fcd34d; border-color: rgba(252,211,77,0.25); background: rgba(252,211,77,0.08); }
-      .tag.mid { color: #93c5fd; border-color: rgba(147,197,253,0.25); background: rgba(147,197,253,0.08); }
+      .tag.mid { color: #fde68a; border-color: rgba(245,158,11,0.25); background: rgba(245,158,11,0.08); }
       .tag.low { color: #fca5a5; border-color: rgba(252,165,165,0.22); background: rgba(252,165,165,0.08); }
-      .tag.state { color: #c4b5fd; border-color: rgba(196,181,253,0.25); background: rgba(196,181,253,0.08); }
+      .tag.state { color: #fff7d6; border-color: rgba(245,158,11,0.25); background: rgba(245,158,11,0.08); }
       .tag.conf-high { color: #86efac; border-color: rgba(134,239,172,0.25); background: rgba(134,239,172,0.08); }
-      .tag.conf-mid { color: #93c5fd; border-color: rgba(147,197,253,0.25); background: rgba(147,197,253,0.08); }
+      .tag.conf-mid { color: #fde68a; border-color: rgba(245,158,11,0.25); background: rgba(245,158,11,0.08); }
       .tag.conf-low { color: #fca5a5; border-color: rgba(252,165,165,0.22); background: rgba(252,165,165,0.08); }
       .vid-open {
         font-size: 0.8rem; color: var(--text-muted); text-decoration: none;
@@ -342,13 +350,13 @@
         border-color: rgba(255,255,255,0.22);
       }
       .row-quick-btn.ai {
-        color: #93c5fd;
-        border-color: rgba(147,197,253,0.24);
-        background: rgba(147,197,253,0.08);
+        color: #99f6e4;
+        border-color: rgba(20,184,166,0.24);
+        background: rgba(20,184,166,0.08);
       }
       .row-quick-btn.ai:hover {
-        color: #dbeafe;
-        border-color: rgba(147,197,253,0.38);
+        color: #ccfbf1;
+        border-color: rgba(20,184,166,0.38);
       }
       .triage-card {
         padding: 16px 20px 18px;
@@ -408,7 +416,7 @@
         padding: 12px;
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
-        background: rgba(147,197,253,0.06);
+        background: rgba(20,184,166,0.07);
       }
       .ai-insight.hidden { display: none; }
       .ai-insight-head {
@@ -643,8 +651,8 @@
         background: rgba(255,255,255,0.1); color: var(--text-muted);
         white-space: nowrap; margin-left: 12px;
       }
-      .queue-status-badge.processing { background: rgba(138,43,226,0.2); color: #c084fc; }
-      .queue-status-badge.uploading { background: rgba(65,105,225,0.2); color: #82a5ff; }
+      .queue-status-badge.processing { background: rgba(245,158,11,0.16); color: #fde68a; }
+      .queue-status-badge.uploading { background: rgba(20,184,166,0.16); color: #99f6e4; }
       .queue-status-badge.done { background: rgba(16,185,129,0.2); color: #34d399; }
       .queue-status-badge.error { background: rgba(239,68,68,0.2); color: #f87171; }
       
@@ -659,10 +667,399 @@
         transition: width 0.3s linear;
       }
 
+      /* Inbox redesign: keep the workflow quiet and obvious. */
+      .inbox-shell {
+        border-radius: 28px;
+      }
+      .layout {
+        grid-template-columns: 280px minmax(0, 1fr);
+        min-height: calc(100vh - 190px);
+      }
+      .ch-sidebar {
+        background: rgba(2, 6, 5, 0.18);
+      }
+      .sidebar-head {
+        padding: 20px;
+      }
+      .sidebar-head strong {
+        font-size: 1rem;
+        letter-spacing: -0.02em;
+      }
+      .sidebar-list {
+        padding: 12px;
+      }
+      .ch-item {
+        min-height: 44px;
+        padding: 11px 12px;
+        border: 1px solid transparent;
+      }
+      .feed-panel {
+        background: rgba(247,240,226,0.018);
+      }
+      .feed-head {
+        padding: 20px 22px 16px;
+        align-items: flex-start;
+      }
+      .feed-title {
+        display: block;
+        font-size: 1.24rem;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 1.2;
+      }
+      .feed-kicker {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        line-height: 1.5;
+        margin-top: 6px;
+      }
+      .feed-actions {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+      .feed-actions #analyze-ai-top-btn {
+        display: none !important;
+      }
+      .mode-pick select {
+        min-width: 104px;
+      }
+      .flow-strip {
+        display: none;
+      }
+      .triage-strip {
+        padding: 0 22px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .triage-pill {
+        padding: 6px 11px;
+        background: rgba(247,240,226,0.045);
+      }
+      .decision-bar {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        padding: 14px 22px;
+        background: rgba(2,6,5,0.16);
+      }
+      .filter-group {
+        gap: 8px;
+      }
+      .filter-chip {
+        padding: 7px 11px;
+        font-weight: 800;
+      }
+      .filter-chip[data-filter="unseen"],
+      .filter-chip[data-filter="not_started"] {
+        display: none;
+      }
+      .watchlist-simple .workspace-drawer[data-workspace-pane="organize"] {
+        display: block !important;
+      }
+      .workspace-drawer {
+        background: rgba(2,6,5,0.12);
+      }
+      .workspace-drawer summary {
+        padding: 13px 22px;
+      }
+      .workspace-drawer summary span {
+        display: none;
+      }
+      .drawer-body {
+        background: rgba(2,6,5,0.12);
+      }
+      .preference-bar,
+      .bulk-bar {
+        padding: 14px 22px;
+      }
+      .select-all-row {
+        padding: 12px 22px;
+        background: rgba(247,240,226,0.018);
+      }
+      .feed-body {
+        max-height: calc(100vh - 390px);
+      }
+      .vid-row {
+        grid-template-columns: auto 112px minmax(0, 1fr) auto;
+        padding: 15px 22px;
+        gap: 16px;
+        border-bottom: 1px solid rgba(247,240,226,0.08);
+      }
+      .vid-thumb {
+        width: 112px;
+        height: 64px;
+        border-radius: 12px;
+      }
+      .vid-title {
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-height: 1.45;
+      }
+      .vid-meta {
+        margin-top: 5px;
+      }
+      .vid-tags {
+        margin-top: 9px;
+      }
+      .row-quick-actions {
+        display: none;
+      }
+      .vid-open {
+        align-self: center;
+        color: var(--accent-cool);
+        border-color: rgba(20,184,166,0.22);
+      }
+      .session-panel,
+      .triage-card,
+      .workspace-tabs,
+      .workspace-pane[data-workspace-pane="activity"] {
+        display: none !important;
+      }
+
+      /* Storybook / hand-painted redesign for the Inbox page. */
+      body {
+        color: #2c3328;
+        background-color: var(--bg-app);
+        background-image:
+          radial-gradient(circle at 10% 8%, rgba(255, 232, 143, 0.78), transparent 28%),
+          radial-gradient(circle at 88% 14%, rgba(98, 182, 203, 0.5), transparent 30%),
+          radial-gradient(circle at 22% 82%, rgba(216, 111, 143, 0.2), transparent 26%),
+          radial-gradient(circle at 72% 92%, rgba(112, 184, 93, 0.36), transparent 32%),
+          linear-gradient(180deg, #aae0eb 0%, #dcf0d6 44%, #ffe7ae 100%);
+      }
+      body::before {
+        background:
+          radial-gradient(circle at 18% 28%, rgba(255,255,255,0.32), transparent 11%),
+          radial-gradient(circle at 84% 62%, rgba(255,255,255,0.22), transparent 13%),
+          linear-gradient(180deg, rgba(255,255,255,0.16), rgba(79,111,70,0.12));
+      }
+      .sidebar-nav {
+        background:
+          linear-gradient(180deg, rgba(63, 100, 70, 0.9), rgba(42, 70, 52, 0.88)),
+          linear-gradient(135deg, rgba(255, 241, 184, 0.18), transparent);
+        border-right-color: rgba(45, 67, 42, 0.24);
+        box-shadow: 18px 0 54px rgba(58, 87, 54, 0.18);
+      }
+      .brand {
+        background: rgba(255, 248, 218, 0.18);
+        border-color: rgba(255, 248, 218, 0.28);
+      }
+      .brand-title {
+        background: linear-gradient(135deg, #fff1b8, #c9f0d3);
+        -webkit-background-clip: text;
+        background-clip: text;
+      }
+      .nav-item {
+        color: rgba(255, 250, 226, 0.72);
+      }
+      .nav-item:hover,
+      .nav-item.active {
+        background: rgba(255, 248, 218, 0.17);
+        color: #fff8da;
+        border-color: rgba(255, 248, 218, 0.22);
+        box-shadow: inset 3px 0 0 #f6d365;
+      }
+      .page-header::before {
+        background: linear-gradient(90deg, #6b8f5a, #e5b84d);
+        box-shadow: 0 8px 24px rgba(107, 143, 90, 0.28);
+      }
+      h1 {
+        color: #2f402b;
+        text-shadow: 0 2px 0 rgba(255,255,255,0.35);
+      }
+      .sub {
+        color: #52634c;
+      }
+      .inbox-shell {
+        position: relative;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 8% 0%, rgba(255,255,255,0.78), transparent 28%),
+          radial-gradient(circle at 92% 8%, rgba(98, 182, 203, 0.24), transparent 30%),
+          radial-gradient(circle at 24% 100%, rgba(216, 111, 143, 0.1), transparent 32%),
+          linear-gradient(180deg, rgba(255, 249, 224, 0.96), rgba(247, 235, 195, 0.94));
+        border: 1px solid rgba(85, 106, 64, 0.22);
+        box-shadow: 0 28px 70px rgba(84, 106, 67, 0.22);
+      }
+      .inbox-shell::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(81, 103, 70, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(81, 103, 70, 0.035) 1px, transparent 1px);
+        background-size: 34px 34px;
+        mask-image: linear-gradient(180deg, rgba(0,0,0,0.45), transparent 78%);
+      }
+      .layout {
+        position: relative;
+        z-index: 1;
+      }
+      .ch-sidebar {
+        background:
+          linear-gradient(180deg, rgba(210, 229, 185, 0.72), rgba(186, 211, 160, 0.52)),
+          rgba(255, 248, 218, 0.35);
+        border-right-color: rgba(91, 116, 75, 0.22);
+      }
+      .sidebar-head {
+        border-bottom-color: rgba(91, 116, 75, 0.18);
+      }
+      .sidebar-head strong,
+      .feed-title {
+        color: #2f402b;
+      }
+      .ch-item {
+        color: #5c684f;
+        border-color: rgba(91, 116, 75, 0.08);
+      }
+      .ch-item:hover {
+        background: rgba(255, 248, 218, 0.55);
+        color: #2f402b;
+      }
+      .ch-item.active {
+        background: linear-gradient(135deg, rgba(255, 241, 184, 0.82), rgba(178, 214, 163, 0.62));
+        border-color: rgba(107, 143, 90, 0.32);
+        color: #2f402b;
+        box-shadow: inset 4px 0 0 #e5b84d, 0 12px 26px rgba(97, 122, 77, 0.16);
+      }
+      .feed-panel {
+        background: rgba(255, 250, 232, 0.36);
+      }
+      .feed-head,
+      .triage-strip,
+      .decision-bar,
+      .workspace-drawer,
+      .select-all-row {
+        border-color: rgba(91, 116, 75, 0.16);
+      }
+      .feed-kicker,
+      .triage-pill,
+      .sort-group,
+      .vid-meta,
+      .feed-empty,
+      .triage-muted,
+      .workspace-drawer summary span {
+        color: #66725d;
+      }
+      .feed-actions select,
+      .sort-group select,
+      .preference-controls input,
+      .preference-controls select,
+      .drive-row select {
+        background: rgba(255, 253, 242, 0.78);
+        border-color: rgba(91, 116, 75, 0.18);
+        color: #2f402b;
+      }
+      .feed-actions button.secondary,
+      .workspace-drawer button.secondary,
+      .bulk-actions button.secondary {
+        background: rgba(255, 253, 242, 0.68);
+        border-color: rgba(91, 116, 75, 0.18);
+        color: #40513b;
+      }
+      .feed-actions button.primary {
+        background: linear-gradient(135deg, #e5b84d, #7da76a);
+        color: #263322;
+        box-shadow: 0 14px 28px rgba(125, 167, 106, 0.22);
+      }
+      .triage-strip,
+      .decision-bar {
+        background: rgba(255, 248, 218, 0.28);
+      }
+      .triage-pill,
+      .filter-chip,
+      .tag,
+      .vid-open {
+        background: rgba(255, 253, 242, 0.58);
+        border-color: rgba(91, 116, 75, 0.18);
+        color: #52634c;
+      }
+      .triage-pill strong {
+        color: #2f402b;
+      }
+      .filter-chip:hover,
+      .filter-chip.active {
+        background: rgba(229, 184, 77, 0.22);
+        border-color: rgba(160, 122, 35, 0.28);
+        color: #2f402b;
+      }
+      .workspace-drawer,
+      .drawer-body,
+      .preference-bar,
+      .bulk-bar,
+      .drive-bar {
+        background: rgba(255, 248, 218, 0.22);
+      }
+      .workspace-drawer summary {
+        color: #2f402b;
+      }
+      .feed-body {
+        background: rgba(255, 253, 242, 0.2);
+      }
+      .vid-row {
+        margin: 12px 16px;
+        border: 1px solid rgba(91, 116, 75, 0.14);
+        border-radius: 22px;
+        background:
+          linear-gradient(135deg, rgba(255, 253, 242, 0.82), rgba(245, 235, 203, 0.72));
+        box-shadow: 0 12px 28px rgba(92, 117, 74, 0.11);
+      }
+      .vid-row:hover {
+        background:
+          linear-gradient(135deg, rgba(255, 253, 242, 0.96), rgba(238, 229, 190, 0.82));
+        border-color: rgba(125, 167, 106, 0.32);
+        transform: translateY(-1px);
+      }
+      .vid-row.selected {
+        background:
+          linear-gradient(135deg, rgba(255, 241, 184, 0.78), rgba(209, 231, 194, 0.72));
+        box-shadow: inset 4px 0 0 #e5b84d, 0 14px 30px rgba(92, 117, 74, 0.14);
+      }
+      .vid-thumb {
+        box-shadow: 0 8px 18px rgba(57, 78, 46, 0.15);
+        border: 2px solid rgba(255,255,255,0.62);
+      }
+      .vid-title {
+        color: #2f402b;
+        font-weight: 800;
+      }
+      .tag.high,
+      .tag.good,
+      .tag.conf-high {
+        color: #315d3a !important;
+        border-color: rgba(91, 145, 82, 0.28) !important;
+        background: rgba(186, 224, 167, 0.44) !important;
+      }
+      .tag.mid,
+      .tag.conf-mid,
+      .tag.state {
+        color: #72561f !important;
+        border-color: rgba(229, 184, 77, 0.34) !important;
+        background: rgba(255, 232, 154, 0.42) !important;
+      }
+      .tag.low,
+      .tag.conf-low {
+        color: #89453d !important;
+        border-color: rgba(198, 104, 82, 0.25) !important;
+        background: rgba(242, 186, 166, 0.32) !important;
+      }
+      .vid-open {
+        color: #416f58;
+        font-weight: 800;
+      }
+      .bottom-status {
+        background: rgba(255, 248, 218, 0.24);
+        border-top-color: rgba(91, 116, 75, 0.16);
+        color: #66725d;
+      }
+
       @media (max-width: 900px) {
         .layout { grid-template-columns: 1fr; }
         .ch-sidebar { max-height: 200px; border-right: none; border-bottom: 1px solid var(--border); }
-        .vid-row { grid-template-columns: auto 1fr; }
+        .decision-bar { grid-template-columns: 1fr; }
+        .vid-row { grid-template-columns: auto 1fr auto; }
         .vid-thumb { display: none; }
         .triage-top, .history-item, .session-item, .recap-grid { grid-template-columns: 1fr; }
         .row-quick-actions { justify-content: flex-start; }
@@ -675,7 +1072,7 @@
       <nav class="sidebar-nav">
         <div class="brand">
           <div class="brand-title">Video DL</div>
-          <div class="brand-version">v1.0.21</div>
+          <div class="brand-version">v1.0.22</div>
         </div>
         <div class="nav-menu">
           <a href="/" class="nav-item"><i data-feather="download"></i> Downloader</a>
@@ -689,10 +1086,10 @@
         <div class="content-wrapper" style="max-width:1100px">
           <header class="page-header">
             <h1>Inbox</h1>
-            <p class="sub">Review incoming channel items and queue downloads. Use Analysis for AI review, notes, and completion decisions.</p>
+            <p class="sub">A quiet place to scan the newest channel videos, select the useful ones, and download them. Use Analysis when you want deeper AI judgment.</p>
           </header>
 
-          <div class="glass-panel">
+          <div class="glass-panel inbox-shell">
             <div class="layout watchlist-simple">
               <aside class="ch-sidebar">
                 <div class="sidebar-head">
@@ -704,7 +1101,10 @@
 
               <section class="feed-panel">
                 <div class="feed-head">
-                  <span class="feed-title" id="feed-title">Select a channel</span>
+                  <div>
+                    <span class="feed-title" id="feed-title">Select a channel</span>
+                    <div class="feed-kicker">Pick items worth saving. Analysis has the deeper AI review and reading/listening notes.</div>
+                  </div>
                   <div class="feed-actions">
                     <button class="secondary small" id="analyze-ai-top-btn" type="button" disabled>AI review selected</button>
                     <div class="mode-pick">
@@ -736,7 +1136,7 @@
                 <div class="decision-bar" data-workspace-pane="organize">
                   <div class="filter-group" id="filter-group">
                     <button class="filter-chip active" type="button" data-filter="all">All</button>
-                    <button class="filter-chip" type="button" data-filter="high_value">High value</button>
+                    <button class="filter-chip" type="button" data-filter="high_value">Worth it</button>
                     <button class="filter-chip" type="button" data-filter="unseen">Unseen</button>
                     <button class="filter-chip" type="button" data-filter="never_downloaded">Never downloaded</button>
                     <button class="filter-chip" type="button" data-filter="not_started">Not started</button>
@@ -756,7 +1156,7 @@
                   </label>
                 </div>
                 <details class="workspace-drawer" data-workspace-pane="organize">
-                  <summary>More Options <span>Bulk actions and Drive upload settings. Use Analysis for AI review, notes, and completion tracking.</span></summary>
+                  <summary>Advanced options <span>Bulk actions and Drive upload settings. Use Analysis for AI review, notes, and completion tracking.</span></summary>
                   <div class="drawer-body">
                     <div class="preference-bar">
                       <div class="triage-muted" id="preference-caption">Preferences guide recommendation scoring for this channel.</div>
@@ -1497,12 +1897,11 @@
         const downloaded = videos.filter((video) => video.tracking && video.tracking.downloadCount > 0).length;
         const refreshedLabel = lastChannelRefreshAt ? `Last refreshed ${formatRefreshTime(lastChannelRefreshAt)}` : "Not refreshed yet";
         triageStrip.innerHTML = `
-          <span class="triage-pill"><strong>${videos.length}</strong> items loaded</span>
           <span class="triage-pill"><strong>${visible}</strong> shown</span>
           <span class="triage-pill"><strong>${selected}</strong> selected</span>
-          <span class="triage-pill"><strong>${downloaded}</strong> downloaded before</span>
+          <span class="triage-pill"><strong>${downloaded}</strong> saved before</span>
           <span class="triage-pill"><strong>${esc(refreshedLabel)}</strong></span>
-          <span class="triage-pill"><a href="/analysis.html" style="color:inherit;text-decoration:none">Open Analysis for AI review</a></span>
+          <span class="triage-pill"><a href="/analysis.html" style="color:inherit;text-decoration:none">Open Analysis</a></span>
         `;
       }
 
