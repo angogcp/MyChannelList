@@ -436,6 +436,31 @@
         "model": "gpt-5.4-mini",
         "updatedAt": "2026-04-08T07:44:09.685Z"
       }
+    },
+    "yt:008FknB1fqE": {
+      "key": "yt:008FknB1fqE",
+      "id": "008FknB1fqE",
+      "url": "https://www.youtube.com/watch?v=008FknB1fqE",
+      "title": "一隻視頻教你把ChatGPT轉到Claude和Gemini！",
+      "channelName": "李厂长来了",
+      "channelUrl": "https://www.youtube.com/@lichangzhanglaile/videos",
+      "duration": 613,
+      "uploadDate": "20260411",
+      "thumbnail": "https://i.ytimg.com/vi/008FknB1fqE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCC6eiFKRanrgC277v6vdvh79vHdA",
+      "status": "downloaded",
+      "note": "",
+      "rating": 0,
+      "queueCount": 1,
+      "downloadCount": 1,
+      "createdAt": "2026-04-11T03:42:43.400Z",
+      "updatedAt": "2026-04-11T03:42:54.090Z",
+      "lastQueuedAt": "2026-04-11T03:42:43.400Z",
+      "lastDownloadedAt": "2026-04-11T03:42:54.090Z",
+      "lastStartedAt": "",
+      "lastCompletedAt": "",
+      "lastSkippedAt": "",
+      "lastError": "",
+      "aiInsight": null
     }
   },
   "preferences": {

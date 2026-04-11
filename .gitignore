@@ -7,6 +7,7 @@ dist-packager/
 data/local-config.json
 data/google-drive-auth.json
 data/queue.json
+data/channel-video-cache/
 *.log
 .DS_Store
 Thumbs.db

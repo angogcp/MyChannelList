@@ -24,9 +24,9 @@
       .sidebar-head {
         padding: 16px 20px;
         border-bottom: 1px solid var(--border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        display: grid;
+        gap: 10px;
+        align-items: start;
       }
       .sidebar-head strong { color: var(--text-main); font-weight: 600; font-size: 0.95rem; }
       .sidebar-list { flex: 1; overflow-y: auto; padding: 8px; }
@@ -51,6 +51,47 @@
         box-shadow: inset 3px 0 0 var(--accent-secondary);
       }
       .ch-item .ch-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .ch-main { flex: 1; min-width: 0; display: grid; gap: 4px; }
+      .ch-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .ch-update-badge {
+        display: inline-flex;
+        align-items: center;
+        width: max-content;
+        padding: 3px 7px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.04);
+        color: var(--text-muted);
+        font-size: 0.68rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .ch-update-badge.new {
+        color: #245b3d;
+        border-color: rgba(73, 160, 120, 0.32);
+        background: linear-gradient(135deg, rgba(186, 238, 167, 0.58), rgba(127, 211, 223, 0.2));
+      }
+      .ch-update-badge.checking {
+        color: #2d6472;
+        border-color: rgba(98, 182, 203, 0.36);
+        background: linear-gradient(135deg, rgba(127, 211, 223, 0.36), rgba(255, 232, 143, 0.26));
+      }
+      .ch-update-badge.loaded {
+        color: #245b3d;
+        border-color: rgba(73, 160, 120, 0.32);
+        background: linear-gradient(135deg, rgba(186, 238, 167, 0.5), rgba(255, 232, 143, 0.22));
+      }
+      .sidebar-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 8px;
+        align-items: center;
+      }
+      .sidebar-actions .small {
+        min-width: 0;
+        padding-inline: 10px;
+        white-space: nowrap;
+      }
       .ch-remove {
         opacity: 0; background: none; border: none; color: var(--error);
         cursor: pointer; font-size: 1.1rem; padding: 0 4px; line-height: 1;
@@ -914,6 +955,11 @@
         color: #5c684f;
         border-color: rgba(91, 116, 75, 0.08);
       }
+      .ch-update-badge {
+        background: rgba(255, 253, 242, 0.58);
+        border-color: rgba(91, 116, 75, 0.18);
+        color: #52634c;
+      }
       .ch-item:hover {
         background: rgba(255, 248, 218, 0.55);
         color: #2f402b;
@@ -1072,7 +1118,7 @@
       <nav class="sidebar-nav">
         <div class="brand">
           <div class="brand-title">Video DL</div>
-          <div class="brand-version">v1.0.22</div>
+          <div class="brand-version">v1.0.23</div>
         </div>
         <div class="nav-menu">
           <a href="/" class="nav-item"><i data-feather="download"></i> Downloader</a>
@@ -1094,7 +1140,11 @@
               <aside class="ch-sidebar">
                 <div class="sidebar-head">
                   <strong>Channels</strong>
-                  <button class="secondary small" id="add-channel-btn">+ Add</button>
+                  <div class="sidebar-actions">
+                    <button class="secondary small" id="load-all-btn" type="button">Load</button>
+                    <button class="secondary small" id="check-updates-btn" type="button">Scan</button>
+                    <button class="secondary small" id="add-channel-btn">+ Add</button>
+                  </div>
                 </div>
                 <div class="sidebar-list" id="channel-list"></div>
               </aside>
@@ -1147,8 +1197,8 @@
                   <label class="sort-group">
                     <span>Sort</span>
                     <select id="sort-mode">
-                      <option value="best_first">Best first</option>
-                      <option value="freshest">Freshest</option>
+                      <option value="freshest">Newest first</option>
+                      <option value="best_first">Best recommendation</option>
                       <option value="shortest">Shortest</option>
                       <option value="longest">Longest</option>
                       <option value="recent_activity">Recent activity</option>
@@ -1374,6 +1424,8 @@
       const downloadBtn = document.getElementById("download-btn");
       const analyzeAiTopBtn = document.getElementById("analyze-ai-top-btn");
       const addChannelBtn = document.getElementById("add-channel-btn");
+      const loadAllBtn = document.getElementById("load-all-btn");
+      const checkUpdatesBtn = document.getElementById("check-updates-btn");
       const selectAllRow = document.getElementById("select-all-row");
       const selectAllCb = document.getElementById("select-all");
       const dlModeSelect = document.getElementById("dl-mode");
@@ -1448,6 +1500,7 @@
       const DISMISSED_QUEUE_KEY = "video-dl.web.queue.dismissed";
       const FILTER_KEY = "video-dl.web.channels.filter";
       const SORT_KEY = "video-dl.web.channels.sort";
+      const CHANNEL_SNAPSHOT_KEY = "video-dl.inbox.channelSnapshots.v1";
 
       const DRIVE_KEYS = {
         folderId: "video-dl.web.drive.folderId",
@@ -1465,16 +1518,29 @@
       let driveConnected = false;
       let focusedVideoKey = "";
       let activeFilter = "all";
-      let activeSort = "best_first";
+      let activeSort = "freshest";
       let activeWorkspaceTab = "review";
       let currentPreferences = { lengthPreference: "any", stylePreference: "any", preferredTopics: [], avoidedTopics: [] };
       let aiConfigured = false;
+      const channelSnapshots = parseStoredJson(CHANNEL_SNAPSHOT_KEY, {});
+      const channelUpdateState = new Map();
+      let preloadAllRunning = false;
+      let cancelPreloadAll = false;
 
       boot();
 
       async function boot() {
         addChannelBtn.addEventListener("click", addChannel);
-        refreshBtn.addEventListener("click", () => loadVideos(activeChannel));
+        loadAllBtn.addEventListener("click", () => {
+          if (preloadAllRunning) {
+            cancelPreloadAll = true;
+            loadAllBtn.textContent = "Stop...";
+            return;
+          }
+          preloadAllChannels({ refresh: true });
+        });
+        checkUpdatesBtn.addEventListener("click", () => scanChannelUpdates({ force: true }));
+        refreshBtn.addEventListener("click", () => loadVideos(activeChannel, { refresh: true }));
         downloadBtn.addEventListener("click", downloadSelected);
         analyzeAiTopBtn.addEventListener("click", runAiAnalysis);
         clearQueueBtn.addEventListener("click", clearFinishedQueue);
@@ -1501,7 +1567,7 @@
           });
         });
         sortModeSelect.addEventListener("change", () => {
-          activeSort = sortModeSelect.value || "best_first";
+          activeSort = sortModeSelect.value || "freshest";
           storeVal(SORT_KEY, activeSort);
           ensureFocusedVideoIsVisible();
           renderFeed();
@@ -1550,7 +1616,7 @@
 
         loadDismissedQueueIds();
         activeFilter = loadVal(FILTER_KEY, "all");
-        activeSort = loadVal(SORT_KEY, "best_first");
+        activeSort = loadVal(SORT_KEY, "freshest");
         sortModeSelect.value = activeSort;
         syncFilterUi();
         renderQualityOptions(loadVal(QUALITY_KEY, ""));
@@ -1714,8 +1780,14 @@
         for (const ch of channelsList) {
           const div = document.createElement("div");
           div.className = "ch-item" + (activeChannel && activeChannel.url === ch.url ? " active" : "");
-          div.innerHTML = `<span class="ch-name">${esc(ch.name)}</span><button class="ch-remove" title="Remove">&times;</button>`;
-          div.querySelector(".ch-name").addEventListener("click", () => selectChannel(ch));
+          const update = getChannelUpdateInfo(ch);
+          div.innerHTML = `
+            <div class="ch-main">
+              <span class="ch-name">${esc(ch.name)}</span>
+              <div class="ch-meta">${renderChannelUpdateBadge(update)}</div>
+            </div>
+            <button class="ch-remove" title="Remove">&times;</button>`;
+          div.querySelector(".ch-main").addEventListener("click", () => selectChannel(ch));
           div.querySelector(".ch-remove").addEventListener("click", (e) => { e.stopPropagation(); removeChannel(ch); });
           channelListEl.appendChild(div);
         }
@@ -1727,6 +1799,181 @@
         refreshBtn.disabled = false;
         lastChannelRefreshAt = "";
         loadVideos(ch);
+      }
+
+      async function scanChannelUpdates({ force = false } = {}) {
+        if (!channelsList.length || !checkUpdatesBtn) return;
+        const staleAfterMs = 30 * 60 * 1000;
+        checkUpdatesBtn.disabled = true;
+        const originalLabel = checkUpdatesBtn.textContent;
+        let checked = 0;
+        let newChannels = 0;
+
+        try {
+          for (const ch of channelsList) {
+            const key = channelSnapshotKey(ch);
+            const prior = channelSnapshots[key];
+            if (!force && prior && prior.checkedAt && Date.now() - Date.parse(prior.checkedAt) < staleAfterMs) {
+              channelUpdateState.set(key, { status: "checked", count: 0, checkedAt: prior.checkedAt });
+              continue;
+            }
+
+            channelUpdateState.set(key, { status: "checking" });
+            checkUpdatesBtn.textContent = `${checked + 1}/${channelsList.length}`;
+            renderChannels();
+
+            try {
+              const data = await api(`/api/channels/videos?url=${encodeURIComponent(ch.url)}&limit=5`);
+              const latestVideos = Array.isArray(data.videos) ? data.videos : [];
+              const latestIds = latestVideos.map(getVideoIdentity).filter(Boolean);
+              const previousIds = Array.isArray(prior && prior.ids) ? prior.ids : [];
+              const hasBaseline = previousIds.length > 0;
+              const newIds = hasBaseline ? latestIds.filter((id) => !previousIds.includes(id)) : [];
+              const nextSnapshot = {
+                ids: mergeSnapshotIds(latestIds, previousIds),
+                checkedAt: new Date().toISOString(),
+                latestTitle: latestVideos[0] && latestVideos[0].title ? latestVideos[0].title : "",
+                latestUploadDate: latestVideos[0] && latestVideos[0].uploadDate ? latestVideos[0].uploadDate : ""
+              };
+
+              channelSnapshots[key] = nextSnapshot;
+              channelUpdateState.set(key, {
+                status: hasBaseline && newIds.length ? "new" : (hasBaseline ? "checked" : "baseline"),
+                count: newIds.length,
+                checkedAt: nextSnapshot.checkedAt,
+                latestTitle: nextSnapshot.latestTitle
+              });
+              if (newIds.length) newChannels += 1;
+              saveChannelSnapshots();
+            } catch (err) {
+              channelUpdateState.set(key, { status: "error", message: err.message || "Check failed" });
+            }
+            checked += 1;
+          }
+
+          renderChannels();
+          setStatus("success", newChannels > 0 ? `${newChannels} channel${newChannels === 1 ? "" : "s"} have new videos.` : "No new videos found in the channel list.");
+        } finally {
+          checkUpdatesBtn.disabled = false;
+          checkUpdatesBtn.textContent = originalLabel || "Scan";
+        }
+      }
+
+      async function preloadAllChannels({ refresh = false, silent = false } = {}) {
+        if (!channelsList.length || preloadAllRunning) return;
+        preloadAllRunning = true;
+        cancelPreloadAll = false;
+        if (loadAllBtn) loadAllBtn.disabled = false;
+        let loaded = 0;
+        let failed = 0;
+
+        try {
+          for (let i = 0; i < channelsList.length; i += 1) {
+            if (cancelPreloadAll) break;
+            const ch = channelsList[i];
+            const key = channelSnapshotKey(ch);
+            channelUpdateState.set(key, { status: "checking", message: "Loading cache" });
+            if (loadAllBtn) loadAllBtn.textContent = `${i + 1}/${channelsList.length}`;
+            if (!silent) setStatus("", `Loading ${i + 1}/${channelsList.length}: ${ch.name}`);
+            renderChannels();
+
+            try {
+              const data = await api(`/api/channels/videos?url=${encodeURIComponent(ch.url)}&limit=15${refresh ? "&refresh=1" : ""}`);
+              const latestVideos = Array.isArray(data.videos) ? data.videos : [];
+              loaded += 1;
+              updateChannelSnapshotFromVideos(ch, latestVideos);
+              channelUpdateState.set(key, {
+                status: "loaded",
+                count: latestVideos.length,
+                checkedAt: data.fetchedAt || new Date().toISOString(),
+                cached: !!data.cached
+              });
+            } catch (err) {
+              failed += 1;
+              channelUpdateState.set(key, { status: "error", message: err.message || "Load failed" });
+            }
+            renderChannels();
+            await sleep(150);
+          }
+
+          if (!silent || failed > 0) {
+            setStatus(cancelPreloadAll ? "" : (failed > 0 ? "error" : "success"), cancelPreloadAll
+              ? `Stopped background loading after ${loaded} channel${loaded === 1 ? "" : "s"}.`
+              : (failed > 0
+              ? `Loaded ${loaded} channel cache${loaded === 1 ? "" : "s"}; ${failed} failed.`
+              : `Loaded all ${loaded} channel caches in the background.`));
+          }
+        } finally {
+          preloadAllRunning = false;
+          cancelPreloadAll = false;
+          if (loadAllBtn) {
+            loadAllBtn.disabled = false;
+            loadAllBtn.textContent = "Load";
+          }
+        }
+      }
+
+      function getChannelUpdateInfo(ch) {
+        const key = channelSnapshotKey(ch);
+        return channelUpdateState.get(key) || (channelSnapshots[key]
+          ? { status: "checked", checkedAt: channelSnapshots[key].checkedAt }
+          : { status: "unknown" });
+      }
+
+      function renderChannelUpdateBadge(info) {
+        const state = info || { status: "unknown" };
+        if (state.status === "new") {
+          const count = Number(state.count || 0);
+          return `<span class="ch-update-badge new">${count} new</span>`;
+        }
+        if (state.status === "checking") return `<span class="ch-update-badge checking">Checking...</span>`;
+        if (state.status === "loaded") return `<span class="ch-update-badge loaded">${Number(state.count || 0)} cached</span>`;
+        if (state.status === "baseline") return `<span class="ch-update-badge">First check</span>`;
+        if (state.status === "error") return `<span class="ch-update-badge">Check failed</span>`;
+        if (state.status === "checked") return `<span class="ch-update-badge">${state.checkedAt ? `Checked ${formatRefreshTime(state.checkedAt)}` : "Checked"}</span>`;
+        return `<span class="ch-update-badge">Not checked</span>`;
+      }
+
+      function markChannelSnapshotSeen(ch, loadedVideos) {
+        if (!ch || !Array.isArray(loadedVideos) || !loadedVideos.length) return;
+        updateChannelSnapshotFromVideos(ch, loadedVideos);
+        const key = channelSnapshotKey(ch);
+        channelUpdateState.set(key, { status: "checked", count: 0, checkedAt: channelSnapshots[key].checkedAt });
+        renderChannels();
+      }
+
+      function updateChannelSnapshotFromVideos(ch, loadedVideos) {
+        if (!ch || !Array.isArray(loadedVideos) || !loadedVideos.length) return;
+        const key = channelSnapshotKey(ch);
+        const latestIds = loadedVideos.map(getVideoIdentity).filter(Boolean);
+        const previousIds = Array.isArray(channelSnapshots[key] && channelSnapshots[key].ids) ? channelSnapshots[key].ids : [];
+        channelSnapshots[key] = {
+          ids: mergeSnapshotIds(latestIds, previousIds),
+          checkedAt: new Date().toISOString(),
+          latestTitle: loadedVideos[0] && loadedVideos[0].title ? loadedVideos[0].title : "",
+          latestUploadDate: loadedVideos[0] && loadedVideos[0].uploadDate ? loadedVideos[0].uploadDate : ""
+        };
+        saveChannelSnapshots();
+      }
+
+      function channelSnapshotKey(ch) {
+        return String((ch && ch.url) || "").replace(/\/+$/, "");
+      }
+
+      function getVideoIdentity(video) {
+        return String((video && (video.id || video.url || video.trackerKey)) || "").trim();
+      }
+
+      function mergeSnapshotIds(latestIds, previousIds) {
+        return Array.from(new Set([...(latestIds || []), ...(previousIds || [])])).filter(Boolean).slice(0, 60);
+      }
+
+      function saveChannelSnapshots() {
+        storeVal(CHANNEL_SNAPSHOT_KEY, JSON.stringify(channelSnapshots));
+      }
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
       }
 
       async function addChannel() {
@@ -1769,8 +2016,9 @@
         } catch (err) { setStatus("error", err.message); }
       }
 
-      async function loadVideos(ch) {
+      async function loadVideos(ch, options = {}) {
         if (!ch || busy) return;
+        const forceRefresh = !!options.refresh;
         busy = true;
         focusedVideoKey = "";
         feedTitleEl.textContent = ch.name;
@@ -1778,9 +2026,9 @@
         selectAllRow.style.display = "none";
         downloadBtn.disabled = true;
         refreshBtn.disabled = true;
-        setStatus("", `Loading videos from ${ch.name}...`);
+        setStatus("", forceRefresh ? `Refreshing latest videos from ${ch.name}...` : `Loading cached videos from ${ch.name}...`);
         try {
-          const data = await api(`/api/channels/videos?url=${encodeURIComponent(ch.url)}&limit=15`);
+          const data = await api(`/api/channels/videos?url=${encodeURIComponent(ch.url)}&limit=15${forceRefresh ? "&refresh=1" : ""}`);
           videos = data.videos || [];
           historyItems = data.history || [];
           currentPreferences = data.preferences || { lengthPreference: "any", stylePreference: "any", preferredTopics: [], avoidedTopics: [] };
@@ -1794,7 +2042,9 @@
           renderRecap();
           renderHistory();
           renderTriageStrip();
-          setStatus("success", `${videos.length} video${videos.length !== 1 ? "s" : ""} loaded from the latest channel fetch.`);
+          markChannelSnapshotSeen(ch, videos);
+          const source = data.cached ? `cache from ${formatRefreshTime(data.fetchedAt)}` : "fresh channel fetch";
+          setStatus("success", `${videos.length} video${videos.length !== 1 ? "s" : ""} loaded from ${source}.`);
         } catch (err) {
           feedBodyEl.innerHTML = `<div class="feed-empty" style="color:var(--error)">Failed: ${esc(err.message)}</div>`;
           videos = [];
@@ -2138,9 +2388,14 @@
       }
 
       function getUploadSortValue(video) {
+        const timestamp = Number(video && video.timestamp ? video.timestamp : 0);
+        if (timestamp > 0) return timestamp;
         const raw = String(video && video.uploadDate ? video.uploadDate : "");
         if (!/^\d{8}$/.test(raw)) return 0;
-        return Number(raw);
+        const year = Number(raw.slice(0, 4));
+        const month = Number(raw.slice(4, 6)) - 1;
+        const day = Number(raw.slice(6, 8));
+        return Math.floor(new Date(year, month, day).getTime() / 1000);
       }
 
       function getActivitySortValue(video) {
@@ -2558,7 +2813,7 @@
           });
           currentPreferences = result.preferences || currentPreferences;
           syncPreferenceUi();
-          await loadVideos(activeChannel);
+          await loadVideos(activeChannel, { refresh: true });
           setStatus("success", "Saved channel preferences.");
         } catch (err) {
           setStatus("error", err.message);
@@ -2887,6 +3142,15 @@
         );
       }
 
+      function parseStoredJson(k, fallback) {
+        try {
+          const raw = localStorage.getItem(k);
+          if (!raw) return fallback;
+          return JSON.parse(raw);
+        } catch {
+          return fallback;
+        }
+      }
       function loadVal(k, fb) { try { return localStorage.getItem(k) ?? fb; } catch { return fb; } }
       function storeVal(k, v) { try { localStorage.setItem(k, v); } catch {} }
 

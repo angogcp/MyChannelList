@@ -251,17 +251,25 @@ app.get("/api/channels/videos", async (req, res) => {
     const url = String(req.query.url || "").trim();
     const normalizedUrl = normalizeChannelUrl(url);
     const limit = Math.min(Math.max(Number(req.query.limit) || 15, 1), 50);
+    const forceRefresh = String(req.query.refresh || "").trim() === "1";
     const channelList = await channels.loadChannels();
     const channel = (channelList || []).find((entry) => normalizeChannelUrl(entry.url || "") === normalizedUrl);
     const result = await channels.fetchVideos(normalizedUrl, limit, {
       channelUrl: normalizedUrl,
-      channelName: channel?.name || ""
+      channelName: channel?.name || "",
+      forceRefresh
     });
-    res.json(await contentTracker.enrichVideos({
+    const enriched = await contentTracker.enrichVideos({
       channelName: channel?.name || "",
       channelUrl: normalizedUrl,
       videos: result.videos || []
-    }));
+    });
+    res.json({
+      ...enriched,
+      cached: !!result.cached,
+      fetchedAt: result.fetchedAt || "",
+      cacheAgeMs: Number(result.cacheAgeMs || 0)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message || "Failed to fetch videos." });
   }
@@ -344,6 +352,16 @@ app.get("/api/library/stats", async (_req, res) => {
     res.json(await library.getStats());
   } catch (error) {
     res.status(500).json({ error: error.message || "Failed to get stats." });
+  }
+});
+
+app.get("/api/library/media", async (req, res) => {
+  try {
+    const filePath = await library.resolveFile(String(req.query.path || ""));
+    res.setHeader("Cache-Control", "private, max-age=300");
+    res.sendFile(filePath);
+  } catch (error) {
+    res.status(404).json({ error: error.message || "File not found." });
   }
 });
 

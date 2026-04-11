@@ -59,7 +59,7 @@
 
       .file-row {
         display: grid;
-        grid-template-columns: 1fr auto auto auto;
+        grid-template-columns: 1fr auto auto auto auto;
         gap: 16px; align-items: center;
         padding: 14px 24px;
         border-bottom: 1px solid var(--border);
@@ -100,7 +100,79 @@
         font-size: 0.85rem; color: var(--text-muted);
       }
 
-      .file-row-with-cb { grid-template-columns: auto 1fr auto auto auto; }
+      .file-row-with-cb { grid-template-columns: auto minmax(0, 1fr) auto auto auto auto; }
+      .file-play {
+        min-width: 68px;
+        color: #2f6d57;
+        border-color: rgba(73, 160, 120, 0.28) !important;
+        background: linear-gradient(135deg, rgba(186, 238, 167, 0.42), rgba(127, 211, 223, 0.2)) !important;
+      }
+      .player-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        display: none;
+        place-items: center;
+        padding: 28px;
+        background: rgba(37, 52, 38, 0.42);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+      .player-overlay.open { display: grid; }
+      .player-card {
+        width: min(920px, 100%);
+        max-height: calc(100vh - 56px);
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        border: 1px solid rgba(98, 119, 74, 0.24);
+        border-radius: 24px;
+        background:
+          radial-gradient(circle at 12% 0%, rgba(255,255,255,0.9), transparent 28%),
+          linear-gradient(135deg, rgba(255, 253, 242, 0.96), rgba(229, 242, 203, 0.94));
+        box-shadow: 0 30px 90px rgba(43, 65, 45, 0.28);
+      }
+      .player-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .player-title {
+        min-width: 0;
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--text-main);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .player-sub {
+        margin-top: 3px;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
+      .player-stage {
+        display: grid;
+        place-items: center;
+        min-height: 96px;
+        border-radius: 18px;
+        background: rgba(47, 64, 43, 0.08);
+        overflow: hidden;
+      }
+      .player-stage video,
+      .player-stage audio {
+        width: 100%;
+        max-height: calc(100vh - 210px);
+        outline: none;
+      }
+      .player-stage audio { margin: 42px 18px; width: calc(100% - 36px); }
+      .player-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
 
       .bottom-status {
         padding: 14px 24px;
@@ -115,7 +187,11 @@
         .stats-row, .toolbar, .file-row, .select-row { padding-left: 16px; padding-right: 16px; }
         .file-row { grid-template-columns: auto 1fr auto; }
         .file-badge, .file-size { display: none; }
+        .file-row-with-cb { grid-template-columns: auto 1fr auto; }
+        .file-del { display: none; }
+        .file-play { min-width: 58px; padding-inline: 10px; }
         .search-box { width: 100%; }
+        .player-overlay { padding: 12px; }
       }
     </style>
   </head>
@@ -124,7 +200,7 @@
       <nav class="sidebar-nav">
         <div class="brand">
           <div class="brand-title">Video DL</div>
-          <div class="brand-version">v1.0.22</div>
+          <div class="brand-version">v1.0.23</div>
         </div>
         <div class="nav-menu">
           <a href="/" class="nav-item"><i data-feather="download"></i> Downloader</a>
@@ -173,6 +249,23 @@
 
             <div class="bottom-status" id="status-bar">Ready.</div>
           </div>
+
+          <div class="player-overlay" id="player-overlay" aria-hidden="true">
+            <section class="player-card" role="dialog" aria-modal="true" aria-labelledby="player-title">
+              <div class="player-head">
+                <div style="min-width:0">
+                  <div class="player-title" id="player-title">Play file</div>
+                  <div class="player-sub" id="player-sub">Local download</div>
+                </div>
+                <button class="secondary small" id="player-close" type="button">Close</button>
+              </div>
+              <div class="player-stage" id="player-stage"></div>
+              <div class="player-actions">
+                <a class="secondary small" id="player-open" href="#" target="_blank" rel="noopener">Open in browser</a>
+                <span id="player-hint" style="color:var(--text-muted);font-size:0.82rem">Tip: use the built-in controls for full screen, speed, and volume.</span>
+              </div>
+            </section>
+          </div>
         </div>
       </main>
     </div>
@@ -192,6 +285,12 @@
       const statVideo = document.getElementById("stat-video");
       const statAudio = document.getElementById("stat-audio");
       const statSize = document.getElementById("stat-size");
+      const playerOverlay = document.getElementById("player-overlay");
+      const playerStage = document.getElementById("player-stage");
+      const playerTitle = document.getElementById("player-title");
+      const playerSub = document.getElementById("player-sub");
+      const playerOpen = document.getElementById("player-open");
+      const playerClose = document.getElementById("player-close");
 
       let allFiles = [];
       let activeFilter = "all";
@@ -204,6 +303,13 @@
         deleteSelectedBtn.addEventListener("click", deleteSelected);
         selectAllCb.addEventListener("change", toggleSelectAll);
         searchInput.addEventListener("input", renderFiles);
+        playerClose.addEventListener("click", closePlayer);
+        playerOverlay.addEventListener("click", (event) => {
+          if (event.target === playerOverlay) closePlayer();
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && playerOverlay.classList.contains("open")) closePlayer();
+        });
 
         document.querySelectorAll(".filter-btn").forEach(btn => {
           btn.addEventListener("click", () => {
@@ -270,9 +376,11 @@
             </div>
             <span class="file-badge ${f.category}">${f.category}</span>
             <span class="file-size">${f.size}</span>
+            <button class="secondary small file-play" data-path="${esc(f.path)}">Play</button>
             <button class="danger small file-del" data-path="${esc(f.path)}">Delete</button>
           `;
           row.querySelector(".file-cb").addEventListener("change", syncSelection);
+          row.querySelector(".file-play").addEventListener("click", () => playFile(f));
           row.querySelector(".file-del").addEventListener("click", () => deleteSingle(f));
           fileListEl.appendChild(row);
         }
@@ -318,6 +426,30 @@
         updateStats(); renderFiles(); busy = false;
         if (lastError) setStatus("error", `${deleted}/${paths.length} deleted. ${lastError}`);
         else setStatus("success", `${deleted} file${deleted > 1 ? "s" : ""} deleted.`);
+      }
+
+      function playFile(file) {
+        const src = mediaUrl(file);
+        const isAudio = file.category === "audio";
+        playerTitle.textContent = file.name;
+        playerSub.textContent = `${file.category.toUpperCase()} · ${file.size} · ${fmtDate(file.modified)}`;
+        playerOpen.href = src;
+        playerStage.innerHTML = isAudio
+          ? `<audio controls autoplay src="${esc(src)}"></audio>`
+          : `<video controls autoplay playsinline src="${esc(src)}"></video>`;
+        playerOverlay.classList.add("open");
+        playerOverlay.setAttribute("aria-hidden", "false");
+        setStatus("", `Playing "${file.name}".`);
+      }
+
+      function closePlayer() {
+        playerStage.innerHTML = "";
+        playerOverlay.classList.remove("open");
+        playerOverlay.setAttribute("aria-hidden", "true");
+      }
+
+      function mediaUrl(file) {
+        return `/api/library/media?path=${encodeURIComponent(file.path)}`;
       }
 
       function updateStats() {
