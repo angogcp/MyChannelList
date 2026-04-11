@@ -461,6 +461,48 @@
       "lastSkippedAt": "",
       "lastError": "",
       "aiInsight": null
+    },
+    "yt:Fk1QjxAHjCQ": {
+      "key": "yt:Fk1QjxAHjCQ",
+      "id": "Fk1QjxAHjCQ",
+      "url": "https://www.youtube.com/watch?v=Fk1QjxAHjCQ",
+      "title": "宇宙中到處都是外星人，外星人新理論，細思極恐",
+      "channelName": "老鳴TV",
+      "channelUrl": "https://www.youtube.com/@laoming/videos",
+      "duration": 847,
+      "uploadDate": "20260409",
+      "thumbnail": "https://i.ytimg.com/vi/Fk1QjxAHjCQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCh1uyFfaueB6u-Ck3803XTcJacVw",
+      "status": "new",
+      "note": "",
+      "rating": 0,
+      "queueCount": 0,
+      "downloadCount": 0,
+      "createdAt": "2026-04-11T04:09:11.774Z",
+      "updatedAt": "2026-04-11T04:09:11.774Z",
+      "lastQueuedAt": "",
+      "lastDownloadedAt": "",
+      "lastStartedAt": "",
+      "lastCompletedAt": "",
+      "lastSkippedAt": "",
+      "lastError": "",
+      "aiInsight": {
+        "summary": "标题指向外星人新理论与悬念式内容，但元数据不足，无法判断实际观点质量或信息密度；时长不长，适合低成本试探。",
+        "recommendation": "值得一试",
+        "score": 66,
+        "confidence": 52,
+        "timeWorth": "medium",
+        "bestFor": "适合对宇宙、外星生命和科普悬疑话题感兴趣、想快速尝鲜的人。",
+        "skipIf": "如果你更看重严谨证据、深度论证或不想看标题党风格内容，可以先不看。",
+        "reasons": [
+          "标题有话题性与悬念感",
+          "时长较短，试错成本低",
+          "刚发布，可能有一定时效性",
+          "元数据有限，难判断内容含金量"
+        ],
+        "nextAction": "review_later",
+        "model": "gpt-5.4-mini",
+        "updatedAt": "2026-04-11T04:09:11.772Z"
+      }
     }
   },
   "preferences": {
