@@ -1198,7 +1198,7 @@
       <nav class="sidebar-nav">
         <div class="brand">
           <div class="brand-title">Video DL</div>
-          <div class="brand-version">v1.0.23</div>
+          <div class="brand-version" data-app-version>v1.0.26</div>
         </div>
         <div class="nav-menu">
           <a href="/" class="nav-item"><i data-feather="download"></i> Downloader</a>
@@ -1624,6 +1624,7 @@
       boot();
 
       async function boot() {
+        loadAppInfo();
         addChannelBtn.addEventListener("click", addChannel);
         loadAllBtn.addEventListener("click", () => {
           if (preloadAllRunning) {
@@ -1722,6 +1723,16 @@
         renderHistory();
         initQueueStream();
         await Promise.all([loadChannels(), initDrive(), loadAiStatus()]);
+      }
+
+      async function loadAppInfo() {
+        try {
+          const info = await api("/api/app-info");
+          const version = info && info.version ? `v${info.version}` : "";
+          document.querySelectorAll("[data-app-version]").forEach((el) => {
+            if (version) el.textContent = version;
+          });
+        } catch {}
       }
 
       function initQueueStream() {

@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const { version: APP_VERSION } = require("./package.json");
 const { createDownloader } = require("./lib/downloader");
 const { createGoogleDriveManager } = require("./lib/googleDrive");
 const { createChannelManager, normalizeChannelUrl } = require("./lib/channels");
@@ -55,6 +56,13 @@ const llmAnalyzer = createLlmAnalyzer({
 
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static(path.join(ROOT_DIR, "public")));
+
+app.get("/api/app-info", (_req, res) => {
+  res.json({
+    ok: true,
+    version: APP_VERSION
+  });
+});
 
 app.get("/api/health", async (_req, res) => {
   const [health, driveStatus] = await Promise.all([downloader.getHealth(), drive.getStatus()]);
