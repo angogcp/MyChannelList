@@ -30,7 +30,8 @@ const drive = createGoogleDriveManager({
 const channels = createChannelManager({
   appRoot: ROOT_DIR,
   dataDir: path.join(ROOT_DIR, "data"),
-  ytDlpPath: () => downloader.ytDlpPath
+  ytDlpPath: () => downloader.ytDlpPath,
+  ensureYtDlp: () => downloader.ensureYtDlp()
 });
 const library = createLibraryManager({
   appRoot: ROOT_DIR,
