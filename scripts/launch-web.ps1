@@ -9,11 +9,43 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $port = 3010
 $url = "http://localhost:$port"
+$nodeModulesDir = Join-Path $root 'node_modules'
+$packageJson = Join-Path $root 'package.json'
 $logDir = Join-Path $env:TEMP 'VideoDLWeb'
 $stdoutLog = Join-Path $logDir 'web.stdout.log'
 $stderrLog = Join-Path $logDir 'web.stderr.log'
+$npmLog = Join-Path $logDir 'npm-install.log'
 
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+
+function Ensure-Dependencies {
+  if(Test-Path $nodeModulesDir) {
+    return
+  }
+
+  if(-not (Test-Path $packageJson)) {
+    throw "package.json was not found in $root."
+  }
+
+  Write-Output "Installing npm dependencies for the first run..."
+  if(Test-Path $npmLog) { try { Remove-Item $npmLog -Force -ErrorAction Stop } catch {} }
+
+  Push-Location $root
+  try {
+    $npmOutput = & npm.cmd install --no-fund --no-audit 2>&1 | Out-String
+  } finally {
+    Pop-Location
+  }
+  if($npmOutput) {
+    Set-Content -Path $npmLog -Value $npmOutput -Encoding utf8
+  }
+
+  if(-not (Test-Path $nodeModulesDir)) {
+    throw ("Failed to install dependencies automatically.`n`n`$ npm install --no-fund --no-audit`n`n$npmOutput")
+  }
+}
+
+Ensure-Dependencies
 
 $existing = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
 if($null -ne $existing) {

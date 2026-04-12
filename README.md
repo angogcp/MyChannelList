@@ -1,6 +1,6 @@
 # Video DL
 
-Version `1.0.24`
+Version `1.0.25`
 
 Local web app for downloading videos, tracking channel watch lists, choosing MP4/MP3 quality, and optionally uploading completed downloads to Google Drive.
 
@@ -39,6 +39,8 @@ npm.cmd run launch:app
 ```
 
 You can also double-click [Launch Video DL Web.cmd](C:\apps\MyChannelList\Launch Video DL Web.cmd) or [Launch Video DL App.cmd](C:\apps\MyChannelList\Launch Video DL App.cmd).
+
+On a fresh download, the launcher will automatically run `npm install` the first time if `node_modules/` is missing.
 
 ## Current Features
 
