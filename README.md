@@ -1,6 +1,6 @@
 # Video DL
 
-Version `1.0.26`
+Version `1.0.28`
 
 Local web app for downloading videos, tracking channel watch lists, choosing MP4/MP3 quality, and optionally uploading completed downloads to Google Drive.
 
@@ -57,6 +57,7 @@ On a fresh download, the launcher will automatically run `npm install` the first
 - Local app data is stored under `data/`.
 - `yt-dlp` is fetched automatically on first use.
 - `ffmpeg` is fetched automatically on first video merge or MP3 conversion on Windows.
+- Google Drive OAuth is configured on the local server through `.env.local`, not in the browser UI.
 
 ## Notes
 

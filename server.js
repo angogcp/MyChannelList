@@ -78,6 +78,7 @@ app.get("/api/drive/status", async (_req, res) => {
     const status = await drive.getStatus();
     res.json({
       ok: true,
+      configured: !!status.configured,
       connected: !!status.connected,
       email: status.email || ""
     });

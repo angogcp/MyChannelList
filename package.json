@@ -1,6 +1,6 @@
 {
   "name": "video-dl",
-  "version": "1.0.26",
+  "version": "1.0.28",
   "description": "Local web app for downloading videos and uploading to Google Drive",
   "main": "server.js",
   "scripts": {

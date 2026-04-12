@@ -139,7 +139,7 @@
       <nav class="sidebar-nav">
         <div class="brand">
           <div class="brand-title">Video DL</div>
-          <div class="brand-version" data-app-version>v1.0.26</div>
+          <div class="brand-version" data-app-version>v1.0.28</div>
         </div>
         <div class="nav-menu">
           <a href="/" class="nav-item active"><i data-feather="download"></i> Downloader</a>
@@ -189,15 +189,7 @@
             </div>
 
             <div class="drive-body collapsed" id="drive-body">
-              <label>
-                <span class="label-text">OAuth Client ID</span>
-                <input id="driveClientId" type="text" placeholder="Google OAuth Desktop client ID" />
-              </label>
-              <label>
-                <span class="label-text">OAuth Client Secret</span>
-                <input id="driveClientSecret" type="text" placeholder="Google OAuth Client Secret" />
-              </label>
-
+              <div class="hint" id="drive-note">Google Drive OAuth is configured locally on this machine, not in the browser.</div>
               <div class="drive-actions">
                 <button class="primary small" id="drive-connect" type="button">Connect</button>
                 <button class="secondary small" id="drive-refresh" type="button">Reload Folders</button>
@@ -217,8 +209,6 @@
                 <input id="deleteLocalAfterUpload" type="checkbox" />
                 Delete local file after upload
               </label>
-
-              <div id="drive-note" class="hint">Paste your client ID &amp; secret, then connect.</div>
             </div>
 
             <button class="primary" id="submit" type="submit" style="padding: 14px;">
@@ -254,8 +244,6 @@
       const updateEngineBtn = document.getElementById("update-engine");
       const modeSelect = document.getElementById("mode");
       const qualitySelect = document.getElementById("quality");
-      const driveClientIdInput = document.getElementById("driveClientId");
-      const driveClientSecretInput = document.getElementById("driveClientSecret");
       const driveFolderSelect = document.getElementById("driveFolder");
       const driveConnectButton = document.getElementById("drive-connect");
       const driveRefreshButton = document.getElementById("drive-refresh");
@@ -278,6 +266,7 @@
       };
 
       let driveConnected = false;
+      let driveConfigured = false;
       let driveBusy = false;
 
       boot();
@@ -382,8 +371,6 @@
           storeValue(STORAGE_KEYS.quality, qualitySelect.value);
         });
 
-        driveClientIdInput.addEventListener("input", syncDriveUiState);
-        driveClientSecretInput.addEventListener("input", syncDriveUiState);
         driveFolderSelect.addEventListener("change", () => {
           storeValue(STORAGE_KEYS.folderId, driveFolderSelect.value);
           syncDriveUiState();
@@ -462,19 +449,12 @@
       }
 
       async function connectDrive() {
-        const clientId = driveClientIdInput.value.trim();
-        const clientSecret = driveClientSecretInput.value.trim();
-        if (!clientId || !clientSecret) {
-          driveNote.textContent = "Paste client ID and secret first.";
-          return;
-        }
         setDriveBusy(true);
         driveNote.textContent = "Opening Google sign-in...";
         try {
           const result = await api("/api/drive/connect-init", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ clientId, clientSecret })
+            headers: { "Content-Type": "application/json" }
           });
           window.location.assign(result.authUrl);
         } catch (error) {
@@ -501,6 +481,7 @@
         try {
           const status = await api("/api/drive/status");
           driveConnected = !!status.connected;
+          driveConfigured = !!status.configured;
           syncDriveUiState(status.email || "");
           if (driveConnected && loadFolders) {
             await loadDriveFolders(false);
@@ -571,8 +552,8 @@
       }
 
       function syncDriveUiState(email = "") {
-        const hasCredentials = !!driveClientIdInput.value.trim() && !!driveClientSecretInput.value.trim();
         const hasFolder = !!driveFolderSelect.value;
+        const hasCredentials = driveConfigured;
 
         // Toggle label
         if (driveConnected) {
@@ -596,7 +577,8 @@
         }
 
         if (!driveBusy) {
-          if (!hasCredentials) driveNote.textContent = "Paste client ID & secret, then connect.";
+          if (driveConnected && !hasCredentials) driveNote.textContent = "Google Drive is connected. OAuth is configured on the local server, not in the browser.";
+          else if (!hasCredentials) driveNote.textContent = "Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env.local on this machine.";
           else if (!driveConnected) driveNote.textContent = "Click Connect to sign in with Google.";
           else if (!hasFolder) driveNote.textContent = "Choose a folder or create a new one.";
           else if (!uploadToDriveInput.checked) driveNote.textContent = "Enable upload to send downloads to Drive.";
