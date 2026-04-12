@@ -271,15 +271,11 @@
       const driveBody = document.getElementById("drive-body");
 
       const STORAGE_KEYS = {
-        clientId: "video-dl.web.drive.clientId",
-        clientSecret: "video-dl.web.drive.clientSecret",
         folderId: "video-dl.web.drive.folderId",
         upload: "video-dl.web.drive.upload",
         deleteLocal: "video-dl.web.drive.deleteLocal",
         quality: "video-dl.web.quality"
       };
-      const DEFAULT_GOOGLE_CLIENT_ID = "";
-      const DEFAULT_GOOGLE_CLIENT_SECRET = "";
 
       let driveConnected = false;
       let driveBusy = false;
@@ -386,14 +382,8 @@
           storeValue(STORAGE_KEYS.quality, qualitySelect.value);
         });
 
-        driveClientIdInput.addEventListener("input", () => {
-          storeValue(STORAGE_KEYS.clientId, driveClientIdInput.value.trim());
-          syncDriveUiState();
-        });
-        driveClientSecretInput.addEventListener("input", () => {
-          storeValue(STORAGE_KEYS.clientSecret, driveClientSecretInput.value.trim());
-          syncDriveUiState();
-        });
+        driveClientIdInput.addEventListener("input", syncDriveUiState);
+        driveClientSecretInput.addEventListener("input", syncDriveUiState);
         driveFolderSelect.addEventListener("change", () => {
           storeValue(STORAGE_KEYS.folderId, driveFolderSelect.value);
           syncDriveUiState();
@@ -480,8 +470,6 @@
         }
         setDriveBusy(true);
         driveNote.textContent = "Opening Google sign-in...";
-        storeValue(STORAGE_KEYS.clientId, clientId);
-        storeValue(STORAGE_KEYS.clientSecret, clientSecret);
         try {
           const result = await api("/api/drive/connect-init", {
             method: "POST",
@@ -513,14 +501,6 @@
         try {
           const status = await api("/api/drive/status");
           driveConnected = !!status.connected;
-          if (!driveClientIdInput.value.trim() && status.clientId) {
-             driveClientIdInput.value = status.clientId;
-             storeValue(STORAGE_KEYS.clientId, status.clientId);
-          }
-          if (!driveClientSecretInput.value.trim() && status.clientSecret) {
-             driveClientSecretInput.value = status.clientSecret;
-             storeValue(STORAGE_KEYS.clientSecret, status.clientSecret);
-          }
           syncDriveUiState(status.email || "");
           if (driveConnected && loadFolders) {
             await loadDriveFolders(false);
@@ -662,8 +642,6 @@
         storeValue(STORAGE_KEYS.quality, nextValue);
       }
       function loadPreferences() {
-        driveClientIdInput.value = loadValue(STORAGE_KEYS.clientId, DEFAULT_GOOGLE_CLIENT_ID);
-        driveClientSecretInput.value = loadValue(STORAGE_KEYS.clientSecret, DEFAULT_GOOGLE_CLIENT_SECRET);
         uploadToDriveInput.checked = loadValue(STORAGE_KEYS.upload, "0") === "1";
         deleteLocalAfterUploadInput.checked = loadValue(STORAGE_KEYS.deleteLocal, "0") === "1";
         syncDriveUiState();

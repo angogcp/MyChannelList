@@ -75,7 +75,12 @@ app.get("/api/health", async (_req, res) => {
 
 app.get("/api/drive/status", async (_req, res) => {
   try {
-    res.json(await drive.getStatus());
+    const status = await drive.getStatus();
+    res.json({
+      ok: true,
+      connected: !!status.connected,
+      email: status.email || ""
+    });
   } catch (error) {
     res.status(500).json({ error: error.message || "Drive status failed." });
   }
