@@ -81,17 +81,8 @@
         border-color: rgba(73, 160, 120, 0.32);
         background: linear-gradient(135deg, rgba(186, 238, 167, 0.5), rgba(255, 232, 143, 0.22));
       }
-      .sidebar-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr auto;
-        gap: 8px;
-        align-items: center;
-      }
-      .sidebar-actions .small {
-        min-width: 0;
-        padding-inline: 10px;
-        white-space: nowrap;
-      }
+      .sidebar-actions { display: flex; gap: 8px; align-items: center; }
+      .sidebar-actions .small { white-space: nowrap; }
       .ch-remove {
         opacity: 0; background: none; border: none; color: var(--error);
         cursor: pointer; font-size: 1.1rem; padding: 0 4px; line-height: 1;
@@ -127,6 +118,93 @@
         padding: 12px 20px;
         border-bottom: 1px solid var(--border);
         background: linear-gradient(180deg, rgba(245,158,11,0.07), rgba(20,184,166,0.025));
+      }
+      .refresh-board {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255, 253, 242, 0.42);
+      }
+      .refresh-copy {
+        min-width: 0;
+        display: grid;
+        gap: 8px;
+      }
+      .refresh-eyebrow {
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent-cool);
+      }
+      .refresh-title {
+        font-size: 1rem;
+        font-weight: 850;
+        color: var(--text-main);
+      }
+      .refresh-summary {
+        font-size: 0.86rem;
+        color: var(--text-muted);
+      }
+      .refresh-metrics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .refresh-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 253, 242, 0.64);
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 750;
+      }
+      .refresh-pill strong {
+        color: var(--text-main);
+        font-weight: 900;
+      }
+      .refresh-pill.new {
+        border-color: rgba(73, 160, 120, 0.32);
+        background: linear-gradient(135deg, rgba(186, 238, 167, 0.52), rgba(127, 211, 223, 0.2));
+        color: #245b3d;
+      }
+      .refresh-pill.error {
+        border-color: rgba(180, 91, 77, 0.22);
+        background: rgba(242, 186, 166, 0.26);
+        color: var(--error);
+      }
+      .refresh-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .refresh-new-list {
+        display: none;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .refresh-new-list.visible { display: flex; }
+      .refresh-channel-chip {
+        border: 1px solid rgba(73, 160, 120, 0.28);
+        background: rgba(255, 253, 242, 0.68);
+        color: #315f49;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .refresh-channel-chip:hover {
+        background: rgba(186, 238, 167, 0.44);
+        transform: translateY(-1px);
       }
       .flow-step {
         display: inline-flex;
@@ -1104,6 +1182,8 @@
       @media (max-width: 900px) {
         .layout { grid-template-columns: 1fr; }
         .ch-sidebar { max-height: 200px; border-right: none; border-bottom: 1px solid var(--border); }
+        .refresh-board { grid-template-columns: 1fr; }
+        .refresh-actions { justify-content: flex-start; }
         .decision-bar { grid-template-columns: 1fr; }
         .vid-row { grid-template-columns: auto 1fr auto; }
         .vid-thumb { display: none; }
@@ -1141,8 +1221,6 @@
                 <div class="sidebar-head">
                   <strong>Channels</strong>
                   <div class="sidebar-actions">
-                    <button class="secondary small" id="load-all-btn" type="button">Load</button>
-                    <button class="secondary small" id="check-updates-btn" type="button">Scan</button>
                     <button class="secondary small" id="add-channel-btn">+ Add</button>
                   </div>
                 </div>
@@ -1174,6 +1252,19 @@
                   <span class="flow-step"><strong>1</strong> Choose a channel</span>
                   <span class="flow-step"><strong>2</strong> Pick what to download</span>
                   <span class="flow-step"><strong>3</strong> Use Analysis for deep review</span>
+                </div>
+                <div class="refresh-board" id="refresh-board">
+                  <div class="refresh-copy">
+                    <div class="refresh-eyebrow">Channel radar</div>
+                    <div class="refresh-title">Know what changed before opening a channel</div>
+                    <div class="refresh-summary" id="refresh-summary">Run Scan to check for new videos. Use Load latest when you want to warm the cache for every channel.</div>
+                    <div class="refresh-metrics" id="refresh-metrics"></div>
+                    <div class="refresh-new-list" id="refresh-new-list"></div>
+                  </div>
+                  <div class="refresh-actions">
+                    <button class="secondary small" id="check-updates-btn" type="button">Scan updates</button>
+                    <button class="secondary small" id="load-all-btn" type="button">Load latest</button>
+                  </div>
                 </div>
                 <div class="triage-strip" id="triage-strip">
                   <span class="triage-pill"><strong>0</strong> items loaded</span>
@@ -1446,6 +1537,9 @@
       const bulkSkipBtn = document.getElementById("bulk-skip-btn");
       const bulkResetBtn = document.getElementById("bulk-reset-btn");
       const triageStrip = document.getElementById("triage-strip");
+      const refreshSummary = document.getElementById("refresh-summary");
+      const refreshMetrics = document.getElementById("refresh-metrics");
+      const refreshNewList = document.getElementById("refresh-new-list");
       const workspaceTabs = document.getElementById("workspace-tabs");
       const triageCard = document.getElementById("triage-card");
       const triageTitle = document.getElementById("triage-title");
@@ -1791,6 +1885,7 @@
           div.querySelector(".ch-remove").addEventListener("click", (e) => { e.stopPropagation(); removeChannel(ch); });
           channelListEl.appendChild(div);
         }
+        renderChannelRefreshBoard();
       }
 
       function selectChannel(ch) {
@@ -1873,7 +1968,7 @@
             const ch = channelsList[i];
             const key = channelSnapshotKey(ch);
             channelUpdateState.set(key, { status: "checking", message: "Loading cache" });
-            if (loadAllBtn) loadAllBtn.textContent = `${i + 1}/${channelsList.length}`;
+            if (loadAllBtn) loadAllBtn.textContent = `Stop ${i + 1}/${channelsList.length}`;
             if (!silent) setStatus("", `Loading ${i + 1}/${channelsList.length}: ${ch.name}`);
             renderChannels();
 
@@ -1908,9 +2003,80 @@
           cancelPreloadAll = false;
           if (loadAllBtn) {
             loadAllBtn.disabled = false;
-            loadAllBtn.textContent = "Load";
+            loadAllBtn.textContent = "Load latest";
+          }
+          renderChannelRefreshBoard();
+        }
+      }
+
+      function renderChannelRefreshBoard() {
+        if (!refreshSummary || !refreshMetrics || !refreshNewList) return;
+        const stats = getChannelRefreshStats();
+        refreshMetrics.innerHTML = `
+          <span class="refresh-pill new"><strong>${stats.newCount}</strong> new</span>
+          <span class="refresh-pill"><strong>${stats.checkedCount}</strong> checked</span>
+          <span class="refresh-pill"><strong>${stats.checkingCount}</strong> checking</span>
+          <span class="refresh-pill error"><strong>${stats.errorCount}</strong> failed</span>
+          <span class="refresh-pill"><strong>${stats.unknownCount}</strong> not checked</span>
+        `;
+
+        if (!stats.total) {
+          refreshSummary.textContent = "Add channels first, then Scan will tell you what changed.";
+        } else if (stats.checkingCount) {
+          refreshSummary.textContent = `Working through ${stats.total} channels. ${stats.checkedCount} checked so far.`;
+        } else if (stats.newCount) {
+          refreshSummary.textContent = `${stats.newCount} channel${stats.newCount === 1 ? "" : "s"} have new videos. Open the chip below to review.`;
+        } else if (stats.errorCount) {
+          refreshSummary.textContent = `${stats.errorCount} channel${stats.errorCount === 1 ? "" : "s"} need a retry. Scan again when the connection is calm.`;
+        } else if (stats.checkedCount && !stats.unknownCount) {
+          refreshSummary.textContent = `All ${stats.total} channels are checked${stats.lastCheckedAt ? `, last updated ${formatRefreshTime(stats.lastCheckedAt)}` : ""}.`;
+        } else if (stats.checkedCount) {
+          refreshSummary.textContent = `${stats.checkedCount}/${stats.total} channels checked. Scan updates to finish the picture.`;
+        } else {
+          refreshSummary.textContent = "Run Scan updates to find new videos without opening each channel.";
+        }
+
+        const newChannels = channelsList.filter((ch) => getChannelUpdateInfo(ch).status === "new").slice(0, 6);
+        refreshNewList.classList.toggle("visible", newChannels.length > 0);
+        refreshNewList.innerHTML = newChannels.map((ch) => {
+          const info = getChannelUpdateInfo(ch);
+          const count = Number(info.count || 0);
+          return `<button class="refresh-channel-chip" type="button" data-channel-url="${esc(ch.url)}">${esc(ch.name)}${count ? ` · ${count}` : ""}</button>`;
+        }).join("");
+        refreshNewList.querySelectorAll(".refresh-channel-chip").forEach((button) => {
+          button.addEventListener("click", () => {
+            const url = button.dataset.channelUrl || "";
+            const channel = channelsList.find((ch) => ch.url === url);
+            if (channel) selectChannel(channel);
+          });
+        });
+      }
+
+      function getChannelRefreshStats() {
+        const stats = {
+          total: channelsList.length,
+          newCount: 0,
+          checkedCount: 0,
+          checkingCount: 0,
+          errorCount: 0,
+          unknownCount: 0,
+          lastCheckedAt: ""
+        };
+
+        for (const ch of channelsList) {
+          const info = getChannelUpdateInfo(ch);
+          if (info.status === "new") stats.newCount += 1;
+          else if (info.status === "checking") stats.checkingCount += 1;
+          else if (info.status === "error") stats.errorCount += 1;
+          else if (["checked", "baseline", "loaded"].includes(info.status)) stats.checkedCount += 1;
+          else stats.unknownCount += 1;
+
+          if (info.checkedAt && (!stats.lastCheckedAt || Date.parse(info.checkedAt) > Date.parse(stats.lastCheckedAt))) {
+            stats.lastCheckedAt = info.checkedAt;
           }
         }
+
+        return stats;
       }
 
       function getChannelUpdateInfo(ch) {
