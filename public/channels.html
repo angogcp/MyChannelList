@@ -1198,7 +1198,7 @@
       <nav class="sidebar-nav">
         <div class="brand">
           <div class="brand-title">Video DL</div>
-          <div class="brand-version" data-app-version>v1.0.28</div>
+          <div class="brand-version" data-app-version>v1.0.29</div>
         </div>
         <div class="nav-menu">
           <a href="/" class="nav-item"><i data-feather="download"></i> Downloader</a>
@@ -1914,6 +1914,7 @@
         const originalLabel = checkUpdatesBtn.textContent;
         let checked = 0;
         let newChannels = 0;
+        let failed = 0;
 
         try {
           for (const ch of channelsList) {
@@ -1952,13 +1953,23 @@
               if (newIds.length) newChannels += 1;
               saveChannelSnapshots();
             } catch (err) {
-              channelUpdateState.set(key, { status: "error", message: err.message || "Check failed" });
+              failed += 1;
+              channelUpdateState.set(key, prior && prior.checkedAt
+                ? { status: "checked", checkedAt: prior.checkedAt }
+                : { status: "unknown" });
             }
             checked += 1;
           }
 
           renderChannels();
-          setStatus("success", newChannels > 0 ? `${newChannels} channel${newChannels === 1 ? "" : "s"} have new videos.` : "No new videos found in the channel list.");
+          setStatus(
+            failed > 0 ? "error" : "success",
+            failed > 0
+              ? `${failed} channel${failed === 1 ? "" : "s"} could not be checked. Try Scan updates again.`
+              : (newChannels > 0
+                ? `${newChannels} channel${newChannels === 1 ? "" : "s"} have new videos.`
+                : "No new videos found in the channel list.")
+          );
         } finally {
           checkUpdatesBtn.disabled = false;
           checkUpdatesBtn.textContent = originalLabel || "Scan";
@@ -1996,7 +2007,9 @@
               });
             } catch (err) {
               failed += 1;
-              channelUpdateState.set(key, { status: "error", message: err.message || "Load failed" });
+              channelUpdateState.set(key, channelSnapshots[key]
+                ? { status: "checked", checkedAt: channelSnapshots[key].checkedAt }
+                : { status: "unknown" });
             }
             renderChannels();
             await sleep(150);
@@ -2106,7 +2119,7 @@
         if (state.status === "checking") return `<span class="ch-update-badge checking">Checking...</span>`;
         if (state.status === "loaded") return `<span class="ch-update-badge loaded">${Number(state.count || 0)} cached</span>`;
         if (state.status === "baseline") return `<span class="ch-update-badge">First check</span>`;
-        if (state.status === "error") return `<span class="ch-update-badge">Check failed</span>`;
+        if (state.status === "error") return `<span class="ch-update-badge">Retry needed</span>`;
         if (state.status === "checked") return `<span class="ch-update-badge">${state.checkedAt ? `Checked ${formatRefreshTime(state.checkedAt)}` : "Checked"}</span>`;
         return `<span class="ch-update-badge">Not checked</span>`;
       }
