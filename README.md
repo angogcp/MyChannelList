@@ -1,6 +1,6 @@
 # Video DL
 
-Version `1.0.30`
+Version `1.0.31`
 
 Local web app for downloading videos, tracking channel watch lists, choosing MP4/MP3 quality, and optionally uploading completed downloads to Google Drive.
 
