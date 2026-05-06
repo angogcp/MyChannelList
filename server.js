@@ -16,8 +16,9 @@ const ROOT_DIR = __dirname;
 const localConfig = loadLocalConfig(ROOT_DIR);
 const DEFAULT_GOOGLE_CLIENT_ID = String(process.env.GOOGLE_CLIENT_ID || localConfig.GOOGLE_CLIENT_ID || "").trim();
 const DEFAULT_GOOGLE_CLIENT_SECRET = String(process.env.GOOGLE_CLIENT_SECRET || localConfig.GOOGLE_CLIENT_SECRET || "").trim();
-const OPENAI_API_KEY = String(process.env.OPENAI_API_KEY || localConfig.OPENAI_API_KEY || "").trim();
-const OPENAI_ANALYSIS_MODEL = String(process.env.OPENAI_ANALYSIS_MODEL || localConfig.OPENAI_ANALYSIS_MODEL || "gpt-5").trim();
+const DEEPSEEK_API_KEY = String(process.env.DEEPSEEK_API_KEY || localConfig.DEEPSEEK_API_KEY || "").trim();
+const DEEPSEEK_ANALYSIS_MODEL = String(process.env.DEEPSEEK_ANALYSIS_MODEL || localConfig.DEEPSEEK_ANALYSIS_MODEL || "deepseek-chat").trim();
+const LLM_BASE_URL = String(process.env.LLM_BASE_URL || localConfig.LLM_BASE_URL || "https://api.deepseek.com/v1").replace(/\/+$/, "");
 const downloader = createDownloader({
   appRoot: ROOT_DIR,
   dataRoot: ROOT_DIR
@@ -49,9 +50,10 @@ const queue = createDownloadQueue({
   contentTracker
 });
 const llmAnalyzer = createLlmAnalyzer({
-  apiKey: OPENAI_API_KEY,
-  model: OPENAI_ANALYSIS_MODEL,
-  timeoutMs: Number(process.env.OPENAI_ANALYSIS_TIMEOUT_MS || localConfig.OPENAI_ANALYSIS_TIMEOUT_MS || 45000)
+  apiKey: DEEPSEEK_API_KEY,
+  model: DEEPSEEK_ANALYSIS_MODEL,
+  baseUrl: LLM_BASE_URL,
+  timeoutMs: Number(process.env.LLM_TIMEOUT_MS || localConfig.LLM_TIMEOUT_MS || 45000)
 });
 
 app.use(express.json({ limit: "1mb" }));
@@ -436,15 +438,41 @@ app.get("/api/analysis/dashboard", async (_req, res) => {
         return s === "review_later" || s === "queued";
       })
       .map((r) => ({
+        id: r.id || "",
+        key: r.key || "",
         title: r.title || r.url || "Untitled",
         url: r.url || "",
         channelName: resolveChannelName(r.channelUrl, r.channelName || ""),
+        channelUrl: r.channelUrl || "",
         status: r.status,
         garbled: isGarbled(r.title),
+        hasAiInsight: !!(r.aiInsight && r.aiInsight.summary),
         lastUpdated: r.updatedAt || ""
       }))
       .sort((a, b) => new Date(b.lastUpdated || 0) - new Date(a.lastUpdated || 0))
-      .slice(0, 15);
+      .slice(0, 25);
+
+    // Unprocessed items (new with no activity)
+    const unprocessedItems = records
+      .filter((r) => {
+        const s = r.status || "new";
+        return s === "new" && !r.downloadCount && !r.queueCount && !r.note;
+      })
+      .map((r) => ({
+        id: r.id || "",
+        key: r.key || "",
+        title: r.title || r.url || "Untitled",
+        url: r.url || "",
+        channelName: resolveChannelName(r.channelUrl, r.channelName || ""),
+        channelUrl: r.channelUrl || "",
+        garbled: isGarbled(r.title),
+        hasAiInsight: !!(r.aiInsight && r.aiInsight.summary),
+        uploadDate: r.uploadDate || "",
+        duration: r.duration || 0,
+        lastUpdated: r.updatedAt || ""
+      }))
+      .sort((a, b) => new Date(b.lastUpdated || 0) - new Date(a.lastUpdated || 0))
+      .slice(0, 25);
 
     // Recent activity timeline
     const activities = [];
@@ -476,6 +504,7 @@ app.get("/api/analysis/dashboard", async (_req, res) => {
       },
       channelStats,
       needsAttention,
+      unprocessedItems,
       recentActivity: activities.slice(0, 30),
       aiConfigured: aiStatus.configured,
       aiModel: aiStatus.model || ""
@@ -521,7 +550,20 @@ app.delete("/api/library", async (req, res) => {
   }
 });
 
-queue.start().then(() => {
+queue.start().then(async () => {
+  // Start background refresh before listen — populates cache before first request
+  channels.refreshAllChannels({
+    limit: 15,
+    maxCacheAgeMs: 60 * 60 * 1000,
+    concurrency: 4,
+    onProgress: (info) => {
+      const icon = info.status === "refreshed" ? "✓" : info.status === "cached" ? "=" : "✗";
+      console.log(`  ${icon} ${info.channel} — ${info.status}${info.error ? ` (${info.error})` : ""}`);
+    }
+  }).catch((err) => {
+    console.error("[bg-refresh] Unexpected error:", err.message);
+  });
+
   app.listen(PORT, () => {
     console.log(`Video downloader running at http://localhost:${PORT}`);
   });

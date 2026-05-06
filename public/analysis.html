@@ -309,6 +309,146 @@
       color: var(--text-faint);
       font-style: italic;
     }
+
+    /* ── Action buttons ── */
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+      line-height: 1.4;
+      font-family: inherit;
+    }
+    .action-btn:hover {
+      border-color: var(--accent-primary-bright);
+      color: var(--ink-deep);
+      background: rgba(240, 184, 64, 0.06);
+    }
+    .action-btn.primary {
+      background: var(--gradient-btn);
+      color: var(--text-on-dark);
+      border-color: transparent;
+    }
+    .action-btn.primary:hover {
+      opacity: 0.88;
+      box-shadow: 0 2px 8px rgba(205, 157, 56, 0.3);
+    }
+    .action-btn.danger {
+      border-color: rgba(200, 106, 130, 0.3);
+      color: var(--accent-berry);
+    }
+    .action-btn.danger:hover {
+      background: rgba(200, 106, 130, 0.08);
+      border-color: var(--accent-berry);
+    }
+    .action-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .action-btn i { width: 12px; height: 12px; }
+
+    /* ── Inline insight ── */
+    .insight-inline {
+      font-size: 0.82rem;
+      color: var(--text-main);
+      padding: 10px 14px;
+      margin: 6px 14px 6px 14px;
+      background: rgba(240, 184, 64, 0.05);
+      border-left: 2px solid var(--accent-primary-bright);
+      border-radius: 0 8px 8px 0;
+      line-height: 1.5;
+    }
+    .insight-inline .insight-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--accent-primary-bright);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 3px;
+    }
+    .insight-inline .insight-score {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .insight-spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent-primary-bright);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .at-summary {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .attention-card .at-actions {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+    .attention-card {
+      flex-wrap: wrap;
+    }
+    .attention-card .chip.state {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(240, 184, 64, 0.1);
+      color: var(--accent-primary-bright);
+      border: 1px solid rgba(240, 184, 64, 0.2);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .attention-card .chip.state.queued {
+      background: rgba(107, 181, 201, 0.1);
+      color: var(--accent-cool);
+      border-color: rgba(107, 181, 201, 0.2);
+    }
+
+    /* ── Batch bar ── */
+    .batch-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 14px 10px 14px 10px;
+      margin-bottom: 10px;
+    }
+    .batch-bar .batch-label {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .batch-bar .action-btn i { width: 14px; height: 14px; }
   </style>
 </head>
 <body>
@@ -347,6 +487,7 @@
   <script>
     // ── State ──
     const root = document.getElementById("dashboard-root");
+    let dashboardData = null;
 
     // ── Boot ──
     loadDashboard();
@@ -355,6 +496,7 @@
     async function loadDashboard() {
       try {
         const data = await api("/api/analysis/dashboard");
+        dashboardData = data;
         render(data);
       } catch (err) {
         root.innerHTML = `<div class="dash-empty" style="color:var(--error)"><i data-feather="alert-circle"></i>${esc(err.message)}</div>`;
@@ -362,23 +504,25 @@
       }
     }
 
+    async function reloadDashboard() {
+      try {
+        const data = await api("/api/analysis/dashboard");
+        dashboardData = data;
+        render(data);
+      } catch (err) {
+        setActionStatus("Failed to reload: " + err.message);
+      }
+    }
+
     // ── Render ──
     function render(data) {
       const parts = [];
 
-      // 1. Stat cards
       parts.push(renderStats(data.overview));
-
-      // 2. Channel performance
       parts.push(renderChannelSection(data.channelStats));
-
-      // 3. Needs attention
       parts.push(renderAttentionSection(data.needsAttention));
-
-      // 4. Recent activity
+      parts.push(renderUnprocessedSection(data.unprocessedItems));
       parts.push(renderActivitySection(data.recentActivity));
-
-      // 5. AI overview
       parts.push(renderAiSection(data));
 
       root.innerHTML = parts.join("");
@@ -439,19 +583,81 @@
 
       const cards = items.map(item => {
         const statusLabel = item.status === "review_later" ? "稍后再看" : "排队中";
+        const statusClass = item.status === "queued" ? "queued" : "";
+        const key = item.key || item.id || "";
         const titleTag = item.garbled
           ? `<span class="garbled-title">${esc(item.title)}</span>${garbledBadge()}`
-          : `<span class="at-title">${esc(item.title)}</span>`;
-        return `<a class="attention-card" href="${esc(item.url || "#")}" target="_blank" rel="noopener" style="text-decoration:none">
-          <span class="chip state">${statusLabel}</span>
-          ${titleTag}
-          <span class="at-channel">${esc(item.channelName || "")}</span>
-          <i data-feather="external-link" style="width:14px;height:14px;color:var(--text-faint);flex-shrink:0"></i>
-        </a>`;
+          : `<span>${esc(item.title)}</span>`;
+        const channelTag = item.channelName ? `<span class="at-channel">${esc(item.channelName)}</span>` : "";
+        const insightHtml = item.hasAiInsight
+          ? `<div class="insight-inline"><div class="insight-label">AI 分析</div>已有 AI 分析结果</div>`
+          : "";
+
+        return `<div class="attention-card stagger-item" data-key="${esc(key)}">
+          <span class="chip state ${statusClass}">${statusLabel}</span>
+          <div class="at-summary">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              ${titleTag}
+              ${channelTag}
+            </div>
+            ${insightHtml}
+          </div>
+          <div class="at-actions action-group">
+            <button class="action-btn primary" data-action="ai" data-key="${esc(key)}" data-url="${esc(item.url)}" data-channel="${esc(item.channelName)}"><i data-feather="zap"></i> AI</button>
+            <button class="action-btn" data-action="done" data-key="${esc(key)}"><i data-feather="check"></i> 完成</button>
+            <button class="action-btn danger" data-action="skip" data-key="${esc(key)}"><i data-feather="x"></i> 跳过</button>
+          </div>
+        </div>`;
       }).join("");
 
-      const badge = `<span class="badge">${items.length} 项</span>`;
-      return section("inbox", "待关注", `<div class="stagger-group">${cards}</div>`, badge);
+      return section("inbox", "待关注", `<div class="stagger-group">${cards}</div>`,
+        `<span class="badge">${items.length} 项</span>`
+      );
+    }
+
+    // ── Unprocessed items ──
+    function renderUnprocessedSection(items) {
+      if (!items || items.length === 0) {
+        return emptySection("layers", "没有待处理的内容。所有视频都已评估或处理。");
+      }
+
+      const cards = items.map(item => {
+        const key = item.key || item.id || "";
+        const titleTag = item.garbled
+          ? `<span class="garbled-title">${esc(item.title)}</span>${garbledBadge()}`
+          : `<span>${esc(item.title)}</span>`;
+        const channelTag = item.channelName ? `<span class="at-channel">${esc(item.channelName)}</span>` : "";
+
+        let meta = "";
+        if (item.duration) meta += `${fmtDuration(item.duration)} · `;
+        meta += "尚未处理";
+
+        return `<div class="attention-card stagger-item" data-key="${esc(key)}">
+          <span class="chip state" style="background:rgba(200,106,130,0.08);color:var(--accent-berry);border-color:rgba(200,106,130,0.15)">待评估</span>
+          <div class="at-summary">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              ${titleTag}
+              ${channelTag}
+            </div>
+            <div class="meta-muted">${meta}</div>
+          </div>
+          <div class="at-actions action-group">
+            <button class="action-btn primary" data-action="ai" data-key="${esc(key)}" data-url="${esc(item.url)}" data-channel="${esc(item.channelName)}"><i data-feather="zap"></i> AI</button>
+            <button class="action-btn" data-action="done" data-key="${esc(key)}"><i data-feather="check"></i> 完成</button>
+            <button class="action-btn danger" data-action="skip" data-key="${esc(key)}"><i data-feather="x"></i> 跳过</button>
+          </div>
+        </div>`;
+      }).join("");
+
+      const batchBar = `<div class="batch-bar">
+        <span class="batch-label">${items.length} 个视频尚未评估</span>
+        <button class="action-btn primary batch-ai-btn" data-action="batch-ai"><i data-feather="zap"></i> AI 批量分析</button>
+      </div>`;
+
+      return section("layers", "待评估视频",
+        batchBar + `<div class="stagger-group">${cards}</div>`,
+        `<span class="badge">${items.length} 项</span>`
+      );
     }
 
     // ── Activity ──
@@ -485,15 +691,13 @@
       const icon = configured ? "on" : "off";
       const iconName = configured ? "check-circle" : "x-circle";
 
-      let status, detail, action;
+      let status, detail;
       if (configured) {
         status = `AI 分析已配置 · ${data.aiAnalyzed} 条已分析`;
         detail = `模型：${esc(data.aiModel)}`;
-        action = "";
       } else {
         status = "AI 分析未配置";
-        detail = "在服务器 .env.local 中设置 OPENAI_API_KEY 以启用 AI 辅助判断。";
-        action = "";
+        detail = "在 .env.local 中设置 DEEPSEEK_API_KEY 以启用 AI 辅助判断。";
       }
 
       return section("cpu", "AI 分析概览",
@@ -505,6 +709,177 @@
           </div>
         </div>`
       );
+    }
+
+    // ── Event delegation for actions ──
+    root.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+      const action = btn.getAttribute("data-action");
+      if (btn.disabled) return;
+
+      if (action === "batch-ai") {
+        await handleBatchAi();
+        return;
+      }
+
+      const key = btn.getAttribute("data-key");
+      if (!key) return;
+
+      btn.disabled = true;
+
+      if (action === "done") {
+        await handleAction(key, "completed", btn);
+      } else if (action === "skip") {
+        await handleAction(key, "skipped", btn);
+      } else if (action === "ai") {
+        const url = btn.getAttribute("data-url");
+        const channel = btn.getAttribute("data-channel");
+        await handleAi(key, url || "", channel || "", btn);
+      }
+    });
+
+    async function handleAction(key, status, btn) {
+      try {
+        await api("/api/content/state", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: key.replace(/^yt:/, ""), status })
+        });
+        removeItemCard(key);
+        setActionStatus(status === "completed" ? "✓ 标记为已完成" : "✓ 已跳过");
+      } catch (err) {
+        btn.disabled = false;
+        setActionStatus("✗ " + err.message);
+      }
+    }
+
+    async function handleAi(key, url, channelName, btn) {
+      const card = btn.closest(".attention-card");
+      if (card && !card.querySelector(".insight-inline")) {
+        const spinner = document.createElement("div");
+        spinner.className = "insight-inline";
+        spinner.id = "insight-" + key;
+        spinner.innerHTML = '<span class="insight-spinner"></span> AI 分析中...';
+        const summary = card.querySelector(".at-summary");
+        if (summary) summary.appendChild(spinner);
+      }
+
+      try {
+        const data = await api("/api/content/ai-insight", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: key.replace(/^yt:/, ""),
+            title: "",
+            url,
+            channelName
+          })
+        });
+        const insight = data.aiInsight;
+        const html = `<div class="insight-inline">
+          <div class="insight-label">AI 分析 <span class="insight-score">${insight.recommendation} · ${insight.score}/100</span></div>
+          ${esc(insight.summary)}
+        </div>`;
+        const existing = document.getElementById("insight-" + key);
+        if (existing) {
+          existing.outerHTML = html;
+        } else {
+          const card = btn.closest(".attention-card");
+          const summary = card && card.querySelector(".at-summary");
+          if (summary) summary.insertAdjacentHTML("beforeend", html);
+        }
+        setActionStatus("✓ AI 分析完成");
+        btn.disabled = false;
+      } catch (err) {
+        btn.disabled = false;
+        const existing = document.getElementById("insight-" + key);
+        if (existing) existing.remove();
+        setActionStatus("✗ AI 分析失败: " + err.message);
+      }
+    }
+
+    async function handleBatchAi() {
+      const items = dashboardData ? dashboardData.unprocessedItems || [] : [];
+      if (!items.length) return;
+
+      let done = 0;
+      let failed = 0;
+      const batchBtn = root.querySelector(".batch-ai-btn");
+      if (batchBtn) {
+        batchBtn.disabled = true;
+        batchBtn.innerHTML = '<span class="insight-spinner"></span> 分析中...';
+      }
+
+      const toProcess = items.filter(item => (item.key || item.id));
+      for (const item of toProcess) {
+        try {
+          await api("/api/content/ai-insight", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: (item.key || item.id).replace(/^yt:/, ""),
+              title: "",
+              url: item.url || "",
+              channelName: item.channelName || ""
+            })
+          });
+          done++;
+        } catch {
+          failed++;
+        }
+      }
+
+      if (batchBtn) {
+        batchBtn.disabled = false;
+        batchBtn.innerHTML = '<i data-feather="zap"></i> AI 批量分析';
+        feather.replace();
+      }
+
+      setActionStatus(`✓ AI 批量分析完成: ${done} 成功, ${failed} 失败`);
+      reloadDashboard();
+    }
+
+    function removeItemCard(key) {
+      const card = root.querySelector(`.attention-card[data-key="${esc(key)}"]`);
+      if (card) {
+        card.style.transition = "all 0.25s ease";
+        card.style.opacity = "0";
+        card.style.transform = "translateX(-20px)";
+        setTimeout(() => {
+          card.remove();
+          updateSectionBadges();
+          updateStatCards();
+        }, 260);
+      }
+    }
+
+    // ── Status indicator ──
+    let statusEl = null;
+
+    function setActionStatus(msg) {
+      if (!statusEl) {
+        statusEl = document.createElement("div");
+        statusEl.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:999;padding:10px 18px;border-radius:12px;background:var(--bg-surface);border:1px solid var(--border);box-shadow:var(--shadow-elevated);font-size:0.85rem;color:var(--text-main);transition:opacity 0.3s ease;max-width:400px;";
+        document.body.appendChild(statusEl);
+      }
+      statusEl.textContent = msg;
+      statusEl.style.opacity = "1";
+      clearTimeout(statusEl._hide);
+      statusEl._hide = setTimeout(() => { statusEl.style.opacity = "0"; }, 3000);
+    }
+
+    function updateSectionBadges() {
+      document.querySelectorAll(".dash-section").forEach(section => {
+        const visible = section.querySelectorAll(".attention-card:not([style*='opacity: 0'])").length;
+        const badge = section.querySelector(".badge");
+        if (badge) badge.textContent = visible + " 项";
+      });
+    }
+
+    function updateStatCards() {
+      // Reload fresh data from server
+      reloadDashboard();
     }
 
     // ── Helpers ──
@@ -551,6 +926,13 @@
       try {
         return new Date(value).toLocaleString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
       } catch { return ""; }
+    }
+
+    function fmtDuration(secs) {
+      const n = Number(secs) || 0;
+      if (n < 60) return n + "秒";
+      if (n < 3600) return Math.floor(n / 60) + "分钟";
+      return Math.floor(n / 3600) + "小时 " + Math.floor((n % 3600) / 60) + "分";
     }
 
     function esc(value) {

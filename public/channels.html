@@ -1415,6 +1415,7 @@
                   <div class="triage-reasons" id="triage-reasons"></div>
                   <div class="decision-presets">
                     <button class="primary small" type="button" id="preset-watch-now-btn">Watch now</button>
+                    <button class="primary small" type="button" id="preset-download-btn">Download</button>
                     <button class="secondary small" type="button" id="preset-queue-later-btn">Queue for later</button>
                     <button class="secondary small" type="button" id="preset-ignore-btn">Ignore</button>
                     <button class="secondary small" type="button" id="analyze-ai-btn">Analyze with AI</button>
@@ -1574,6 +1575,7 @@
       const triageSummary = document.getElementById("triage-summary");
       const triageReasons = document.getElementById("triage-reasons");
       const presetWatchNowBtn = document.getElementById("preset-watch-now-btn");
+      const presetDownloadBtn = document.getElementById("preset-download-btn");
       const presetQueueLaterBtn = document.getElementById("preset-queue-later-btn");
       const presetIgnoreBtn = document.getElementById("preset-ignore-btn");
       const analyzeAiBtn = document.getElementById("analyze-ai-btn");
@@ -1720,6 +1722,7 @@
         markSkippedBtn.addEventListener("click", () => updateFocusedContentState("skipped"));
         markResetBtn.addEventListener("click", () => updateFocusedContentState("new"));
         presetWatchNowBtn.addEventListener("click", () => runDecisionPreset("watch_now"));
+        presetDownloadBtn.addEventListener("click", () => runDecisionPreset("download"));
         presetQueueLaterBtn.addEventListener("click", () => runDecisionPreset("queue_for_later"));
         presetIgnoreBtn.addEventListener("click", () => runDecisionPreset("ignore"));
         analyzeAiBtn.addEventListener("click", runAiAnalysis);
@@ -2795,7 +2798,7 @@
           aiInsightReasons.innerHTML = "";
           aiInsightMeta.textContent = aiConfigured
             ? ""
-            : "Set OPENAI_API_KEY on the server to enable AI analysis.";
+            : "Set DEEPSEEK_API_KEY on the server to enable AI analysis.";
           return;
         }
 
@@ -3088,6 +3091,15 @@
         }
         if (preset === "ignore") {
           await updateContentStateForVideo(video, "skipped");
+          return;
+        }
+        if (preset === "download") {
+          const queued = await queueVideosForDownload([video]);
+          if (queued > 0) {
+            setStatus("success", `Queued "${video.title}" for download.`);
+          } else {
+            setStatus("error", `Could not queue "${video.title}" for download.`);
+          }
           return;
         }
         if (preset !== "watch_now") return;
