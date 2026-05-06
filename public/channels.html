@@ -1882,9 +1882,10 @@
 
       function renderChannels() {
         channelListEl.innerHTML = "";
-        for (const ch of channelsList) {
+        for (const [idx, ch] of channelsList.entries()) {
           const div = document.createElement("div");
-          div.className = "ch-item" + (activeChannel && activeChannel.url === ch.url ? " active" : "");
+          div.className = "ch-item fade-in" + (activeChannel && activeChannel.url === ch.url ? " active" : "");
+          div.style.setProperty("--delay", String(idx));
           const update = getChannelUpdateInfo(ch);
           div.innerHTML = `
             <div class="ch-main">
@@ -2272,7 +2273,8 @@
         for (let i = 0; i < visibleVideos.length; i++) {
           const v = visibleVideos[i];
           const row = document.createElement("div");
-          row.className = "vid-row" + (focusedVideoKey === v.trackerKey ? " selected" : "");
+          row.className = "vid-row fade-in" + (focusedVideoKey === v.trackerKey ? " selected" : "");
+          row.style.setProperty("--delay", String(i));
           const dateStr = v.uploadDate ? `${v.uploadDate.slice(0,4)}-${v.uploadDate.slice(4,6)}-${v.uploadDate.slice(6,8)}` : "";
           const durStr = v.duration ? fmtDur(v.duration) : "";
           const meta = [dateStr, durStr].filter(Boolean).join(" - ");

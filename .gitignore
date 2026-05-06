@@ -13,3 +13,6 @@ data/channel-video-cache/
 Thumbs.db
 public/_inline-check.js
 public/_channels-inline-check.js
+.claude/
+.agents/
+skills-lock.json

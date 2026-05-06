@@ -156,13 +156,13 @@
             <p class="sub">Paste a URL, pick a format, and hit download.</p>
           </header>
 
-          <form id="download-form" class="glass-panel">
-            <label>
+          <form id="download-form" class="glass-panel stagger-form">
+            <label class="fade-in" style="--delay:0">
               <span class="label-text">Video URL</span>
               <input id="url" name="url" type="url" placeholder="https://youtube.com/watch?v=..." required />
             </label>
 
-            <div class="row">
+            <div class="row fade-in" style="--delay:1">
               <label>
                 <span class="label-text">Format</span>
                 <select id="mode" name="mode">
@@ -176,13 +176,13 @@
               </label>
             </div>
 
-            <label>
+            <label class="fade-in" style="--delay:2">
               <span class="label-text">Quality</span>
               <select id="quality" name="quality"></select>
             </label>
 
             <!-- Collapsible Google Drive -->
-            <div class="drive-toggle" id="drive-toggle">
+            <div class="drive-toggle fade-in" id="drive-toggle" style="--delay:3">
               <span class="dot" id="drive-dot"></span>
               <span id="drive-toggle-label">Google Drive</span>
               <span class="arrow" id="drive-arrow"><i data-feather="chevron-down" style="width:16px;height:16px"></i></span>
@@ -211,12 +211,12 @@
               </label>
             </div>
 
-            <button class="primary" id="submit" type="submit" style="padding: 14px;">
+            <button class="primary fade-in" id="submit" type="submit" style="padding: 14px; --delay:4">
               <i data-feather="download-cloud"></i> Download
             </button>
           </form>
 
-          <section class="glass-panel" style="padding: 24px;">
+          <section class="glass-panel queue-section" style="padding: 24px;">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               <strong style="color: var(--text-main);">Download Queue</strong>
               <div style="display:flex; gap:8px; align-items:center;">
