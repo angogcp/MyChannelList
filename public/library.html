@@ -184,12 +184,28 @@
       .bottom-status .error { color: var(--error); }
 
       .file-row {
-        transition: transform 0.2s ease, background 0.15s, border-color 0.15s, box-shadow 0.15s;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+      }
+      .file-row::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 6px;
+        bottom: 6px;
+        width: 2.5px;
+        background: linear-gradient(180deg, var(--accent-primary-bright), var(--accent-secondary-bright));
+        border-radius: 0 3px 3px 0;
+        opacity: 0;
+        transition: opacity 0.3s ease;
       }
       .file-row:hover {
-        transform: translateX(3px);
-        border-color: rgba(125, 167, 106, 0.28);
+        transform: translateX(4px);
+        border-color: rgba(125, 167, 106, 0.24);
         box-shadow: 0 4px 16px rgba(92, 117, 74, 0.08);
+      }
+      .file-row:hover::after {
+        opacity: 1;
       }
       .file-play {
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);

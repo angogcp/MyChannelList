@@ -15,32 +15,53 @@
       margin-bottom: 28px;
     }
     .stat-card {
-      padding: 18px 16px 14px;
+      padding: 20px 18px 16px;
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: 18px 13px 17px 12px;
-      transition: transform 0.16s ease, box-shadow 0.16s ease;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-primary-bright), var(--accent-secondary-bright));
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
     .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 34px rgba(92, 117, 74, 0.14);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px rgba(92, 117, 74, 0.14), 0 4px 12px rgba(92, 117, 74, 0.06);
+    }
+    .stat-card:hover::after {
+      opacity: 1;
     }
     .stat-card .stat-value {
-      font-size: 1.8rem;
+      font-size: 1.85rem;
       font-weight: 800;
-      color: var(--ink-green);
-      line-height: 1.1;
-      letter-spacing: -0.03em;
+      color: var(--ink-deep);
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      font-family: var(--font-display);
     }
     .stat-card .stat-label {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
+      font-weight: 600;
       color: var(--text-muted);
-      margin-top: 4px;
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
     .stat-card .stat-sub {
       font-size: 0.72rem;
       color: var(--text-faint);
-      margin-top: 2px;
+      margin-top: 3px;
     }
 
     /* ── Section styling ── */
@@ -123,16 +144,34 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 13px 16px;
+      padding: 14px 18px;
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: 16px 11px 15px 12px;
       margin-bottom: 8px;
-      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .attention-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 2.5px;
+      background: var(--accent-primary-bright);
+      border-radius: 0 3px 3px 0;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
     .attention-card:hover {
-      border-color: rgba(125, 167, 106, 0.32);
+      border-color: rgba(125, 167, 106, 0.3);
       box-shadow: 0 8px 24px rgba(92, 117, 74, 0.1);
+      transform: translateX(3px);
+    }
+    .attention-card:hover::before {
+      opacity: 1;
     }
     .attention-card .at-title {
       flex: 1;
@@ -154,21 +193,26 @@
     .activity-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 16px;
+      gap: 14px;
+      padding: 12px 20px;
       border-bottom: 1px solid var(--border);
       font-size: 0.88rem;
+      transition: background 0.15s ease;
     }
     .activity-item:last-child { border-bottom: none; }
+    .activity-item:hover {
+      background: rgba(255, 253, 242, 0.4);
+    }
     .act-dot {
-      width: 8px;
-      height: 8px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(61, 143, 92, 0.1);
     }
-    .act-dot.downloaded { background: var(--accent-secondary); }
-    .act-dot.skipped { background: var(--accent-berry); }
-    .act-dot.completed { background: var(--accent-primary); }
+    .act-dot.downloaded { background: var(--accent-secondary-bright); box-shadow: 0 0 0 3px rgba(90, 184, 122, 0.12); }
+    .act-dot.skipped { background: var(--accent-berry); box-shadow: 0 0 0 3px rgba(191, 94, 120, 0.12); }
+    .act-dot.completed { background: var(--accent-primary-bright); box-shadow: 0 0 0 3px rgba(240, 184, 64, 0.12); }
     .act-title {
       flex: 1;
       min-width: 0;
@@ -209,22 +253,27 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      padding: 18px 20px;
+      padding: 20px 22px;
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: 18px 13px 17px 12px;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ai-card:hover {
+      border-color: rgba(125, 167, 106, 0.2);
+      box-shadow: 0 6px 20px rgba(92, 117, 74, 0.06);
     }
     .ai-card .ai-icon {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
-    .ai-card .ai-icon.on { background: rgba(73, 160, 120, 0.15); color: var(--success); }
-    .ai-card .ai-icon.off { background: rgba(200, 106, 130, 0.12); color: var(--text-muted); }
+    .ai-card .ai-icon.on { background: rgba(90, 184, 122, 0.15); color: var(--success); box-shadow: 0 0 0 4px rgba(90, 184, 122, 0.08); }
+    .ai-card .ai-icon.off { background: rgba(191, 94, 120, 0.1); color: var(--text-muted); }
     .ai-card .ai-body { flex: 1; min-width: 0; }
     .ai-card .ai-status {
       font-size: 0.88rem;
