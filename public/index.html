@@ -514,7 +514,7 @@
           const result = await api("/api/drive/folders", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: name.trim() })
+            body: JSON.stringify({ name: name.trim(), parentId: driveFolderSelect.value || undefined })
           });
           await loadDriveFolders(false);
           driveFolderSelect.value = result.id;

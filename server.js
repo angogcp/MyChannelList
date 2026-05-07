@@ -166,8 +166,8 @@ app.get("/api/drive/folders", async (_req, res) => {
 
 app.post("/api/drive/folders", async (req, res) => {
   try {
-    const { name } = req.body || {};
-    res.json(await drive.createFolder(name));
+    const { name, parentId } = req.body || {};
+    res.json(await drive.createFolder(name, parentId));
   } catch (error) {
     res.status(500).json({ error: error.message || "Drive folder creation failed." });
   }

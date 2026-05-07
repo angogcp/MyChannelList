@@ -3312,7 +3312,7 @@
         const name = prompt("Folder name:");
         if (!name || !name.trim()) return;
         try {
-          const r = await api("/api/drive/folders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: name.trim() }) });
+          const r = await api("/api/drive/folders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: name.trim(), parentId: driveFolderSelect.value || undefined })});
           await loadDriveFolders();
           driveFolderSelect.value = r.id;
           storeVal(DRIVE_KEYS.folderId, r.id);
