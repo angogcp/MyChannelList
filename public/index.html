@@ -218,7 +218,10 @@
 
           <section class="glass-panel queue-section" style="padding: 24px;">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-              <strong style="color: var(--text-main);">Download Queue</strong>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="active-pulse-dot"></span>
+                <strong style="color: var(--text-main);">Download Queue</strong>
+              </div>
               <div style="display:flex; gap:8px; align-items:center;">
                 <button class="secondary small" id="clear-queue-btn" type="button">Clear finished</button>
                 <button class="secondary small" id="update-engine" type="button"><i data-feather="refresh-cw" style="width:14px;height:14px"></i> Update Engine</button>
@@ -325,6 +328,17 @@
             linkHtml = ` <a href="${job.driveLink}" target="_blank" style="color:var(--accent-primary)">View in Drive</a>`;
           }
 
+          let actionHtml = "";
+          if (job.status === "error") {
+            actionHtml = `
+              <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
+                <button class="secondary small retry-btn" data-id="${job.id}" type="button" style="padding:4px 8px; font-size:0.75rem; gap:4px;">
+                  <i data-feather="rotate-ccw" style="width:12px;height:12px"></i> Retry
+                </button>
+              </div>
+            `;
+          }
+
           div.innerHTML = `
             <div class="queue-head">
               <div class="queue-title">${esc(job.title)}</div>
@@ -332,9 +346,12 @@
             </div>
             <div class="queue-msg">${esc(job.message)}${linkHtml}</div>
             ${trackHtml}
+            ${actionHtml}
           `;
           queueList.appendChild(div);
         }
+
+        if (window.feather) feather.replace();
       }
 
       async function clearFinishedQueue() {
@@ -390,6 +407,29 @@
         form.addEventListener("submit", handleSubmit);
         clearQueueBtn.addEventListener("click", clearFinishedQueue);
         updateEngineBtn.addEventListener("click", updateYtDlpEngine);
+
+        queueList.addEventListener("click", async (e) => {
+          const btn = e.target.closest(".retry-btn");
+          if (!btn) return;
+
+          const jobId = btn.dataset.id;
+          if (!jobId) return;
+
+          btn.disabled = true;
+          btn.innerHTML = `<span class="spinner" style="width:10px;height:10px;border-width:1.5px;margin-right:4px"></span> Retrying...`;
+
+          try {
+            await api("/api/queue/retry", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: jobId })
+            });
+            setStatus("Retry initiated.", "success");
+          } catch (error) {
+            alert("Failed to retry: " + error.message);
+            setStatus("Failed to retry: " + error.message, "error");
+          }
+        });
       }
 
       async function handleSubmit(event) {
@@ -661,5 +701,6 @@
 
       function setDriveBusy(b) { driveBusy = !!b; syncDriveUiState(); }
     </script>
+    <script src="/tooltips.js"></script>
   </body>
 </html>

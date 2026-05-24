@@ -1,0 +1,1 @@
+function test() { [1,2,3].forEach((x,i) => { console.log(x); }); } test();

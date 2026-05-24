@@ -103,9 +103,9 @@
       .file-row-with-cb { grid-template-columns: auto minmax(0, 1fr) auto auto auto auto; }
       .file-play {
         min-width: 68px;
-        color: #2f6d57;
-        border-color: rgba(73, 160, 120, 0.28) !important;
-        background: linear-gradient(135deg, rgba(186, 238, 167, 0.42), rgba(127, 211, 223, 0.2)) !important;
+        color: var(--accent-secondary-bright) !important;
+        border-color: rgba(20, 184, 166, 0.3) !important;
+        background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(212, 175, 55, 0.05)) !important;
       }
       .player-overlay {
         position: fixed;
@@ -114,7 +114,7 @@
         display: none;
         place-items: center;
         padding: 28px;
-        background: rgba(37, 52, 38, 0.42);
+        background: var(--bg-overlay);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
       }
@@ -125,12 +125,13 @@
         display: grid;
         gap: 14px;
         padding: 18px;
-        border: 1px solid rgba(98, 119, 74, 0.24);
+        border: 1px solid var(--border-strong);
         border-radius: 24px;
         background:
-          radial-gradient(circle at 12% 0%, rgba(255,255,255,0.9), transparent 28%),
-          linear-gradient(135deg, rgba(255, 253, 242, 0.96), rgba(229, 242, 203, 0.94));
-        box-shadow: 0 30px 90px rgba(43, 65, 45, 0.28);
+          linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+          radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.03), transparent 28%),
+          linear-gradient(135deg, rgba(15, 18, 27, 0.85), rgba(11, 13, 20, 0.95));
+        box-shadow: var(--shadow-elevated);
       }
       .player-head {
         display: flex;
@@ -157,7 +158,7 @@
         place-items: center;
         min-height: 96px;
         border-radius: 18px;
-        background: rgba(47, 64, 43, 0.08);
+        background: rgba(10, 12, 18, 0.6);
         overflow: hidden;
       }
       .player-stage video,
@@ -201,8 +202,8 @@
       }
       .file-row:hover {
         transform: translateX(4px);
-        border-color: rgba(125, 167, 106, 0.24);
-        box-shadow: 0 4px 16px rgba(92, 117, 74, 0.08);
+        border-color: rgba(212, 175, 55, 0.24);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
       }
       .file-row:hover::after {
         opacity: 1;
@@ -542,5 +543,6 @@
         return d;
       }
     </script>
+    <script src="/tooltips.js"></script>
   </body>
 </html>

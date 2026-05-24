@@ -228,6 +228,23 @@ app.post("/api/queue/clear", (_req, res) => {
   }
 });
 
+app.post("/api/queue/retry", (req, res) => {
+  try {
+    const { id } = req.body || {};
+    if (!id) {
+      return res.status(400).json({ error: "Job ID is required." });
+    }
+    const success = queue.retryJob(id);
+    if (success) {
+      res.json({ ok: true, queue: queue.getQueueState() });
+    } else {
+      res.status(400).json({ error: "Job cannot be retried (not found or not in error state)." });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Failed to retry job." });
+  }
+});
+
 app.post("/api/system/update-engine", async (_req, res) => {
   try {
     const result = await downloader.updateYtDlp();
@@ -343,14 +360,135 @@ app.post("/api/content/ai-insight", async (req, res) => {
       ...payload,
       aiInsight
     });
+
+    let autoQueued = false;
+    const channelUrl = payload.channelUrl || result.record.channelUrl || "";
+    if (channelUrl) {
+      const prefsResult = await contentTracker.getPreferences({ channelUrl });
+      const prefs = prefsResult.preferences || {};
+      if (prefs.autoQueueThreshold > 0 && aiInsight && aiInsight.score >= prefs.autoQueueThreshold) {
+        const currentStatus = result.record.status || "new";
+        if (currentStatus === "new" || currentStatus === "review_later") {
+          const trackerItem = {
+            key: result.record.key,
+            id: result.record.id || payload.id,
+            url: result.record.url || payload.url,
+            title: result.record.title || payload.title,
+            channelName: result.record.channelName || payload.channelName,
+            channelUrl: result.record.channelUrl || payload.channelUrl,
+            duration: result.record.duration || payload.duration,
+            uploadDate: result.record.uploadDate || payload.uploadDate,
+            thumbnail: result.record.thumbnail || payload.thumbnail
+          };
+          queue.addJob({
+            url: result.record.url || payload.url,
+            mode: prefs.autoQueueMode || "video",
+            quality: "",
+            uploadToDrive: !!prefs.autoQueueUploadToDrive,
+            driveFolderId: prefs.autoQueueDriveFolderId || "",
+            deleteLocalAfterUpload: !!prefs.autoQueueDeleteLocalAfterUpload,
+            title: result.record.title || payload.title,
+            trackerItem
+          });
+          autoQueued = true;
+          result.record.status = "queued";
+        }
+      }
+    }
+
     res.json({
       ok: true,
       aiInsight,
       record: result.record,
-      analysis: result.analysis
+      analysis: result.analysis,
+      autoQueued
     });
   } catch (error) {
     res.status(500).json({ error: error.message || "Failed to generate AI insight." });
+  }
+});
+
+app.post("/api/content/ai-insight/batch", async (req, res) => {
+  try {
+    const { items = [], concurrency = 3 } = req.body || {};
+    const results = [];
+    const pool = [];
+
+    const run = async (item) => {
+      try {
+        const aiInsight = await llmAnalyzer.analyzeContent(item);
+        const result = await contentTracker.updateRecord({
+          ...item,
+          aiInsight
+        });
+
+        let autoQueued = false;
+        const channelUrl = item.channelUrl || result.record.channelUrl || "";
+        if (channelUrl) {
+          const prefsResult = await contentTracker.getPreferences({ channelUrl });
+          const prefs = prefsResult.preferences || {};
+          if (prefs.autoQueueThreshold > 0 && aiInsight && aiInsight.score >= prefs.autoQueueThreshold) {
+            const currentStatus = result.record.status || "new";
+            if (currentStatus === "new" || currentStatus === "review_later") {
+              const trackerItem = {
+                key: result.record.key,
+                id: result.record.id || item.id,
+                url: result.record.url || item.url,
+                title: result.record.title || item.title,
+                channelName: result.record.channelName || item.channelName,
+                channelUrl: result.record.channelUrl || item.channelUrl,
+                duration: result.record.duration || item.duration,
+                uploadDate: result.record.uploadDate || item.uploadDate,
+                thumbnail: result.record.thumbnail || item.thumbnail
+              };
+              queue.addJob({
+                url: result.record.url || item.url,
+                mode: prefs.autoQueueMode || "video",
+                quality: "",
+                uploadToDrive: !!prefs.autoQueueUploadToDrive,
+                driveFolderId: prefs.autoQueueDriveFolderId || "",
+                deleteLocalAfterUpload: !!prefs.autoQueueDeleteLocalAfterUpload,
+                title: result.record.title || item.title,
+                trackerItem
+              });
+              autoQueued = true;
+              result.record.status = "queued";
+            }
+          }
+        }
+
+        results.push({
+          ok: true,
+          key: result.record.key,
+          aiInsight,
+          record: result.record,
+          analysis: result.analysis,
+          autoQueued
+        });
+      } catch (err) {
+        results.push({
+          ok: false,
+          key: item.key || `yt:${item.id}`,
+          error: err.message || "Failed to analyze"
+        });
+      }
+    };
+
+    for (const item of items) {
+      const p = run(item).finally(() => {
+        const idx = pool.indexOf(p);
+        if (idx !== -1) pool.splice(idx, 1);
+      });
+      pool.push(p);
+      if (pool.length >= Math.min(concurrency, 5)) {
+        await Promise.race(pool);
+      }
+    }
+    await Promise.all(pool);
+
+    res.json({ ok: true, results });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Batch AI analysis failed." });
   }
 });
 

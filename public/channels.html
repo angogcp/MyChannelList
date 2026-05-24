@@ -37,7 +37,7 @@
         gap: 8px;
         padding: 11px 14px;
         cursor: pointer;
-        border-radius: 12px 8px 12px 9px;
+        border-radius: var(--radius-sm);
         font-size: 0.88rem;
         color: var(--text-muted);
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -50,10 +50,10 @@
         border-color: var(--border);
       }
       .ch-item.active {
-        background: linear-gradient(135deg, rgba(240, 184, 64, 0.1), rgba(90, 184, 122, 0.06));
-        border: 1px solid rgba(90, 184, 122, 0.18);
+        background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(20, 184, 166, 0.05));
+        border: 1px solid rgba(212, 175, 55, 0.25);
         color: var(--ink-deep);
-        box-shadow: inset 3px 0 0 var(--accent-secondary-bright), 0 4px 12px rgba(92, 117, 74, 0.06);
+        box-shadow: inset 3px 0 0 var(--accent-primary), 0 4px 16px rgba(0, 0, 0, 0.4);
       }
       .ch-item .ch-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .ch-main { flex: 1; min-width: 0; display: grid; gap: 4px; }
@@ -72,19 +72,19 @@
         line-height: 1;
       }
       .ch-update-badge.new {
-        color: #245b3d;
-        border-color: rgba(73, 160, 120, 0.32);
-        background: linear-gradient(135deg, rgba(186, 238, 167, 0.58), rgba(127, 211, 223, 0.2));
+        color: #2dd4bf;
+        border-color: rgba(20, 184, 166, 0.3);
+        background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(56, 189, 248, 0.05));
       }
       .ch-update-badge.checking {
-        color: #2d6472;
-        border-color: rgba(98, 182, 203, 0.36);
-        background: linear-gradient(135deg, rgba(127, 211, 223, 0.36), rgba(255, 232, 143, 0.26));
+        color: var(--accent-primary-bright);
+        border-color: rgba(212, 175, 55, 0.3);
+        background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(20, 184, 166, 0.05));
       }
       .ch-update-badge.loaded {
-        color: #245b3d;
-        border-color: rgba(73, 160, 120, 0.32);
-        background: linear-gradient(135deg, rgba(186, 238, 167, 0.5), rgba(255, 232, 143, 0.22));
+        color: var(--accent-primary-bright);
+        border-color: rgba(212, 175, 55, 0.2);
+        background: rgba(212, 175, 55, 0.08);
       }
       .sidebar-actions { display: flex; gap: 8px; align-items: center; }
       .sidebar-actions .small { white-space: nowrap; }
@@ -131,7 +131,7 @@
         align-items: center;
         padding: 16px 20px;
         border-bottom: 1px solid var(--border);
-        background: rgba(255, 253, 242, 0.42);
+        background: rgba(255, 255, 255, 0.02);
       }
       .refresh-copy {
         min-width: 0;
@@ -166,7 +166,7 @@
         padding: 6px 10px;
         border: 1px solid var(--border);
         border-radius: 999px;
-        background: rgba(255, 253, 242, 0.64);
+        background: rgba(255, 255, 255, 0.03);
         color: var(--text-muted);
         font-size: 0.78rem;
         font-weight: 750;
@@ -176,13 +176,13 @@
         font-weight: 900;
       }
       .refresh-pill.new {
-        border-color: rgba(73, 160, 120, 0.32);
-        background: linear-gradient(135deg, rgba(186, 238, 167, 0.52), rgba(127, 211, 223, 0.2));
-        color: #245b3d;
+        border-color: rgba(20, 184, 166, 0.3);
+        background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(56, 189, 248, 0.05));
+        color: #2dd4bf;
       }
       .refresh-pill.error {
-        border-color: rgba(180, 91, 77, 0.22);
-        background: rgba(242, 186, 166, 0.26);
+        border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.1);
         color: var(--error);
       }
       .refresh-actions {
@@ -198,17 +198,19 @@
       }
       .refresh-new-list.visible { display: flex; }
       .refresh-channel-chip {
-        border: 1px solid rgba(73, 160, 120, 0.28);
-        background: rgba(255, 253, 242, 0.68);
-        color: #315f49;
+        border: 1px solid rgba(20, 184, 166, 0.3);
+        background: rgba(20, 184, 166, 0.08);
+        color: #2dd4bf;
         padding: 5px 9px;
         border-radius: 999px;
         font-size: 0.76rem;
         font-weight: 800;
         cursor: pointer;
+        transition: all 0.2s ease;
       }
       .refresh-channel-chip:hover {
-        background: rgba(186, 238, 167, 0.44);
+        background: rgba(20, 184, 166, 0.18);
+        border-color: rgba(20, 184, 166, 0.5);
         transform: translateY(-1px);
       }
       .flow-step {
@@ -962,70 +964,14 @@
         display: none !important;
       }
 
-      /* Storybook / hand-painted redesign for the Inbox page. */
-      body {
-        color: #2c3328;
-        background-color: var(--bg-app);
-        background-image:
-          radial-gradient(circle at 10% 8%, rgba(255, 232, 143, 0.78), transparent 28%),
-          radial-gradient(circle at 88% 14%, rgba(98, 182, 203, 0.5), transparent 30%),
-          radial-gradient(circle at 22% 82%, rgba(216, 111, 143, 0.2), transparent 26%),
-          radial-gradient(circle at 72% 92%, rgba(112, 184, 93, 0.36), transparent 32%),
-          linear-gradient(180deg, #aae0eb 0%, #dcf0d6 44%, #ffe7ae 100%);
-      }
-      body::before {
-        background:
-          radial-gradient(circle at 18% 28%, rgba(255,255,255,0.32), transparent 11%),
-          radial-gradient(circle at 84% 62%, rgba(255,255,255,0.22), transparent 13%),
-          linear-gradient(180deg, rgba(255,255,255,0.16), rgba(79,111,70,0.12));
-      }
-      .sidebar-nav {
-        background:
-          linear-gradient(180deg, rgba(63, 100, 70, 0.9), rgba(42, 70, 52, 0.88)),
-          linear-gradient(135deg, rgba(255, 241, 184, 0.18), transparent);
-        border-right-color: rgba(45, 67, 42, 0.24);
-        box-shadow: 18px 0 54px rgba(58, 87, 54, 0.18);
-      }
-      .brand {
-        background: rgba(255, 248, 218, 0.18);
-        border-color: rgba(255, 248, 218, 0.28);
-      }
-      .brand-title {
-        background: linear-gradient(135deg, #fff1b8, #c9f0d3);
-        -webkit-background-clip: text;
-        background-clip: text;
-      }
-      .nav-item {
-        color: rgba(255, 250, 226, 0.72);
-      }
-      .nav-item:hover,
-      .nav-item.active {
-        background: rgba(255, 248, 218, 0.17);
-        color: #fff8da;
-        border-color: rgba(255, 248, 218, 0.22);
-        box-shadow: inset 3px 0 0 #f6d365;
-      }
-      .page-header::before {
-        background: linear-gradient(90deg, #6b8f5a, #e5b84d);
-        box-shadow: 0 8px 24px rgba(107, 143, 90, 0.28);
-      }
-      h1 {
-        color: #2f402b;
-        text-shadow: 0 2px 0 rgba(255,255,255,0.35);
-      }
-      .sub {
-        color: #52634c;
-      }
+      /* Refined modern redesign for the Inbox page. */
       .inbox-shell {
         position: relative;
         overflow: hidden;
-        background:
-          radial-gradient(circle at 8% 0%, rgba(255,255,255,0.78), transparent 28%),
-          radial-gradient(circle at 92% 8%, rgba(98, 182, 203, 0.24), transparent 30%),
-          radial-gradient(circle at 24% 100%, rgba(216, 111, 143, 0.1), transparent 32%),
-          linear-gradient(180deg, rgba(255, 249, 224, 0.96), rgba(247, 235, 195, 0.94));
-        border: 1px solid rgba(85, 106, 64, 0.22);
-        box-shadow: 0 28px 70px rgba(84, 106, 67, 0.22);
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-glass);
       }
       .inbox-shell::before {
         content: "";
@@ -1033,56 +979,54 @@
         inset: 0;
         pointer-events: none;
         background-image:
-          linear-gradient(rgba(81, 103, 70, 0.045) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(81, 103, 70, 0.035) 1px, transparent 1px);
+          linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
         background-size: 34px 34px;
-        mask-image: linear-gradient(180deg, rgba(0,0,0,0.45), transparent 78%);
+        mask-image: linear-gradient(180deg, rgba(0,0,0,0.35), transparent 78%);
       }
       .layout {
         position: relative;
         z-index: 1;
       }
       .ch-sidebar {
-        background:
-          linear-gradient(180deg, rgba(210, 229, 185, 0.72), rgba(186, 211, 160, 0.52)),
-          rgba(255, 248, 218, 0.35);
-        border-right-color: rgba(91, 116, 75, 0.22);
+        background: rgba(10, 14, 22, 0.3);
+        border-right-color: var(--border);
       }
       .sidebar-head {
-        border-bottom-color: rgba(91, 116, 75, 0.18);
+        border-bottom-color: var(--border);
       }
       .sidebar-head strong,
       .feed-title {
-        color: #2f402b;
+        color: var(--text-main);
       }
       .ch-item {
-        color: #5c684f;
-        border-color: rgba(91, 116, 75, 0.08);
+        color: var(--text-muted);
+        border-color: transparent;
       }
       .ch-update-badge {
-        background: rgba(255, 253, 242, 0.58);
-        border-color: rgba(91, 116, 75, 0.18);
-        color: #52634c;
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--border);
+        color: var(--text-muted);
       }
       .ch-item:hover {
-        background: rgba(255, 248, 218, 0.55);
-        color: #2f402b;
+        background: var(--bg-panel-hover);
+        color: var(--text-main);
       }
       .ch-item.active {
-        background: linear-gradient(135deg, rgba(255, 241, 184, 0.82), rgba(178, 214, 163, 0.62));
-        border-color: rgba(107, 143, 90, 0.32);
-        color: #2f402b;
-        box-shadow: inset 4px 0 0 #e5b84d, 0 12px 26px rgba(97, 122, 77, 0.16);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(212, 175, 55, 0.25);
+        color: var(--text-main);
+        box-shadow: inset 4px 0 0 var(--accent-primary), 0 8px 20px rgba(0, 0, 0, 0.2);
       }
       .feed-panel {
-        background: rgba(255, 250, 232, 0.36);
+        background: rgba(10, 14, 22, 0.15);
       }
       .feed-head,
       .triage-strip,
       .decision-bar,
       .workspace-drawer,
       .select-all-row {
-        border-color: rgba(91, 116, 75, 0.16);
+        border-color: var(--border);
       }
       .feed-kicker,
       .triage-pill,
@@ -1091,118 +1035,116 @@
       .feed-empty,
       .triage-muted,
       .workspace-drawer summary span {
-        color: #66725d;
+        color: var(--text-muted);
       }
       .feed-actions select,
       .sort-group select,
       .preference-controls input,
       .preference-controls select,
       .drive-row select {
-        background: rgba(255, 253, 242, 0.78);
-        border-color: rgba(91, 116, 75, 0.18);
-        color: #2f402b;
+        background: rgba(255, 255, 255, 0.02);
+        border-color: var(--border);
+        color: var(--text-main);
       }
       .feed-actions button.secondary,
       .workspace-drawer button.secondary,
       .bulk-actions button.secondary {
-        background: rgba(255, 253, 242, 0.68);
-        border-color: rgba(91, 116, 75, 0.18);
-        color: #40513b;
+        background: rgba(255, 255, 255, 0.03);
+        border-color: var(--border);
+        color: var(--text-main);
       }
       .feed-actions button.primary {
-        background: linear-gradient(135deg, #e5b84d, #7da76a);
-        color: #263322;
-        box-shadow: 0 14px 28px rgba(125, 167, 106, 0.22);
+        background: var(--gradient-btn);
+        color: #0c0f14;
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
       }
       .triage-strip,
       .decision-bar {
-        background: rgba(255, 248, 218, 0.28);
+        background: rgba(255, 255, 255, 0.01);
       }
       .triage-pill,
       .filter-chip,
       .tag,
       .vid-open {
-        background: rgba(255, 253, 242, 0.58);
-        border-color: rgba(91, 116, 75, 0.18);
-        color: #52634c;
+        background: rgba(255, 255, 255, 0.03);
+        border-color: var(--border);
+        color: var(--text-muted);
       }
       .triage-pill strong {
-        color: #2f402b;
+        color: var(--text-main);
       }
       .filter-chip:hover,
       .filter-chip.active {
-        background: rgba(229, 184, 77, 0.22);
-        border-color: rgba(160, 122, 35, 0.28);
-        color: #2f402b;
+        background: var(--accent-warm);
+        border-color: var(--accent-primary);
+        color: var(--text-main);
       }
       .workspace-drawer,
       .drawer-body,
       .preference-bar,
       .bulk-bar,
       .drive-bar {
-        background: rgba(255, 248, 218, 0.22);
+        background: rgba(255, 255, 255, 0.02);
       }
       .workspace-drawer summary {
-        color: #2f402b;
+        color: var(--text-main);
       }
       .feed-body {
-        background: rgba(255, 253, 242, 0.2);
+        background: transparent;
       }
       .vid-row {
         margin: 12px 16px;
-        border: 1px solid rgba(91, 116, 75, 0.14);
-        border-radius: 22px;
-        background:
-          linear-gradient(135deg, rgba(255, 253, 242, 0.82), rgba(245, 235, 203, 0.72));
-        box-shadow: 0 12px 28px rgba(92, 117, 74, 0.11);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.02);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       }
       .vid-row:hover {
-        background:
-          linear-gradient(135deg, rgba(255, 253, 242, 0.96), rgba(238, 229, 190, 0.82));
-        border-color: rgba(125, 167, 106, 0.32);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--border-strong);
         transform: translateY(-1px);
       }
       .vid-row.selected {
-        background:
-          linear-gradient(135deg, rgba(255, 241, 184, 0.78), rgba(209, 231, 194, 0.72));
-        box-shadow: inset 4px 0 0 #e5b84d, 0 14px 30px rgba(92, 117, 74, 0.14);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(212, 175, 55, 0.25);
+        box-shadow: inset 4px 0 0 var(--accent-primary), 0 8px 24px rgba(0, 0, 0, 0.2);
       }
       .vid-thumb {
-        box-shadow: 0 8px 18px rgba(57, 78, 46, 0.15);
-        border: 2px solid rgba(255,255,255,0.62);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
       }
       .vid-title {
-        color: #2f402b;
-        font-weight: 800;
+        color: var(--text-main);
+        font-weight: 700;
       }
       .tag.high,
       .tag.good,
       .tag.conf-high {
-        color: #315d3a !important;
-        border-color: rgba(91, 145, 82, 0.28) !important;
-        background: rgba(186, 224, 167, 0.44) !important;
+        color: #34d399 !important;
+        border-color: rgba(16, 185, 129, 0.25) !important;
+        background: rgba(16, 185, 129, 0.08) !important;
       }
       .tag.mid,
       .tag.conf-mid,
       .tag.state {
-        color: #72561f !important;
-        border-color: rgba(229, 184, 77, 0.34) !important;
-        background: rgba(255, 232, 154, 0.42) !important;
+        color: #fbbf24 !important;
+        border-color: rgba(245, 158, 11, 0.25) !important;
+        background: rgba(245, 158, 11, 0.08) !important;
       }
       .tag.low,
       .tag.conf-low {
-        color: #89453d !important;
-        border-color: rgba(198, 104, 82, 0.25) !important;
-        background: rgba(242, 186, 166, 0.32) !important;
+        color: #f87171 !important;
+        border-color: rgba(239, 68, 68, 0.25) !important;
+        background: rgba(239, 68, 68, 0.08) !important;
       }
       .vid-open {
-        color: #416f58;
-        font-weight: 800;
+        color: var(--accent-primary-bright);
+        font-weight: 700;
       }
       .bottom-status {
-        background: rgba(255, 248, 218, 0.24);
-        border-top-color: rgba(91, 116, 75, 0.16);
-        color: #66725d;
+        background: rgba(10, 14, 22, 0.4);
+        border-top-color: var(--border);
+        color: var(--text-muted);
       }
 
       @media (max-width: 900px) {
@@ -1216,6 +1158,175 @@
         .triage-top, .history-item, .session-item, .recap-grid { grid-template-columns: 1fr; }
         .row-quick-actions { justify-content: flex-start; }
         .row-quick-actions { opacity: 1; pointer-events: auto; }
+      }
+
+      /* Trainer Pane Styles */
+      .trainer-container {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 600px;
+        margin: 0 auto;
+        gap: 20px;
+      }
+      .trainer-header {
+        text-align: center;
+      }
+      .trainer-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 6px;
+      }
+      .trainer-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.4;
+      }
+      .trainer-card-deck {
+        width: 100%;
+        position: relative;
+        perspective: 1000px;
+        min-height: 280px;
+      }
+      .trainer-card {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: rgba(20, 24, 33, 0.7);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 22px;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, border-color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        overflow-y: auto;
+        z-index: 10;
+      }
+      .trainer-card.swipe-left {
+        transform: translateX(-180px) rotate(-12deg);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 20;
+      }
+      .trainer-card.swipe-right {
+        transform: translateX(180px) rotate(12deg);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 20;
+      }
+      .trainer-card.swipe-next {
+        transform: translateY(10px) scale(0.96);
+        opacity: 0.55;
+        pointer-events: none;
+        z-index: 5;
+      }
+      .trainer-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 12px;
+      }
+      .trainer-card-source {
+        font-size: 0.75rem;
+        color: var(--accent-primary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .trainer-card-score {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: rgba(20, 184, 166, 0.1);
+        border: 1px solid rgba(20, 184, 166, 0.2);
+        color: var(--accent-primary);
+      }
+      .trainer-card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-main);
+        line-height: 1.4;
+      }
+      .trainer-card-meta {
+        display: flex;
+        gap: 12px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+      .trainer-card-reasons {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .trainer-card-reason {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+      }
+      .trainer-actions {
+        display: flex;
+        gap: 16px;
+        width: 100%;
+        justify-content: center;
+      }
+      .trainer-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid var(--border);
+      }
+      .trainer-btn.dislike {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+      }
+      .trainer-btn.dislike:hover {
+        background: #ef4444;
+        color: #fff;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+      }
+      .trainer-btn.like {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+      }
+      .trainer-btn.like:hover {
+        background: #10b981;
+        color: #fff;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+      }
+      .trainer-btn.skip {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-main);
+      }
+      .trainer-btn.skip:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: var(--text-muted);
+      }
+      .trainer-stats {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 10px;
       }
     </style>
   </head>
@@ -1256,7 +1367,10 @@
               <section class="feed-panel">
                 <div class="feed-head">
                   <div>
-                    <span class="feed-title" id="feed-title">Select a channel</span>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                      <span class="active-pulse-dot" id="inbox-pulse-dot" style="display:none; vertical-align: middle;"></span>
+                      <span class="feed-title" id="feed-title" style="margin-bottom:0;">Select a channel</span>
+                    </div>
                     <div class="feed-kicker">Pick items worth saving. Analysis has the deeper AI review and reading/listening notes.</div>
                   </div>
                   <div class="feed-actions">
@@ -1297,6 +1411,7 @@
                 </div>
                 <div class="workspace-tabs" id="workspace-tabs">
                   <button class="workspace-tab-btn active" type="button" data-workspace-tab="review">Review</button>
+                  <button class="workspace-tab-btn" type="button" data-workspace-tab="trainer">Trainer</button>
                   <button class="workspace-tab-btn" type="button" data-workspace-tab="organize">Organize</button>
                   <button class="workspace-tab-btn" type="button" data-workspace-tab="activity">Activity</button>
                 </div>
@@ -1353,6 +1468,32 @@
                           <span>Avoid topics</span>
                           <input id="avoided-topics" type="text" placeholder="Comma separated, e.g. reaction, podcast, livestream" />
                         </label>
+                        <label>
+                          <span>Auto-Queue Threshold</span>
+                          <select id="auto-queue-threshold">
+                            <option value="0">Disabled</option>
+                            <option value="50">50+ (Fairly Relevant)</option>
+                            <option value="60">60+ (Relevant)</option>
+                            <option value="70">70+ (Highly Relevant)</option>
+                            <option value="80">80+ (Excellent)</option>
+                            <option value="90">90+ (Must Watch)</option>
+                          </select>
+                        </label>
+                        <label>
+                          <span>Auto-Queue Mode</span>
+                          <select id="auto-queue-mode">
+                            <option value="video">Video</option>
+                            <option value="audio">Audio / MP3</option>
+                          </select>
+                        </label>
+                        <div class="wide" style="display:flex; gap:16px; align-items:center; padding: 4px 0;">
+                          <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-muted); cursor:pointer">
+                            <input type="checkbox" id="auto-queue-upload-drive" /> Auto-upload to Drive
+                          </label>
+                          <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-muted); cursor:pointer">
+                            <input type="checkbox" id="auto-queue-delete-local" /> Auto-delete local
+                          </label>
+                        </div>
                         <button class="secondary small" type="button" id="save-preferences-btn">Save preferences</button>
                       </div>
                     </div>
@@ -1397,6 +1538,24 @@
                     </div>
                   </div>
                 </details>
+
+                <div class="workspace-pane hidden" data-workspace-pane="trainer" id="trainer-pane">
+                  <div class="trainer-container">
+                    <div class="trainer-header">
+                      <div class="trainer-title">AI Preference Trainer</div>
+                      <div class="trainer-subtitle">Immediately train the recommendation engine by rating unprocessed videos.</div>
+                    </div>
+                    <div class="trainer-card-deck" id="trainer-card-deck">
+                      <!-- Cards will be dynamically inserted here -->
+                    </div>
+                    <div class="trainer-actions">
+                      <button class="trainer-btn dislike" id="trainer-dislike-btn" title="Dislike (ArrowLeft or [)"><i data-feather="thumbs-down"></i> Dislike</button>
+                      <button class="trainer-btn skip" id="trainer-skip-btn" title="Skip (ArrowDown or N)"><i data-feather="skip-forward"></i> Skip</button>
+                      <button class="trainer-btn like" id="trainer-like-btn" title="Like (ArrowRight or ])"><i data-feather="thumbs-up"></i> Like</button>
+                    </div>
+                    <div class="trainer-stats" id="trainer-stats">0 items to train</div>
+                  </div>
+                </div>
 
                 <div class="select-all-row" data-workspace-pane="review" id="select-all-row" style="display:none">
                   <input type="checkbox" id="select-all" />
@@ -1555,6 +1714,10 @@
       const stylePreferenceSelect = document.getElementById("style-preference");
       const preferredTopicsInput = document.getElementById("preferred-topics");
       const avoidedTopicsInput = document.getElementById("avoided-topics");
+      const autoQueueThresholdSelect = document.getElementById("auto-queue-threshold");
+      const autoQueueModeSelect = document.getElementById("auto-queue-mode");
+      const autoQueueUploadDriveCb = document.getElementById("auto-queue-upload-drive");
+      const autoQueueDeleteLocalCb = document.getElementById("auto-queue-delete-local");
       const savePreferencesBtn = document.getElementById("save-preferences-btn");
       const bulkCaption = document.getElementById("bulk-caption");
       const selectFilteredBtn = document.getElementById("select-filtered-btn");
@@ -1642,12 +1805,27 @@
       let activeFilter = "all";
       let activeSort = "freshest";
       let activeWorkspaceTab = "review";
-      let currentPreferences = { lengthPreference: "any", stylePreference: "any", preferredTopics: [], avoidedTopics: [] };
+      let currentPreferences = { lengthPreference: "any", stylePreference: "any", preferredTopics: [], avoidedTopics: [], autoQueueThreshold: 0, autoQueueMode: "video", autoQueueUploadToDrive: false, autoQueueDeleteLocalAfterUpload: false };
+      const skippedTrainerKeys = new Set();
       let aiConfigured = false;
       const channelSnapshots = parseStoredJson(CHANNEL_SNAPSHOT_KEY, {});
       const channelUpdateState = new Map();
       let preloadAllRunning = false;
       let cancelPreloadAll = false;
+      let isScanningUpdates = false;
+      let lastJobs = [];
+
+      function updateInboxPulseDot() {
+        const inboxPulseDot = document.getElementById("inbox-pulse-dot");
+        if (!inboxPulseDot) return;
+        
+        const hasActiveJobs = lastJobs.some(j => j.status === "processing" || j.status === "uploading" || j.status === "pending");
+        if (isScanningUpdates || preloadAllRunning || hasActiveJobs) {
+          inboxPulseDot.style.display = "inline-block";
+        } else {
+          inboxPulseDot.style.display = "none";
+        }
+      }
 
       boot();
 
@@ -1687,8 +1865,14 @@
           button.addEventListener("click", () => {
             activeWorkspaceTab = button.dataset.workspaceTab || "review";
             syncWorkspaceTab();
+            if (activeWorkspaceTab === "trainer") {
+              renderTrainer();
+            }
           });
         });
+        document.getElementById("trainer-like-btn").addEventListener("click", () => handleTrainerAction("like"));
+        document.getElementById("trainer-dislike-btn").addEventListener("click", () => handleTrainerAction("dislike"));
+        document.getElementById("trainer-skip-btn").addEventListener("click", () => handleTrainerAction("skip"));
         sortModeSelect.addEventListener("change", () => {
           activeSort = sortModeSelect.value || "freshest";
           storeVal(SORT_KEY, activeSort);
@@ -1738,6 +1922,29 @@
         bulkResetBtn.addEventListener("click", () => applyBulkStateToFiltered("new"));
         document.addEventListener("keydown", handleKeyboardShortcuts);
 
+        queueList.addEventListener("click", async (e) => {
+          const btn = e.target.closest(".retry-btn");
+          if (!btn) return;
+
+          const jobId = btn.dataset.id;
+          if (!jobId) return;
+
+          btn.disabled = true;
+          btn.innerHTML = `<span class="spinner" style="width:10px;height:10px;border-width:1.5px;margin-right:4px"></span> Retrying...`;
+
+          try {
+            await api("/api/queue/retry", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: jobId })
+            });
+            setStatus("success", "Retry initiated.");
+          } catch (error) {
+            alert("Failed to retry: " + error.message);
+            setStatus("error", "Failed to retry: " + error.message);
+          }
+        });
+
         loadDismissedQueueIds();
         activeFilter = loadVal(FILTER_KEY, "all");
         activeSort = loadVal(SORT_KEY, "freshest");
@@ -1774,6 +1981,8 @@
       }
 
       function renderQueue(jobs) {
+        lastJobs = jobs || [];
+        updateInboxPulseDot();
         const visibleJobs = (jobs || []).filter((job) => !dismissedQueueIds.has(job.id));
         if (!visibleJobs.length) {
           queueList.innerHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; padding: 10px;">No active downloads.</div>`;
@@ -1800,6 +2009,17 @@
             linkHtml = ` <a href="${job.driveLink}" target="_blank" style="color:var(--accent-primary)">View in Drive</a>`;
           }
 
+          let actionHtml = "";
+          if (job.status === "error") {
+            actionHtml = `
+              <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
+                <button class="secondary small retry-btn" data-id="${job.id}" type="button" style="padding:4px 8px; font-size:0.75rem; gap:4px;">
+                  <i data-feather="rotate-ccw" style="width:12px;height:12px"></i> Retry
+                </button>
+              </div>
+            `;
+          }
+
           div.innerHTML = `
             <div class="queue-head">
               <div class="queue-title" title="${esc(job.title)}">${esc(job.title)}</div>
@@ -1807,9 +2027,12 @@
             </div>
             <div class="queue-msg">${esc(job.message)}${linkHtml}</div>
             ${trackHtml}
+            ${actionHtml}
           `;
           queueList.appendChild(div);
         }
+
+        if (window.feather) feather.replace();
       }
 
       function getQualityOptions(mode) {
@@ -1939,6 +2162,8 @@
 
       async function scanChannelUpdates({ force = false } = {}) {
         if (!channelsList.length || !checkUpdatesBtn) return;
+        isScanningUpdates = true;
+        updateInboxPulseDot();
         const staleAfterMs = 30 * 60 * 1000;
         checkUpdatesBtn.disabled = true;
         const originalLabel = checkUpdatesBtn.textContent;
@@ -2003,12 +2228,15 @@
         } finally {
           checkUpdatesBtn.disabled = false;
           checkUpdatesBtn.textContent = originalLabel || "Scan";
+          isScanningUpdates = false;
+          updateInboxPulseDot();
         }
       }
 
       async function preloadAllChannels({ refresh = false, silent = false } = {}) {
         if (!channelsList.length || preloadAllRunning) return;
         preloadAllRunning = true;
+        updateInboxPulseDot();
         cancelPreloadAll = false;
         if (loadAllBtn) loadAllBtn.disabled = false;
         let loaded = 0;
@@ -2054,6 +2282,7 @@
           }
         } finally {
           preloadAllRunning = false;
+          updateInboxPulseDot();
           cancelPreloadAll = false;
           if (loadAllBtn) {
             loadAllBtn.disabled = false;
@@ -2228,6 +2457,8 @@
             renderRecap();
             renderHistory();
             renderTriageStrip();
+            skippedTrainerKeys.clear();
+            renderTrainer();
             feedTitleEl.textContent = "Select a channel";
             refreshBtn.disabled = true;
           }
@@ -2238,6 +2469,9 @@
 
       async function loadVideos(ch, options = {}) {
         if (!ch || busy) return;
+        if (ch !== activeChannel) {
+          skippedTrainerKeys.clear();
+        }
         const forceRefresh = !!options.refresh;
         busy = true;
         focusedVideoKey = "";
@@ -2262,6 +2496,7 @@
           renderRecap();
           renderHistory();
           renderTriageStrip();
+          renderTrainer();
           markChannelSnapshotSeen(ch, videos);
           const source = data.cached ? `cache from ${formatRefreshTime(data.fetchedAt)}` : "fresh channel fetch";
           setStatus("success", `${videos.length} video${videos.length !== 1 ? "s" : ""} loaded from ${source}.`);
@@ -2277,6 +2512,7 @@
           renderRecap();
           renderHistory();
           renderTriageStrip();
+          renderTrainer();
           setStatus("error", err.message);
         } finally { busy = false; refreshBtn.disabled = false; }
       }
@@ -2396,6 +2632,10 @@
         stylePreferenceSelect.value = currentPreferences.stylePreference || "any";
         preferredTopicsInput.value = Array.isArray(currentPreferences.preferredTopics) ? currentPreferences.preferredTopics.join(", ") : "";
         avoidedTopicsInput.value = Array.isArray(currentPreferences.avoidedTopics) ? currentPreferences.avoidedTopics.join(", ") : "";
+        autoQueueThresholdSelect.value = currentPreferences.autoQueueThreshold !== undefined ? currentPreferences.autoQueueThreshold : 0;
+        autoQueueModeSelect.value = currentPreferences.autoQueueMode || "video";
+        autoQueueUploadDriveCb.checked = !!currentPreferences.autoQueueUploadToDrive;
+        autoQueueDeleteLocalCb.checked = !!currentPreferences.autoQueueDeleteLocalAfterUpload;
         preferenceCaption.textContent = activeChannel
           ? `Preferences for ${activeChannel.name} guide recommendation scoring for this channel.`
           : "Preferences guide recommendation scoring for this channel.";
@@ -2675,6 +2915,27 @@
         const key = String(event.key || "").toLowerCase();
         if (!key) return;
 
+        if (activeWorkspaceTab === "trainer") {
+          const unprocessed = getUnprocessedVideos();
+          if (unprocessed.length === 0) return;
+          if (key === "arrowleft" || key === "[") {
+            event.preventDefault();
+            await handleTrainerAction("dislike");
+            return;
+          }
+          if (key === "arrowright" || key === "]") {
+            event.preventDefault();
+            await handleTrainerAction("like");
+            return;
+          }
+          if (key === "arrowdown" || key === "n" || key === " " || event.code === "Space") {
+            event.preventDefault();
+            await handleTrainerAction("skip");
+            return;
+          }
+          return;
+        }
+
         if (key === "j" || key === "arrowdown") {
           event.preventDefault();
           moveFocusedVideo(1);
@@ -2900,6 +3161,10 @@
       function syncDownloadBtn() {
         downloadBtn.disabled = selectedVideos.size === 0;
         downloadBtn.textContent = selectedVideos.size > 0 ? `Download (${selectedVideos.size})` : "Download selected";
+        
+        analyzeAiTopBtn.disabled = !aiConfigured || (selectedVideos.size === 0 && !getFocusedVideo());
+        analyzeAiTopBtn.textContent = aiConfigured ? (selectedVideos.size > 0 ? `AI review selected (${selectedVideos.size})` : "AI review selected") : "AI not configured";
+
         const cbs = feedBodyEl.querySelectorAll(".vid-cb");
         selectAllCb.checked = cbs.length > 0 && [...cbs].every(cb => cb.checked);
       }
@@ -2984,36 +3249,88 @@
       }
 
       async function runAiAnalysis() {
-        const video = getFocusedVideo();
-        if (!video || !aiConfigured) return;
+        if (!aiConfigured) return;
+
+        const targets = [];
+        const isBatch = (selectedVideos.size > 0);
+
+        if (isBatch) {
+          targets.push(...selectedVideos.values());
+        } else {
+          const focused = getFocusedVideo();
+          if (focused) targets.push(focused);
+        }
+
+        if (targets.length === 0) return;
+
         try {
+          busy = true;
           analyzeAiBtn.disabled = true;
           analyzeAiTopBtn.disabled = true;
           analyzeAiBtn.textContent = "Analyzing...";
           analyzeAiTopBtn.textContent = "Analyzing...";
-          const result = await api("/api/content/ai-insight", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+
+          if (targets.length === 1) {
+            const video = targets[0];
+            const result = await api("/api/content/ai-insight", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...buildTrackerPayload(video),
+                tracking: video.tracking || {},
+                analysis: video.analysis || {},
+                preferences: currentPreferences || {}
+              })
+            });
+            mergeUpdatedRecord(video.trackerKey, result);
+            setStatus("success", `Generated AI insight for "${video.title}".`);
+          } else {
+            setStatus("info", `Analyzing ${targets.length} videos concurrently...`);
+            const payloadItems = targets.map(video => ({
               ...buildTrackerPayload(video),
               tracking: video.tracking || {},
-              analysis: video.analysis || {},
-              preferences: currentPreferences || {}
-            })
-          });
-          mergeUpdatedRecord(video.trackerKey, result);
+              analysis: video.analysis || {}
+            }));
+
+            const batchResult = await api("/api/content/ai-insight/batch", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                items: payloadItems,
+                concurrency: 3
+              })
+            });
+
+            let successCount = 0;
+            if (batchResult && Array.isArray(batchResult.results)) {
+              for (const res of batchResult.results) {
+                if (res.ok && res.record) {
+                  mergeUpdatedRecord(res.key, { record: res.record, analysis: res.analysis });
+                  successCount++;
+                } else {
+                  console.error(`Failed to analyze item ${res.key}:`, res.error);
+                }
+              }
+            }
+
+            selectedVideos.clear();
+            syncDownloadBtn();
+            setStatus("success", `Batch AI analysis complete: ${successCount}/${targets.length} succeeded.`);
+          }
+
           await refreshHistory();
           renderFeed();
           renderInsightPanel();
           renderRecap();
-          setStatus("success", `Generated AI insight for "${video.title}".`);
+          renderTrainer();
         } catch (err) {
           setStatus("error", err.message);
         } finally {
+          busy = false;
           analyzeAiBtn.disabled = !aiConfigured;
           analyzeAiBtn.textContent = aiConfigured ? "Analyze with AI" : "AI not configured";
-          analyzeAiTopBtn.disabled = !aiConfigured || !getFocusedVideo();
-          analyzeAiTopBtn.textContent = aiConfigured ? "AI review selected" : "AI not configured";
+          analyzeAiTopBtn.disabled = !aiConfigured || (selectedVideos.size === 0 && !getFocusedVideo());
+          analyzeAiTopBtn.textContent = aiConfigured ? (selectedVideos.size > 0 ? `AI review selected (${selectedVideos.size})` : "AI review selected") : "AI not configured";
         }
       }
 
@@ -3029,7 +3346,12 @@
               lengthPreference: lengthPreferenceSelect.value,
               stylePreference: stylePreferenceSelect.value,
               preferredTopics: preferredTopicsInput.value,
-              avoidedTopics: avoidedTopicsInput.value
+              avoidedTopics: avoidedTopicsInput.value,
+              autoQueueThreshold: Number(autoQueueThresholdSelect.value || 0),
+              autoQueueMode: autoQueueModeSelect.value,
+              autoQueueUploadToDrive: autoQueueUploadDriveCb.checked,
+              autoQueueDriveFolderId: driveFolderSelect.value || "",
+              autoQueueDeleteLocalAfterUpload: autoQueueDeleteLocalCb.checked
             })
           });
           currentPreferences = result.preferences || currentPreferences;
@@ -3171,6 +3493,184 @@
             analysis: analysis || video.analysis
           };
         });
+      }
+
+      function getUnprocessedVideos() {
+        if (!activeChannel) return [];
+        return videos.filter(v => {
+          const status = v.tracking ? v.tracking.status : "new";
+          return status !== "completed" && status !== "skipped" && !skippedTrainerKeys.has(v.trackerKey);
+        }).sort(compareByScoreThenFreshness);
+      }
+
+      function toggleTrainerButtons(enabled) {
+        const likeBtn = document.getElementById("trainer-like-btn");
+        const dislikeBtn = document.getElementById("trainer-dislike-btn");
+        const skipBtn = document.getElementById("trainer-skip-btn");
+        if (likeBtn) likeBtn.disabled = !enabled;
+        if (dislikeBtn) dislikeBtn.disabled = !enabled;
+        if (skipBtn) skipBtn.disabled = !enabled;
+      }
+
+      function renderTrainer() {
+        const deck = document.getElementById("trainer-card-deck");
+        const stats = document.getElementById("trainer-stats");
+        if (!deck) return;
+
+        const unprocessed = getUnprocessedVideos();
+        if (stats) {
+          stats.textContent = `${unprocessed.length} item${unprocessed.length === 1 ? "" : "s"} to train`;
+        }
+
+        if (!activeChannel) {
+          deck.innerHTML = `
+            <div class="trainer-card" style="justify-content: center; align-items: center; text-align: center; height: 100%;">
+              <p style="color: var(--text-muted); margin: 0;">Please select a channel first.</p>
+            </div>
+          `;
+          toggleTrainerButtons(false);
+          return;
+        }
+
+        if (unprocessed.length === 0) {
+          deck.innerHTML = `
+            <div class="trainer-card" style="justify-content: center; align-items: center; text-align: center; height: 100%;">
+              <p style="color: var(--text-muted); margin: 0;">All caught up! No more videos to rate for this channel.</p>
+            </div>
+          `;
+          toggleTrainerButtons(false);
+          return;
+        }
+
+        toggleTrainerButtons(true);
+        deck.innerHTML = "";
+
+        const limit = Math.min(unprocessed.length, 2);
+        for (let i = limit - 1; i >= 0; i--) {
+          const video = unprocessed[i];
+          const isNext = (i === 1);
+          const card = document.createElement("div");
+          card.className = "trainer-card" + (isNext ? " swipe-next" : "");
+          if (!isNext) {
+            card.id = "trainer-active-card";
+          }
+
+          const score = video.analysis ? video.analysis.score : Math.round(video.score || 0);
+          const dateStr = video.uploadDate ? `${video.uploadDate.slice(0,4)}-${video.uploadDate.slice(4,6)}-${video.uploadDate.slice(6,8)}` : "";
+          const durStr = video.duration ? fmtDur(video.duration) : "";
+          const metaStr = [dateStr, durStr].filter(Boolean).join(" - ");
+
+          const reasons = (video.analysis && Array.isArray(video.analysis.reasons) && video.analysis.reasons.length)
+            ? video.analysis.reasons
+            : ["No strong signals yet."];
+
+          card.innerHTML = `
+            <div class="trainer-card-header">
+              <span class="trainer-card-source">${esc(activeChannel.name)}</span>
+              <span class="trainer-card-score">Score: ${score}</span>
+            </div>
+            <div class="trainer-card-title">${esc(video.title)}</div>
+            <div class="trainer-card-meta">${esc(metaStr)}</div>
+            <div class="trainer-card-reasons">
+              ${reasons.map(r => `<span class="trainer-card-reason">${esc(r)}</span>`).join("")}
+            </div>
+          `;
+          deck.appendChild(card);
+        }
+
+        feather.replace();
+      }
+
+      async function handleTrainerAction(action) {
+        const unprocessed = getUnprocessedVideos();
+        if (unprocessed.length === 0) return;
+
+        const video = unprocessed[0];
+        const cardEl = document.getElementById("trainer-active-card");
+        const nextCardEl = cardEl && cardEl.previousElementSibling;
+
+        if (cardEl) {
+          if (action === "like") {
+            cardEl.classList.add("swipe-right");
+          } else if (action === "dislike") {
+            cardEl.classList.add("swipe-left");
+          } else {
+            cardEl.classList.add("swipe-left");
+          }
+        }
+
+        if (nextCardEl && nextCardEl.classList.contains("swipe-next")) {
+          nextCardEl.classList.remove("swipe-next");
+        }
+
+        toggleTrainerButtons(false);
+
+        try {
+          if (action === "like") {
+            const result = await api("/api/content/state", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...buildTrackerPayload(video),
+                status: "completed",
+                rating: 5,
+                note: (video.tracking && video.tracking.note) || ""
+              })
+            });
+            if (!video.tracking) video.tracking = {};
+            video.tracking.status = "completed";
+            video.tracking.rating = 5;
+            setStatus("success", `Liked and completed "${video.title}". Heuristics updated.`);
+          } else if (action === "dislike") {
+            const result = await api("/api/content/state", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...buildTrackerPayload(video),
+                status: "skipped",
+                rating: 1,
+                note: (video.tracking && video.tracking.note) || ""
+              })
+            });
+            if (!video.tracking) video.tracking = {};
+            video.tracking.status = "skipped";
+            video.tracking.rating = 1;
+            setStatus("success", `Disliked and skipped "${video.title}". Heuristics updated.`);
+          } else {
+            skippedTrainerKeys.add(video.trackerKey);
+            setStatus("info", `Skipped "${video.title}" temporarily.`);
+          }
+
+          if (action === "like" || action === "dislike") {
+            await reloadVideosQuietly();
+          }
+        } catch (err) {
+          setStatus("error", `Trainer update failed: ${err.message}`);
+        }
+
+        setTimeout(() => {
+          renderTrainer();
+        }, 400);
+      }
+
+      async function reloadVideosQuietly() {
+        if (!activeChannel) return;
+        try {
+          const data = await api(`/api/channels/videos?url=${encodeURIComponent(activeChannel.url)}&limit=15`);
+          videos = data.videos || [];
+          historyItems = data.history || [];
+          currentPreferences = data.preferences || currentPreferences;
+
+          ensureFocusedVideoIsVisible();
+          renderFeed();
+          renderInsightPanel();
+          renderSessionPlan();
+          renderRecap();
+          renderHistory();
+          renderTriageStrip();
+        } catch (err) {
+          console.error("Failed to quietly reload videos:", err);
+        }
       }
 
       function buildTrackerPayload(video) {
@@ -3421,5 +3921,6 @@
         return d;
       }
     </script>
+    <script src="/tooltips.js"></script>
   </body>
 </html>
