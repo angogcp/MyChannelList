@@ -6,16 +6,16 @@ Local web app for downloading videos, tracking channel watch lists, choosing MP4
 
 ## Install
 
-```powershell
-npm.cmd install
+```bash
+npm install
 ```
 
 ## Run
 
 Start the local web server:
 
-```powershell
-npm.cmd run start:web
+```bash
+npm run start:web
 ```
 
 Open it in your browser:
@@ -28,19 +28,25 @@ http://localhost:3010
 
 Open the web app in your default browser:
 
-```powershell
-npm.cmd run launch:web
+```bash
+npm run launch:web
 ```
 
 Open the web app in an app-style Edge/Chrome window:
 
-```powershell
-npm.cmd run launch:app
+```bash
+npm run launch:app
 ```
 
-You can also double-click [Launch Video DL Web.cmd](C:\apps\MyChannelList\Launch Video DL Web.cmd) or [Launch Video DL App.cmd](C:\apps\MyChannelList\Launch Video DL App.cmd).
+### macOS
+- Double-click **`Launch Video DL Web.command`** (opens in default browser) or **`Launch Video DL App.command`** (opens in Chrome/Edge app window).
+- Or run in terminal: `./scripts/launch-mac.sh`
 
-On a fresh download, the launcher will automatically run `npm install` the first time if `node_modules/` is missing.
+### Windows
+- Double-click `Launch Video DL Web.cmd` or `Launch Video DL App.cmd`.
+- Or run via PowerShell: `.\scripts\launch-web.ps1`
+
+On a fresh download, the launchers will automatically run `npm install` the first time if `node_modules/` is missing.
 
 ## Current Features
 
@@ -56,7 +62,7 @@ On a fresh download, the launcher will automatically run `npm install` the first
 - Downloads are saved under `downloads/video` and `downloads/audio`.
 - Local app data is stored under `data/`.
 - `yt-dlp` is fetched automatically on first use.
-- `ffmpeg` is fetched automatically on first video merge or MP3 conversion on Windows.
+- `ffmpeg` is fetched automatically on first video merge or MP3 conversion on Windows and macOS.
 - Google Drive OAuth is configured on the local server through `.env.local`, not in the browser UI.
 
 ## Notes

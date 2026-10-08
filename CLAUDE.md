@@ -4,17 +4,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-```powershell
-# Start the server
+# Start the server (cross-platform)
 node server.js
 npm start
 npm run start:web
 
-# Launch with browser window (auto-installs deps first time)
+# Launch with browser window (cross-platform)
+npm run launch:web
+npm run launch:app       # Chrome/Edge app window
+
+# macOS Launchers
+# Double-click: Launch Video DL Web.command (or Launch Video DL App.command)
+# Or in terminal:
+./scripts/launch-mac.sh browser
+./scripts/launch-mac.sh app
+
+# Windows Launchers
 # Double-click: Launch Video DL Web.cmd
 # Or via PowerShell:
 .\scripts\launch-web.ps1
-.\scripts\launch-web.ps1 -OpenMode app   # Edge/Chrome app window
+.\scripts\launch-web.ps1 -OpenMode app
 
 # Install dependencies
 npm install
