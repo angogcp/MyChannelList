@@ -4,17 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-```powershell
+```bash
 # Start the server
 node server.js
 npm start
 npm run start:web
 
 # Launch with browser window (auto-installs deps first time)
-# Double-click: Launch Video DL Web.cmd
-# Or via PowerShell:
-.\scripts\launch-web.ps1
-.\scripts\launch-web.ps1 -OpenMode app   # Edge/Chrome app window
+npm run launch:web
+npm run launch:app     # Edge/Chrome app window when available
+npm run launch:none    # server only, no browser
+
+# Windows double-click launchers still call scripts/launch-web.ps1
+# Linux requires ffmpeg on PATH (for example: sudo apt install ffmpeg)
 
 # Install dependencies
 npm install

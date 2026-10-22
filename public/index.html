@@ -1,16 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Video DL</title>
+    <title>Video DL - 潮酷视频下载器</title>
     <link rel="stylesheet" href="/styles.css" />
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
       form.glass-panel {
         padding: 36px;
         display: grid;
-        gap: 26px;
+        gap: 24px;
         margin-bottom: 28px;
       }
       .row {
@@ -89,57 +89,42 @@
         font-style: italic;
       }
 
-      /* ── Queue ── */
-      .queue-item {
-        background: var(--bg-surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        padding: 12px 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 8px;
-      }
-      .queue-head {
-        display: flex; justify-content: space-between; align-items: flex-start;
-      }
-      .queue-title {
-        font-size: 0.9rem; font-weight: 600; color: var(--text-main);
-        word-break: break-all;
-      }
-      .queue-status-badge {
-        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-        padding: 2px 6px; border-radius: 4px;
-        background: rgba(255,255,255,0.1); color: var(--text-muted);
-        white-space: nowrap; margin-left: 12px;
-      }
-      .queue-status-badge.processing { background: rgba(245,158,11,0.16); color: #fde68a; }
-      .queue-status-badge.uploading { background: rgba(20,184,166,0.16); color: #99f6e4; }
-      .queue-status-badge.done { background: rgba(16,185,129,0.2); color: #34d399; }
-      .queue-status-badge.error { background: rgba(239,68,68,0.2); color: #f87171; }
-      
       .queue-msg {
-        font-size: 0.82rem; color: var(--text-muted); white-space: pre-wrap;
-      }
-      .queue-track {
-        height: 6px; background: rgba(0,0,0,0.3); border-radius: 99px; overflow: hidden;
-      }
-      .queue-fill {
-        height: 100%; background: var(--gradient-btn); width: 0%;
-        transition: width 0.3s linear;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        white-space: pre-wrap;
+        line-height: 1.4;
       }
 
       @media (max-width: 768px) {
         .row { grid-template-columns: 1fr; }
+        .format-segmented-group { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
+    <!-- 动态流体氛围光斑 -->
+    <div class="fluid-ambient-mesh">
+      <div class="fluid-orb fluid-orb-1"></div>
+      <div class="fluid-orb fluid-orb-2"></div>
+      <div class="fluid-orb fluid-orb-3"></div>
+    </div>
+
+    <!-- 拖拽链接投放遮罩 -->
+    <div id="dropzone" class="dropzone-overlay">
+      <div class="dropzone-icon">🎯</div>
+      <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:8px;">释放鼠标立即抓取！</h2>
+      <p style="opacity:0.85;font-size:1rem;">拖入任何视频或音频链接即可自动识别并下载</p>
+    </div>
+
+    <!-- 庆祝彩蛋画布 -->
+    <canvas id="confetti-canvas"></canvas>
+
     <div class="app-container">
       <nav class="sidebar-nav">
         <div class="brand">
-          <div class="brand-title">Video DL</div>
-          <div class="brand-version" data-app-version>v1.0.31</div>
+          <div class="brand-title">Video DL ✨</div>
+          <div class="brand-version" data-app-version>v1.0.33</div>
         </div>
         <div class="nav-menu">
           <a href="/" class="nav-item active"><i data-feather="download"></i> Downloader</a>
@@ -152,39 +137,74 @@
       <main class="main-content">
         <div class="content-wrapper">
           <header class="page-header">
-            <h1>Download a video</h1>
-            <p class="sub">Paste a URL, pick a format, and hit download.</p>
+            <h1>视频抓取工坊 🚀</h1>
+            <p class="sub">粘贴视频链接，智能识别平台，流光火箭加速抓取，支持批量与云端同步。</p>
           </header>
 
           <form id="download-form" class="glass-panel stagger-form">
+            <!-- 智能识别 URL 输入框 -->
             <label class="fade-in" style="--delay:0">
-              <span class="label-text">Video URL</span>
-              <input id="url" name="url" type="url" placeholder="https://youtube.com/watch?v=..." required />
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                <span class="label-text">视频链接 / Video URL</span>
+                <div id="platform-pill" class="platform-pill">
+                  <span id="platform-icon">🌐</span>
+                  <span id="platform-name">自动识别</span>
+                </div>
+              </div>
+              <div class="url-input-container">
+                <span class="url-leading-icon"><i data-feather="link-2"></i></span>
+                <input id="url" name="url" type="url" placeholder="粘贴视频链接 (TikTok, YouTube, B站, X/Twitter, Reels...)" required autocomplete="off" />
+                <div class="url-actions-right">
+                  <button type="button" id="url-clear" class="url-clear-btn" title="清空链接">✕</button>
+                  <button type="button" id="url-paste" class="url-quick-btn" title="一键粘贴剪贴板">
+                    <i data-feather="clipboard" style="width:13px;height:13px"></i> 粘贴
+                  </button>
+                </div>
+              </div>
             </label>
 
+            <!-- 模式与文件名 -->
             <div class="row fade-in" style="--delay:1">
               <label>
-                <span class="label-text">Format</span>
-                <select id="mode" name="mode">
+                <span class="label-text">下载模式 / Mode</span>
+                <div class="format-segmented-group">
+                  <div class="format-card active" data-mode="video" id="mode-card-video">
+                    <div class="format-card-icon">🎬</div>
+                    <div class="format-card-text">
+                      <span class="format-card-title">完整视频</span>
+                      <span class="format-card-desc">MP4 高清原画</span>
+                    </div>
+                  </div>
+                  <div class="format-card" data-mode="mp3" id="mode-card-mp3">
+                    <div class="format-card-icon">🎵</div>
+                    <div class="format-card-text">
+                      <span class="format-card-title">提取音频</span>
+                      <span class="format-card-desc">MP3 纯享音轨</span>
+                    </div>
+                  </div>
+                </div>
+                <select id="mode" name="mode" style="display:none">
                   <option value="video">Video (MP4)</option>
                   <option value="mp3">Audio (MP3)</option>
                 </select>
               </label>
+
               <label>
-                <span class="label-text">Custom filename</span>
-                <input id="customName" name="customName" type="text" placeholder="Optional" />
+                <span class="label-text">自定义保存名称 / Filename</span>
+                <input id="customName" name="customName" type="text" placeholder="选填，默认使用视频原始标题" />
               </label>
             </div>
 
+            <!-- 画质预设 -->
             <label class="fade-in" style="--delay:2">
-              <span class="label-text">Quality</span>
+              <span class="label-text">画质 / 音质预设</span>
               <select id="quality" name="quality"></select>
             </label>
 
-            <!-- Collapsible Google Drive -->
+            <!-- 折叠 Google Drive 配置 -->
             <div class="drive-toggle fade-in" id="drive-toggle" style="--delay:3">
               <span class="dot" id="drive-dot"></span>
-              <span id="drive-toggle-label">Google Drive</span>
+              <span id="drive-toggle-label">Google Drive 云端同步</span>
               <span class="arrow" id="drive-arrow"><i data-feather="chevron-down" style="width:16px;height:16px"></i></span>
             </div>
 
@@ -203,34 +223,35 @@
 
               <label class="toggle-row">
                 <input id="uploadToDrive" type="checkbox" />
-                Upload to Drive after download
+                下载完成后自动上传至 Google Drive
               </label>
               <label class="toggle-row">
                 <input id="deleteLocalAfterUpload" type="checkbox" />
-                Delete local file after upload
+                上传成功后自动删除本地副本 (节省空间)
               </label>
             </div>
 
-            <button class="primary fade-in" id="submit" type="submit" style="padding: 14px; --delay:4">
-              <i data-feather="download-cloud"></i> Download
+            <button class="primary fade-in" id="submit" type="submit" style="padding: 15px; font-size:1rem; --delay:4">
+              <i data-feather="zap"></i> 开启极速下载
             </button>
           </form>
 
+          <!-- 下载队列与实时仪表盘 -->
           <section class="glass-panel queue-section" style="padding: 24px;">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               <div style="display:flex; align-items:center; gap:8px;">
                 <span class="active-pulse-dot"></span>
-                <strong style="color: var(--text-main);">Download Queue</strong>
+                <strong style="color: var(--text-main); font-size: 1.05rem;">任务队列与实时雷达</strong>
               </div>
               <div style="display:flex; gap:8px; align-items:center;">
-                <button class="secondary small" id="clear-queue-btn" type="button">Clear finished</button>
-                <button class="secondary small" id="update-engine" type="button"><i data-feather="refresh-cw" style="width:14px;height:14px"></i> Update Engine</button>
+                <button class="secondary small" id="clear-queue-btn" type="button">清理已完成</button>
+                <button class="secondary small" id="update-engine" type="button"><i data-feather="refresh-cw" style="width:14px;height:14px"></i> 更新引擎</button>
               </div>
             </div>
-            <div id="queue-list" style="max-height: 400px; overflow-y: auto; padding-right: 4px;">
-              <div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; padding: 20px;">No active downloads.</div>
+            <div id="queue-list" style="max-height: 480px; overflow-y: auto; padding-right: 4px;">
+              <div style="text-align:center; color: var(--text-muted); font-size: 0.88rem; padding: 24px;">暂无活跃任务，粘贴上方链接开启抓取。</div>
             </div>
-            <div id="page-status" style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted);">Ready.</div>
+            <div id="page-status" style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted);">系统就绪。</div>
           </section>
         </div>
       </main>
@@ -241,12 +262,23 @@
     <script>
       const form = document.getElementById("download-form");
       const submit = document.getElementById("submit");
+      const urlInput = document.getElementById("url");
+      const urlClearBtn = document.getElementById("url-clear");
+      const urlPasteBtn = document.getElementById("url-paste");
+      const platformPill = document.getElementById("platform-pill");
+      const platformIcon = document.getElementById("platform-icon");
+      const platformName = document.getElementById("platform-name");
+      const modeSelect = document.getElementById("mode");
+      const modeCardVideo = document.getElementById("mode-card-video");
+      const modeCardMp3 = document.getElementById("mode-card-mp3");
+      const qualitySelect = document.getElementById("quality");
       const queueList = document.getElementById("queue-list");
       const pageStatus = document.getElementById("page-status");
       const clearQueueBtn = document.getElementById("clear-queue-btn");
       const updateEngineBtn = document.getElementById("update-engine");
-      const modeSelect = document.getElementById("mode");
-      const qualitySelect = document.getElementById("quality");
+      const dropzone = document.getElementById("dropzone");
+      const confettiCanvas = document.getElementById("confetti-canvas");
+
       const driveFolderSelect = document.getElementById("driveFolder");
       const driveConnectButton = document.getElementById("drive-connect");
       const driveRefreshButton = document.getElementById("drive-refresh");
@@ -265,22 +297,28 @@
         folderId: "video-dl.web.drive.folderId",
         upload: "video-dl.web.drive.upload",
         deleteLocal: "video-dl.web.drive.deleteLocal",
-        quality: "video-dl.web.quality"
+        quality: "video-dl.web.quality",
+        mode: "video-dl.web.mode"
       };
 
       let driveConnected = false;
       let driveConfigured = false;
       let driveBusy = false;
+      const completedJobIds = new Set();
+      let isInitialQueueLoad = true;
 
       boot();
       bindEvents();
 
       async function boot() {
         loadPreferences();
+        const savedMode = loadValue(STORAGE_KEYS.mode, "video");
+        setMode(savedMode);
         renderQualityOptions(loadValue(STORAGE_KEYS.quality, ""));
         loadAppInfo();
         await refreshDriveStatus(true);
         initQueueStream();
+        initDragAndDrop();
       }
 
       async function loadAppInfo() {
@@ -293,6 +331,59 @@
         } catch {}
       }
 
+      /* ── 平台智能嗅探 ── */
+      function detectPlatform(urlStr) {
+        if (!urlStr) return null;
+        const lower = urlStr.toLowerCase();
+        if (lower.includes("tiktok.com") || lower.includes("douyin.com")) {
+          return { name: "TikTok / 抖音", icon: "🎵", className: "tiktok" };
+        }
+        if (lower.includes("youtube.com") || lower.includes("youtu.be")) {
+          return { name: "YouTube / Shorts", icon: "🎬", className: "youtube" };
+        }
+        if (lower.includes("bilibili.com") || lower.includes("b23.tv")) {
+          return { name: "哔哩哔哩 Bilibili", icon: "📺", className: "bilibili" };
+        }
+        if (lower.includes("twitter.com") || lower.includes("x.com")) {
+          return { name: "X / Twitter", icon: "🐦", className: "twitter" };
+        }
+        if (lower.includes("instagram.com")) {
+          return { name: "Instagram Reels", icon: "📸", className: "instagram" };
+        }
+        if (/^https?:\/\//i.test(urlStr)) {
+          return { name: "网络视频资源", icon: "🌐", className: "generic" };
+        }
+        return null;
+      }
+
+      function updatePlatformBadge() {
+        const val = urlInput.value.trim();
+        urlClearBtn.style.display = val ? "inline-block" : "none";
+        const detected = detectPlatform(val);
+        if (detected) {
+          platformIcon.textContent = detected.icon;
+          platformName.textContent = detected.name;
+          platformPill.className = `platform-pill show ${detected.className}`;
+        } else {
+          platformPill.className = "platform-pill";
+        }
+      }
+
+      /* ── 模式切换 ── */
+      function setMode(mode) {
+        modeSelect.value = mode;
+        storeValue(STORAGE_KEYS.mode, mode);
+        if (mode === "video") {
+          modeCardVideo.classList.add("active");
+          modeCardMp3.classList.remove("active");
+        } else {
+          modeCardMp3.classList.add("active");
+          modeCardVideo.classList.remove("active");
+        }
+        renderQualityOptions(loadValue(STORAGE_KEYS.quality, ""));
+      }
+
+      /* ── 队列与火箭进度条渲染 ── */
       function initQueueStream() {
         const source = new EventSource("/api/queue/stream");
         source.onmessage = (event) => {
@@ -303,37 +394,112 @@
         };
       }
 
+      function parseTelemetry(job) {
+        let speed = job.speed || "";
+        let eta = job.eta || "";
+        let size = job.size || "";
+
+        if ((!speed || !eta || !size) && job.message) {
+          if (!speed) {
+            const m = job.message.match(/at\s+([~0-9.]+[A-Za-z]+\/s)/i);
+            if (m) speed = m[1];
+          }
+          if (!eta) {
+            const m = job.message.match(/ETA\s+([0-9:]+)/i);
+            if (m) eta = m[1];
+          }
+          if (!size) {
+            const m = job.message.match(/of\s+~?\s*([0-9.]+[A-Za-z]+)/i);
+            if (m) size = m[1];
+          }
+        }
+
+        return { speed, eta, size };
+      }
+
       function renderQueue(jobs) {
         if (!jobs || jobs.length === 0) {
-          queueList.innerHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.85rem; padding: 20px;">No active downloads.</div>`;
+          queueList.innerHTML = `<div style="text-align:center; color: var(--text-muted); font-size: 0.88rem; padding: 24px;">暂无活跃任务，粘贴上方链接开启抓取。</div>`;
           return;
         }
-        
+
+        // 检查新完成任务以触发彩蛋庆祝
+        for (const job of jobs) {
+          if (job.status === "done" && !completedJobIds.has(job.id)) {
+            completedJobIds.add(job.id);
+            if (!isInitialQueueLoad) {
+              triggerCelebration();
+            }
+          }
+        }
+        isInitialQueueLoad = false;
+
         queueList.innerHTML = "";
         for (const job of jobs) {
           const div = document.createElement("div");
           div.className = "queue-item";
-          
+          if (job.status === "done") {
+            div.classList.add("just-completed");
+          }
+
+          const percent = Math.min(100, Math.max(0, Math.round(Number(job.percent) || 0)));
+          const { speed, eta, size } = parseTelemetry(job);
+
           let trackHtml = "";
+          let telemetryHtml = "";
+
           if (job.status === "processing" || job.status === "uploading") {
             trackHtml = `
-              <div class="queue-track">
-                <div class="queue-fill" style="width: ${job.percent}%"></div>
+              <div class="rocket-progress-container">
+                <div class="rocket-track">
+                  <div class="rocket-fill" style="width: ${percent}%;">
+                    <div class="rocket-head ${percent >= 100 ? 'launch' : ''}">
+                      <span class="rocket-icon">🚀</span>
+                      <span class="thruster-flame"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+
+            telemetryHtml = `
+              <div class="telemetry-bar">
+                <div class="telemetry-pill speed ${speed ? 'active' : ''}">
+                  <span class="pulse-dot"></span>
+                  <span class="label">网速</span>
+                  <span class="value">${speed || '计算中...'}</span>
+                </div>
+                <div class="telemetry-pill eta">
+                  <span class="label">预估</span>
+                  <span class="value">${eta || (percent >= 100 ? '即将完成' : '--:--')}</span>
+                </div>
+                <div class="telemetry-pill size">
+                  <span class="label">进度</span>
+                  <span class="value">${percent}% ${size ? '(' + size + ')' : ''}</span>
+                </div>
               </div>
             `;
           }
 
           let linkHtml = "";
           if (job.driveLink) {
-            linkHtml = ` <a href="${job.driveLink}" target="_blank" style="color:var(--accent-primary)">View in Drive</a>`;
+            linkHtml = ` <a href="${job.driveLink}" target="_blank" style="color:var(--accent-primary); font-weight:700;">[在 Google Drive 中查看]</a>`;
           }
+
+          const statusBadgeMap = {
+            pending: "⏳ 准备中",
+            processing: `🚀 下载中 ${percent}%`,
+            uploading: "☁️ 同步云端",
+            done: "✨ 完成",
+            error: "⚠️ 失败"
+          };
 
           let actionHtml = "";
           if (job.status === "error") {
             actionHtml = `
-              <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
-                <button class="secondary small retry-btn" data-id="${job.id}" type="button" style="padding:4px 8px; font-size:0.75rem; gap:4px;">
-                  <i data-feather="rotate-ccw" style="width:12px;height:12px"></i> Retry
+              <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+                <button class="secondary small retry-btn" data-id="${job.id}" type="button" style="padding:4px 10px; font-size:0.75rem; gap:4px; font-weight:700;">
+                  <i data-feather="rotate-ccw" style="width:12px;height:12px"></i> 重试
                 </button>
               </div>
             `;
@@ -341,11 +507,12 @@
 
           div.innerHTML = `
             <div class="queue-head">
-              <div class="queue-title">${esc(job.title)}</div>
-              <div class="queue-status-badge ${job.status}">${job.status}</div>
+              <div class="queue-title" title="${esc(job.title)}">${esc(job.title)}</div>
+              <div class="queue-status-badge ${job.status}">${statusBadgeMap[job.status] || job.status}</div>
             </div>
             <div class="queue-msg">${esc(job.message)}${linkHtml}</div>
             ${trackHtml}
+            ${telemetryHtml}
             ${actionHtml}
           `;
           queueList.appendChild(div);
@@ -354,34 +521,142 @@
         if (window.feather) feather.replace();
       }
 
-      async function clearFinishedQueue() {
+      /* ── 拖拽投放区域 ── */
+      function initDragAndDrop() {
+        let dragCounter = 0;
+        window.addEventListener("dragenter", (e) => {
+          e.preventDefault();
+          dragCounter++;
+          dropzone.classList.add("active");
+        });
+        window.addEventListener("dragleave", (e) => {
+          e.preventDefault();
+          dragCounter--;
+          if (dragCounter <= 0) {
+            dragCounter = 0;
+            dropzone.classList.remove("active");
+          }
+        });
+        window.addEventListener("dragover", (e) => e.preventDefault());
+        window.addEventListener("drop", (e) => {
+          e.preventDefault();
+          dragCounter = 0;
+          dropzone.classList.remove("active");
+          const text = e.dataTransfer.getData("text/plain") || e.dataTransfer.getData("text/uri-list");
+          if (text) {
+            urlInput.value = text.trim();
+            updatePlatformBadge();
+            urlInput.focus();
+          }
+        });
+      }
+
+      /* ── 庆祝彩蛋与声音 ── */
+      function triggerCelebration() {
+        playDing();
+        launchConfetti();
+      }
+
+      function playDing() {
         try {
-          const response = await fetch("/api/queue/clear", { method: "POST" });
-          const payload = await response.json().catch(() => ({}));
-          if (!response.ok) {
-            throw new Error(payload.error || "Failed to clear finished queue items.");
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+          osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12); // A5
+          gain.gain.setValueAtTime(0.18, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.45);
+        } catch {}
+      }
+
+      function launchConfetti() {
+        const canvas = confettiCanvas;
+        const ctx = canvas.getContext("2d");
+        const w = (canvas.width = window.innerWidth);
+        const h = (canvas.height = window.innerHeight);
+
+        const colors = ["#f0b840", "#5ab87a", "#6bb5c9", "#bf5e78", "#a855f7", "#fde047"];
+        const particles = [];
+
+        for (let i = 0; i < 65; i++) {
+          particles.push({
+            x: Math.random() * w,
+            y: Math.random() * (h * 0.4),
+            vx: (Math.random() - 0.5) * 6,
+            vy: Math.random() * 4 + 2,
+            size: Math.random() * 8 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            vRot: (Math.random() - 0.5) * 10,
+            opacity: 1
+          });
+        }
+
+        let start = null;
+        function frame(time) {
+          if (!start) start = time;
+          const progress = (time - start) / 2200;
+          ctx.clearRect(0, 0, w, h);
+
+          for (const p of particles) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.08; // gravity
+            p.rotation += p.vRot;
+            p.opacity = Math.max(0, 1 - progress);
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.globalAlpha = p.opacity;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+            ctx.restore();
           }
 
-          renderQueue(payload.queue || []);
-          setStatus("Finished queue items cleared.", "success");
-        } catch (error) {
-          setStatus(error.message || "Failed to clear finished queue items.", "error");
+          if (progress < 1) {
+            requestAnimationFrame(frame);
+          } else {
+            ctx.clearRect(0, 0, w, h);
+          }
         }
+        requestAnimationFrame(frame);
       }
 
-      function esc(str) {
-        return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-      }
-
+      /* ── 事件监听绑定 ── */
       function bindEvents() {
+        urlInput.addEventListener("input", updatePlatformBadge);
+        urlClearBtn.addEventListener("click", () => {
+          urlInput.value = "";
+          updatePlatformBadge();
+          urlInput.focus();
+        });
+
+        urlPasteBtn.addEventListener("click", async () => {
+          try {
+            const clip = await navigator.clipboard.readText();
+            if (clip) {
+              urlInput.value = clip.trim();
+              updatePlatformBadge();
+              urlInput.focus();
+            }
+          } catch {
+            urlInput.focus();
+          }
+        });
+
+        modeCardVideo.addEventListener("click", () => setMode("video"));
+        modeCardMp3.addEventListener("click", () => setMode("mp3"));
+
         driveToggle.addEventListener("click", () => {
           driveBody.classList.toggle("collapsed");
           driveBody.classList.toggle("expanded");
           driveArrow.classList.toggle("open");
-        });
-
-        modeSelect.addEventListener("change", () => {
-          renderQualityOptions();
         });
 
         qualitySelect.addEventListener("change", () => {
@@ -432,6 +707,24 @@
         });
       }
 
+      async function clearFinishedQueue() {
+        try {
+          const response = await fetch("/api/queue/clear", { method: "POST" });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(payload.error || "Failed to clear finished queue items.");
+          }
+          renderQueue(payload.queue || []);
+          setStatus("已清理所有已完成任务。", "success");
+        } catch (error) {
+          setStatus(error.message || "清理失败。", "error");
+        }
+      }
+
+      function esc(str) {
+        return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+
       async function handleSubmit(event) {
         event.preventDefault();
         const uploadToDrive = uploadToDriveInput.checked;
@@ -439,18 +732,18 @@
         const deleteLocalAfterUpload = deleteLocalAfterUploadInput.checked;
 
         if (uploadToDrive && !driveConnected) {
-          alert("Connect Google Drive before enabling upload.");
+          alert("请先连接 Google Drive 账号后再开启云端上传。");
           return;
         }
         if (uploadToDrive && !driveFolderId) {
-          alert("Choose a Google Drive folder before enabling upload.");
+          alert("请选择要保存到的 Google Drive 文件夹。");
           return;
         }
 
         submit.disabled = true;
         const payload = {
-          url: document.getElementById("url").value.trim(),
-          mode: document.getElementById("mode").value,
+          url: urlInput.value.trim(),
+          mode: modeSelect.value,
           customName: document.getElementById("customName").value.trim(),
           quality: qualitySelect.value,
           uploadToDrive,
@@ -464,10 +757,12 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
-          document.getElementById("url").value = "";
+          urlInput.value = "";
           document.getElementById("customName").value = "";
+          updatePlatformBadge();
+          setStatus("任务已加入极速队列 🚀", "success");
         } catch (error) {
-          alert("Failed to add job: " + error.message);
+          alert("添加任务失败: " + error.message);
         } finally {
           submit.disabled = false;
         }
@@ -475,22 +770,22 @@
 
       async function updateYtDlpEngine() {
         updateEngineBtn.disabled = true;
-        updateEngineBtn.innerHTML = `<span class="spinner" style="width:14px;height:14px;border-width:2px;margin-right:6px"></span> Updating...`;
+        updateEngineBtn.innerHTML = `<span class="spinner" style="width:14px;height:14px;border-width:2px;margin-right:6px"></span> 正在更新...`;
         try {
           const res = await api("/api/system/update-engine", { method: "POST" });
-          alert("Update complete:\\n" + res.log);
+          alert("引擎升级完成:\\n" + res.log);
         } catch (err) {
-          alert("Update failed: " + err.message);
+          alert("引擎升级异常: " + err.message);
         } finally {
           updateEngineBtn.disabled = false;
-          updateEngineBtn.innerHTML = `<i data-feather="refresh-cw" style="width:14px;height:14px"></i> Update Engine`;
+          updateEngineBtn.innerHTML = `<i data-feather="refresh-cw" style="width:14px;height:14px"></i> 更新引擎`;
           feather.replace();
         }
       }
 
       async function connectDrive() {
         setDriveBusy(true);
-        driveNote.textContent = "Opening Google sign-in...";
+        driveNote.textContent = "正在跳转 Google 授权登录...";
         try {
           const result = await api("/api/drive/connect-init", {
             method: "POST",
@@ -498,7 +793,7 @@
           });
           window.location.assign(result.authUrl);
         } catch (error) {
-          driveNote.textContent = error.message || "Failed to start Google sign-in.";
+          driveNote.textContent = error.message || "跳转登录失败。";
           setDriveBusy(false);
         }
       }
@@ -533,7 +828,7 @@
 
       async function loadDriveFolders(showLoading) {
         if (!driveConnected) { populateFolders([], ""); syncDriveUiState(); return; }
-        if (showLoading) driveNote.textContent = "Loading folders...";
+        if (showLoading) driveNote.textContent = "加载文件夹中...";
         setDriveBusy(true);
         try {
           const result = await api("/api/drive/folders");
@@ -547,7 +842,7 @@
 
       async function createDriveFolder() {
         if (!driveConnected) return;
-        const name = window.prompt("New folder name:");
+        const name = window.prompt("输入新建文件夹名称:");
         if (!name || !name.trim()) return;
         setDriveBusy(true);
         try {
@@ -571,7 +866,7 @@
         driveFolderSelect.innerHTML = "";
         const ph = document.createElement("option");
         ph.value = "";
-        ph.textContent = folders.length ? "Choose folder" : "No folders";
+        ph.textContent = folders.length ? "选择目标文件夹" : "暂无文件夹";
         driveFolderSelect.appendChild(ph);
         for (const f of folders) {
           const o = document.createElement("option");
@@ -595,13 +890,12 @@
         const hasFolder = !!driveFolderSelect.value;
         const hasCredentials = driveConfigured;
 
-        // Toggle label
         if (driveConnected) {
           driveDot.classList.add("on");
-          driveToggleLabel.textContent = email ? `Google Drive - ${email}` : "Google Drive - Connected";
+          driveToggleLabel.textContent = email ? `Google Drive - 已连接 (${email})` : "Google Drive - 已连接";
         } else {
           driveDot.classList.remove("on");
-          driveToggleLabel.textContent = "Google Drive - Not connected";
+          driveToggleLabel.textContent = "Google Drive - 未连接";
         }
 
         driveConnectButton.disabled = driveBusy || !hasCredentials;
@@ -617,32 +911,32 @@
         }
 
         if (!driveBusy) {
-          if (driveConnected && !hasCredentials) driveNote.textContent = "Google Drive is connected. OAuth is configured on the local server, not in the browser.";
-          else if (!hasCredentials) driveNote.textContent = "Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env.local on this machine.";
-          else if (!driveConnected) driveNote.textContent = "Click Connect to sign in with Google.";
-          else if (!hasFolder) driveNote.textContent = "Choose a folder or create a new one.";
-          else if (!uploadToDriveInput.checked) driveNote.textContent = "Enable upload to send downloads to Drive.";
+          if (driveConnected && !hasCredentials) driveNote.textContent = "Google Drive 已连接。OAuth 凭据存储于本机。";
+          else if (!hasCredentials) driveNote.textContent = "请在本机 .env.local 中配置 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET。";
+          else if (!driveConnected) driveNote.textContent = "点击连接以登录 Google 授权网盘。";
+          else if (!hasFolder) driveNote.textContent = "请选择一个网盘文件夹或新建一个。";
+          else if (!uploadToDriveInput.checked) driveNote.textContent = "勾选上方开关即可开启下载自动同步网盘。";
           else driveNote.textContent = deleteLocalAfterUploadInput.checked
-            ? "Downloads will upload to Drive, then local file removed."
-            : "Downloads will upload to Drive after saving locally.";
+            ? "下载完成后将上传至网盘并自动移除本地文件。"
+            : "下载完成后将保存于本地同时备份至网盘。";
         }
       }
 
       function getQualityOptions(mode) {
         return mode === "mp3"
           ? [
-              { value: "best", label: "Best available MP3" },
-              { value: "320k", label: "320 kbps" },
-              { value: "192k", label: "192 kbps" },
-              { value: "128k", label: "128 kbps" }
+              { value: "best", label: "最佳可用音质 (Best MP3)" },
+              { value: "320k", label: "320 kbps (高品质)" },
+              { value: "192k", label: "192 kbps (标准品质)" },
+              { value: "128k", label: "128 kbps (轻量便携)" }
             ]
           : [
-              { value: "best", label: "Best available MP4" },
-              { value: "2160p", label: "4K / 2160p" },
-              { value: "1440p", label: "1440p" },
-              { value: "1080p", label: "1080p" },
-              { value: "720p", label: "720p" },
-              { value: "480p", label: "480p" }
+              { value: "best", label: "最高可用画质 (Best MP4)" },
+              { value: "2160p", label: "4K / 2160p 超高清" },
+              { value: "1440p", label: "2K / 1440p 极清" },
+              { value: "1080p", label: "1080p 全高清" },
+              { value: "720p", label: "720p 高清" },
+              { value: "480p", label: "480p 标清" }
             ];
       }
 
@@ -663,6 +957,7 @@
         qualitySelect.value = nextValue;
         storeValue(STORAGE_KEYS.quality, nextValue);
       }
+
       function loadPreferences() {
         uploadToDriveInput.checked = loadValue(STORAGE_KEYS.upload, "0") === "1";
         deleteLocalAfterUploadInput.checked = loadValue(STORAGE_KEYS.deleteLocal, "0") === "1";
@@ -684,19 +979,8 @@
       async function api(url, opts = {}) {
         const r = await fetch(url, opts);
         const d = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(d.error || "Request failed.");
+        if (!r.ok) throw new Error(d.error || "请求失败。");
         return d;
-      }
-
-      function renderDownloadDetails(data, driveUpload, del) {
-        if (driveUpload) {
-          const lines = [del ? "Local file removed." : `Saved: ${data.filePath}`];
-          lines.push(`Drive: ${driveUpload.name}`);
-          if (driveUpload.webViewLink) lines.push(driveUpload.webViewLink);
-          lines.push("", data.log || "Done.");
-          return lines.join("\n");
-        }
-        return data.filePath ? `Saved: ${data.filePath}\n\n${data.log}` : data.log || "Done.";
       }
 
       function setDriveBusy(b) { driveBusy = !!b; syncDriveUiState(); }

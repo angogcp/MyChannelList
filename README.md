@@ -6,16 +6,28 @@ Local web app for downloading videos, tracking channel watch lists, choosing MP4
 
 ## Install
 
+Windows:
+
 ```powershell
 npm.cmd install
 ```
+
+Linux:
+
+```bash
+sudo apt update
+sudo apt install -y nodejs npm ffmpeg
+npm install
+```
+
+`ffmpeg` must be available on `PATH` on Linux. `yt-dlp` is downloaded automatically on first use if it is not already installed.
 
 ## Run
 
 Start the local web server:
 
-```powershell
-npm.cmd run start:web
+```bash
+npm run start:web
 ```
 
 Open it in your browser:
@@ -26,19 +38,25 @@ http://localhost:3010
 
 ## Launchers
 
-Open the web app in your default browser:
+Open the web app in your default browser on Windows, Linux, or WSL:
 
-```powershell
-npm.cmd run launch:web
+```bash
+npm run launch:web
 ```
 
-Open the web app in an app-style Edge/Chrome window:
+Open the web app in an app-style Edge/Chrome window when a compatible browser is installed:
 
-```powershell
-npm.cmd run launch:app
+```bash
+npm run launch:app
 ```
 
-You can also double-click [Launch Video DL Web.cmd](C:\apps\MyChannelList\Launch Video DL Web.cmd) or [Launch Video DL App.cmd](C:\apps\MyChannelList\Launch Video DL App.cmd).
+Start the server without opening a browser:
+
+```bash
+npm run launch:none
+```
+
+On Windows, you can also double-click [Launch Video DL Web.cmd](C:\apps\MyChannelList\Launch Video DL Web.cmd) or [Launch Video DL App.cmd](C:\apps\MyChannelList\Launch Video DL App.cmd).
 
 On a fresh download, the launcher will automatically run `npm install` the first time if `node_modules/` is missing.
 

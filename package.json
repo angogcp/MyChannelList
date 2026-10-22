@@ -6,8 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "start:web": "node server.js",
-    "launch:web": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\launch-web.ps1",
-    "launch:app": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\launch-web.ps1 -OpenMode app"
+    "launch:web": "node scripts/launch-web.js",
+    "launch:app": "node scripts/launch-web.js --app",
+    "launch:none": "node scripts/launch-web.js --none",
+    "test": "node --test tests/*.test.js"
   },
   "keywords": [
     "video",
