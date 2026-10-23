@@ -1679,3 +1679,299 @@ button.primary:hover:not(:disabled)::after {
   pointer-events: none;
   z-index: 10000;
 }
+
+
+/* ========================================================
+   THEME SWITCHER & DARK MODE (AURORA CYBER)
+   ======================================================== */
+
+.theme-switch-container {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 248, 218, 0.15);
+}
+
+.theme-toggle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-on-dark);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle-btn .theme-icon {
+  font-size: 1.15rem;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-toggle-btn:hover .theme-icon {
+  transform: rotate(20deg) scale(1.2);
+}
+
+/* ── Dark Mode: Aurora Cyber ── */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-app: #0b1016;
+  --bg-panel: rgba(18, 24, 38, 0.78);
+  --bg-panel-hover: rgba(26, 35, 54, 0.92);
+  --bg-surface: rgba(22, 30, 48, 0.82);
+  --bg-elevated: rgba(30, 42, 68, 0.88);
+  --bg-overlay: rgba(5, 8, 14, 0.76);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-focus: rgba(56, 189, 248, 0.55);
+  --accent-primary: #f59e0b;
+  --accent-primary-bright: #fbbf24;
+  --accent-secondary: #10b981;
+  --accent-secondary-bright: #34d399;
+  --accent-warm: #fef08a;
+  --accent-cool: #38bdf8;
+  --accent-berry: #f43f5e;
+  --accent-sky: #38bdf8;
+  --accent-grass: #4ade80;
+  --ink-green: #e2e8f0;
+  --ink-deep: #f8fafc;
+  --paper-edge: rgba(255, 255, 255, 0.08);
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --text-on-dark: rgba(255, 255, 255, 0.92);
+  --text-on-dark-muted: rgba(255, 255, 255, 0.6);
+  --shadow-glass: 0 24px 64px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  --shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --gradient-btn: linear-gradient(135deg, #f59e0b 0%, #10b981 50%, #38bdf8 100%);
+  --gradient-hover: linear-gradient(135deg, #fbbf24 0%, #34d399 50%, #60a5fa 100%);
+}
+
+[data-theme="dark"] body {
+  background-color: var(--bg-app);
+  background-image:
+    radial-gradient(ellipse at 18% 8%, rgba(56, 189, 248, 0.15), transparent 32%),
+    radial-gradient(ellipse at 82% 10%, rgba(168, 85, 247, 0.16), transparent 34%),
+    radial-gradient(ellipse at 45% 50%, rgba(16, 185, 129, 0.1), transparent 38%),
+    linear-gradient(180deg, #070b10 0%, #0d141e 50%, #111a26 100%);
+}
+
+[data-theme="dark"] body::before {
+  background:
+    radial-gradient(circle at 14% 20%, rgba(56, 189, 248, 0.08), transparent 12%),
+    radial-gradient(circle at 38% 16%, rgba(168, 85, 247, 0.08), transparent 10%),
+    radial-gradient(circle at 75% 22%, rgba(16, 185, 129, 0.06), transparent 14%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.2));
+}
+
+[data-theme="dark"] body::after {
+  background:
+    radial-gradient(ellipse at 15% 100%, rgba(16, 185, 129, 0.2) 0 32%, transparent 34%),
+    radial-gradient(ellipse at 38% 102%, rgba(56, 189, 248, 0.18) 0 29%, transparent 31%),
+    radial-gradient(ellipse at 65% 101%, rgba(168, 85, 247, 0.15) 0 33%, transparent 35%),
+    radial-gradient(ellipse at 88% 104%, rgba(244, 63, 94, 0.15) 0 31%, transparent 33%),
+    linear-gradient(180deg, transparent 0 24%, rgba(11, 16, 26, 0.4) 25%, rgba(7, 11, 18, 0.85) 100%);
+}
+
+[data-theme="dark"] .sidebar-nav {
+  background:
+    radial-gradient(ellipse at 30% 8%, rgba(56, 189, 248, 0.16), transparent 32%),
+    radial-gradient(ellipse at 70% 90%, rgba(168, 85, 247, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(14, 20, 32, 0.98), rgba(9, 13, 22, 0.98));
+  border-right-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 12px 0 48px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .brand {
+  border-color: rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at 8% 16%, rgba(255,255,255,0.08), transparent 30%),
+    linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(168, 85, 247, 0.1)),
+    rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .glass-panel {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(255, 255, 255, 0.06), transparent 30%),
+    radial-gradient(circle at 92% 8%, rgba(56, 189, 248, 0.08), transparent 32%),
+    radial-gradient(circle at 20% 100%, rgba(168, 85, 247, 0.06), transparent 34%),
+    linear-gradient(180deg, rgba(20, 27, 44, 0.85), rgba(15, 21, 34, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .glass-panel::before {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="url"],
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: rgba(16, 23, 38, 0.82) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9 !important;
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  background: rgba(20, 29, 48, 0.96) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.22), inset 0 1.5px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] button.secondary,
+[data-theme="dark"] a.secondary {
+  background: rgba(255, 255, 255, 0.07);
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] button.secondary:hover:not(:disabled),
+[data-theme="dark"] a.secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .queue-item,
+[data-theme="dark"] .ch-item,
+[data-theme="dark"] .vid-row,
+[data-theme="dark"] .history-row,
+[data-theme="dark"] .file-row,
+[data-theme="dark"] .card,
+[data-theme="dark"] .section-card,
+[data-theme="dark"] .focus-card,
+[data-theme="dark"] .hero,
+[data-theme="dark"] .fold {
+  background-color: rgba(19, 27, 44, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .queue-item:hover,
+[data-theme="dark"] .vid-row:hover,
+[data-theme="dark"] .ch-item:hover,
+[data-theme="dark"] .file-row:hover,
+[data-theme="dark"] .history-row:hover {
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .fluid-orb-1 {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(56, 189, 248, 0.25) 50%, transparent 80%);
+}
+
+[data-theme="dark"] .fluid-orb-2 {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.3) 0%, rgba(16, 185, 129, 0.2) 60%, transparent 80%);
+}
+
+[data-theme="dark"] .fluid-orb-3 {
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.25) 0%, rgba(168, 85, 247, 0.2) 50%, transparent 80%);
+}
+
+[data-theme="dark"] .telemetry-pill {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .telemetry-pill .value {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .format-card {
+  background: rgba(19, 26, 42, 0.72);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme="dark"] .format-card:hover {
+  background: rgba(27, 37, 58, 0.88);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .format-card.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.16));
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px #38bdf8, 0 10px 24px rgba(56, 189, 248, 0.25);
+}
+
+[data-theme="dark"] .format-card-icon {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme="dark"] .chip,
+[data-theme="dark"] .tag,
+[data-theme="dark"] .stat,
+[data-theme="dark"] .file-badge,
+[data-theme="dark"] .queue-status-badge {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .chip.good,
+[data-theme="dark"] .tag.high,
+[data-theme="dark"] .tag.good {
+  color: #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+  background: rgba(16, 185, 129, 0.18) !important;
+}
+
+[data-theme="dark"] .chip.mid,
+[data-theme="dark"] .tag.mid {
+  color: #fbbf24 !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+  background: rgba(245, 158, 11, 0.18) !important;
+}
+
+[data-theme="dark"] .chip.low,
+[data-theme="dark"] .tag.low {
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.35) !important;
+  background: rgba(239, 68, 68, 0.18) !important;
+}
+
+[data-theme="dark"] .filter-group {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .filter-btn,
+[data-theme="dark"] .filter-chip {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .filter-btn.active,
+[data-theme="dark"] .filter-chip.active {
+  color: #f8fafc !important;
+  background: rgba(56, 189, 248, 0.22) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] .brand-title {
+  color: #f8fafc;
+  text-shadow: 0 2px 20px rgba(56, 189, 248, 0.25);
+}
+
+[data-theme="dark"] .log-pane {
+  background: rgba(11, 16, 26, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #7dd3fc;
+}

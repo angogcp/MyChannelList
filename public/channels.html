@@ -1329,8 +1329,15 @@
         margin-top: 10px;
       }
     </style>
+    <script src="/theme.js"></script>
   </head>
   <body>
+    <!-- 动态流体氛围光斑 -->
+    <div class="fluid-ambient-mesh">
+      <div class="fluid-orb fluid-orb-1"></div>
+      <div class="fluid-orb fluid-orb-2"></div>
+      <div class="fluid-orb fluid-orb-3"></div>
+    </div>
     <div class="app-container">
       <nav class="sidebar-nav">
         <div class="brand">
@@ -1342,6 +1349,12 @@
           <a href="/channels.html" class="nav-item active"><i data-feather="list"></i> Inbox</a>
           <a href="/analysis.html" class="nav-item"><i data-feather="sparkles"></i> Analysis</a>
           <a href="/library.html" class="nav-item"><i data-feather="hard-drive"></i> Library</a>
+        </div>
+              <div class="theme-switch-container">
+          <button type="button" class="theme-toggle-btn" title="切换暗黑/明亮主题">
+            <span class="theme-icon">🌙</span>
+            <span class="theme-label">暗夜极光</span>
+          </button>
         </div>
       </nav>
 
