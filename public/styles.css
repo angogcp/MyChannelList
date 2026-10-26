@@ -1135,6 +1135,7 @@ button.primary:active:not(:disabled) {
   top: auto;
   bottom: 100%;
   border-color: transparent transparent rgba(15, 18, 27, 0.88) transparent;
+}
 
 /* ========================================================
    MODERN TRENDY FLUID DYNAMICS & SPRING MICRO-INTERACTIONS
@@ -1453,7 +1454,7 @@ button.primary:hover:not(:disabled)::after {
   border: 3px dashed var(--accent-primary-bright);
   border-radius: 32px;
   z-index: 9999;
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -1465,6 +1466,7 @@ button.primary:hover:not(:disabled)::after {
 }
 
 .dropzone-overlay.active {
+  display: flex;
   opacity: 1;
   pointer-events: auto;
   transform: scale(1);
