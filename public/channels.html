@@ -1570,9 +1570,24 @@
                   </div>
                 </div>
 
-                <div class="select-all-row" data-workspace-pane="review" id="select-all-row" style="display:none">
-                  <input type="checkbox" id="select-all" />
-                  <label for="select-all">Select all</label>
+                <div class="select-all-row" data-workspace-pane="review" id="select-all-row" style="display:none; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="select-all" />
+                    <label for="select-all">Select all</label>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:10px; margin-left:auto;">
+                    <button class="batch-launch-btn" id="batch-launch-btn" type="button" style="display:none;">
+                      🚀 一键抓取全部高分推荐 (<span id="batch-high-count">0</span>)
+                    </button>
+                    <div class="view-mode-toggle" id="feed-view-toggle">
+                      <button type="button" class="view-mode-btn active" id="feed-view-list" title="紧凑列表">
+                        <i data-feather="list" style="width:14px;height:14px"></i> 列表
+                      </button>
+                      <button type="button" class="view-mode-btn" id="feed-view-bento" title="Bento 卡片墙">
+                        <i data-feather="grid" style="width:14px;height:14px"></i> Bento
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <section class="triage-card hidden workspace-pane" data-workspace-pane="review" id="triage-card">
@@ -1718,6 +1733,12 @@
       const checkUpdatesBtn = document.getElementById("check-updates-btn");
       const selectAllRow = document.getElementById("select-all-row");
       const selectAllCb = document.getElementById("select-all");
+      const batchLaunchBtn = document.getElementById("batch-launch-btn");
+      const batchHighCount = document.getElementById("batch-high-count");
+      const feedViewListBtn = document.getElementById("feed-view-list");
+      const feedViewBentoBtn = document.getElementById("feed-view-bento");
+      const CHANNELS_VIEW_KEY = "video-dl.channels.view";
+      let currentFeedViewMode = localStorage.getItem(CHANNELS_VIEW_KEY) || "list";
       const dlModeSelect = document.getElementById("dl-mode");
       const dlQualitySelect = document.getElementById("dl-quality");
       const filterGroup = document.getElementById("filter-group");
@@ -1923,6 +1944,44 @@
         presetQueueLaterBtn.addEventListener("click", () => runDecisionPreset("queue_for_later"));
         presetIgnoreBtn.addEventListener("click", () => runDecisionPreset("ignore"));
         analyzeAiBtn.addEventListener("click", runAiAnalysis);
+        if (feedViewListBtn && feedViewBentoBtn) {
+          feedViewListBtn.addEventListener("click", () => {
+            currentFeedViewMode = "list";
+            localStorage.setItem(CHANNELS_VIEW_KEY, "list");
+            renderFeed();
+          });
+          feedViewBentoBtn.addEventListener("click", () => {
+            currentFeedViewMode = "bento";
+            localStorage.setItem(CHANNELS_VIEW_KEY, "bento");
+            renderFeed();
+          });
+        }
+        if (batchLaunchBtn) {
+          batchLaunchBtn.addEventListener("click", async () => {
+            const visibleVideos = getVisibleVideos();
+            const highVideos = visibleVideos.filter(v => v.analysis && v.analysis.score >= 75);
+            if (!highVideos.length) return;
+            const originalText = batchLaunchBtn.innerHTML;
+            batchLaunchBtn.disabled = true;
+            batchLaunchBtn.textContent = "🚀 抓取准备中...";
+            try {
+              const queued = await queueVideosForDownload(highVideos);
+              if (queued > 0) {
+                launchConfetti();
+                playChime();
+                setStatus("success", `🚀 已成功将 ${queued} 部高分视频加入下载队列！`);
+              } else {
+                setStatus("success", "所有高分视频已在队列或已下载。");
+              }
+            } catch (err) {
+              setStatus("error", "批量抓取失败: " + err.message);
+            } finally {
+              batchLaunchBtn.disabled = false;
+              batchLaunchBtn.innerHTML = originalText;
+              updateBatchLaunchBtn();
+            }
+          });
+        }
         saveNoteBtn.addEventListener("click", saveFocusedNote);
         savePreferencesBtn.addEventListener("click", savePreferences);
         focusTopBtn.addEventListener("click", focusTopItems);
@@ -2530,6 +2589,101 @@
         } finally { busy = false; refreshBtn.disabled = false; }
       }
 
+      function updateFeedViewToggle() {
+        if (!feedViewListBtn || !feedViewBentoBtn) return;
+        if (currentFeedViewMode === "bento") {
+          feedViewBentoBtn.classList.add("active");
+          feedViewListBtn.classList.remove("active");
+        } else {
+          feedViewListBtn.classList.add("active");
+          feedViewBentoBtn.classList.remove("active");
+        }
+      }
+
+      function updateBatchLaunchBtn() {
+        if (!batchLaunchBtn || !batchHighCount) return;
+        const visibleVideos = getVisibleVideos();
+        const highVideos = visibleVideos.filter(v => v.analysis && v.analysis.score >= 75);
+        if (highVideos.length > 0) {
+          batchHighCount.textContent = highVideos.length;
+          batchLaunchBtn.style.display = "inline-flex";
+        } else {
+          batchLaunchBtn.style.display = "none";
+        }
+      }
+
+      function playChime() {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+          osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.45);
+        } catch {}
+      }
+
+      function launchConfetti() {
+        const canvas = document.getElementById("confetti-canvas");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const w = (canvas.width = window.innerWidth);
+        const h = (canvas.height = window.innerHeight);
+
+        const colors = ["#10b981", "#34d399", "#f59e0b", "#3b82f6", "#8b5cf6", "#ec4899"];
+        const particles = [];
+
+        for (let i = 0; i < 70; i++) {
+          particles.push({
+            x: Math.random() * w,
+            y: Math.random() * (h * 0.4),
+            vx: (Math.random() - 0.5) * 6,
+            vy: Math.random() * 4 + 2,
+            size: Math.random() * 8 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            vRot: (Math.random() - 0.5) * 10,
+            opacity: 1
+          });
+        }
+
+        let start = null;
+        function frame(time) {
+          if (!start) start = time;
+          const progress = (time - start) / 2200;
+          ctx.clearRect(0, 0, w, h);
+
+          for (const p of particles) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.08;
+            p.rotation += p.vRot;
+            p.opacity = Math.max(0, 1 - progress);
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.globalAlpha = p.opacity;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+            ctx.restore();
+          }
+
+          if (progress < 1) {
+            requestAnimationFrame(frame);
+          } else {
+            ctx.clearRect(0, 0, w, h);
+          }
+        }
+        requestAnimationFrame(frame);
+      }
+
       function renderFeed() {
         const visibleVideos = getVisibleVideos();
         feedBodyEl.innerHTML = "";
@@ -2539,75 +2693,155 @@
           selectAllRow.style.display = "none";
           focusedVideoKey = "";
           syncDownloadBtn();
+          updateBatchLaunchBtn();
           return;
         }
         if (!visibleVideos.length) {
           feedBodyEl.innerHTML = `<div class="feed-empty">No items match the current filter.</div>`;
           selectAllRow.style.display = "none";
           syncDownloadBtn();
+          updateBatchLaunchBtn();
           return;
         }
         selectAllRow.style.display = "flex";
-        for (let i = 0; i < visibleVideos.length; i++) {
-          const v = visibleVideos[i];
-          const row = document.createElement("div");
-          row.className = "vid-row fade-in" + (focusedVideoKey === v.trackerKey ? " selected" : "");
-          row.style.setProperty("--delay", String(i));
-          const dateStr = v.uploadDate ? `${v.uploadDate.slice(0,4)}-${v.uploadDate.slice(4,6)}-${v.uploadDate.slice(6,8)}` : "";
-          const durStr = v.duration ? fmtDur(v.duration) : "";
-          const meta = [dateStr, durStr].filter(Boolean).join(" - ");
-          const sel = selectedVideos.has(v.url);
-          const scoreTone = v.analysis && v.analysis.score >= 72 ? "high" : v.analysis && v.analysis.score >= 55 ? "mid" : "low";
-          const confidenceTone = getConfidenceTone(v.analysis && v.analysis.confidence);
-          const trackingLabel = getTrackingLabel(v.tracking && v.tracking.status);
-          const downloadedLabel = v.tracking && v.tracking.downloadCount ? `Downloaded ${v.tracking.downloadCount}x` : "";
-          row.innerHTML = `
-            <input type="checkbox" class="vid-cb" data-key="${esc(v.trackerKey)}" ${sel?"checked":""} />
-            <img class="vid-thumb" src="${v.thumbnail||""}" alt="" loading="lazy" onerror="this.style.visibility='hidden'" />
-            <div class="vid-info">
-              <div class="vid-title" title="${esc(v.title)}">${esc(v.title)}</div>
-              <div class="vid-meta">${esc(meta)}</div>
-              <div class="vid-tags">
-                <span class="tag ${scoreTone}">${esc(v.analysis ? v.analysis.recommendation : "Maybe")}</span>
-                <span class="tag ${confidenceTone}" title="${esc(v.analysis && v.analysis.confidenceSummary ? v.analysis.confidenceSummary : "")}">${esc(v.analysis ? v.analysis.confidenceLabel : "Low confidence")}</span>
-                <span class="tag state">${esc(trackingLabel)}</span>
-                ${downloadedLabel ? `<span class="tag">${esc(downloadedLabel)}</span>` : ""}
+        updateBatchLaunchBtn();
+        updateFeedViewToggle();
+
+        if (currentFeedViewMode === "bento") {
+          const grid = document.createElement("div");
+          grid.className = "bento-grid";
+          for (let i = 0; i < visibleVideos.length; i++) {
+            const v = visibleVideos[i];
+            const card = document.createElement("div");
+            const isHighScore = v.analysis && v.analysis.score >= 75;
+            card.className = "bento-card fade-in" + (isHighScore ? " high-score" : "") + (focusedVideoKey === v.trackerKey ? " selected" : "");
+            card.style.setProperty("--delay", String(i));
+            const dateStr = v.uploadDate ? `${v.uploadDate.slice(0,4)}-${v.uploadDate.slice(4,6)}-${v.uploadDate.slice(6,8)}` : "";
+            const durStr = v.duration ? fmtDur(v.duration) : "";
+            const sel = selectedVideos.has(v.url);
+            const scoreTone = v.analysis && v.analysis.score >= 72 ? "high" : v.analysis && v.analysis.score >= 55 ? "mid" : "low";
+            const scoreText = v.analysis ? `${v.analysis.score}分 · ${v.analysis.recommendation || "推荐"}` : "待评分";
+            const trackingLabel = getTrackingLabel(v.tracking && v.tracking.status);
+            const downloadedLabel = v.tracking && v.tracking.downloadCount ? `已下载 ${v.tracking.downloadCount}次` : "";
+
+            card.innerHTML = `
+              <div class="bento-thumb-container">
+                <img class="bento-thumb" src="${esc(v.thumbnail || '')}" alt="" loading="lazy" onerror="this.style.visibility='hidden'" />
+                ${durStr ? `<span class="bento-dur-badge">${esc(durStr)}</span>` : ""}
+                <span class="bento-score-pill ${scoreTone}">${esc(scoreText)}</span>
               </div>
-            </div>
-            <div class="row-quick-actions">
-              <button class="row-quick-btn" type="button" data-preset="watch_now">Watch now</button>
-              <button class="row-quick-btn" type="button" data-preset="queue_for_later">Later</button>
-              <button class="row-quick-btn" type="button" data-preset="ignore">Ignore</button>
-            </div>
-            <a class="vid-open" href="${v.url}" target="_blank" rel="noopener">Open -></a>
-          `;
-          row.addEventListener("click", (event) => {
-            const target = event.target;
-            if (target.closest(".vid-cb") || target.closest(".vid-open") || target.closest(".row-quick-btn")) {
-              return;
-            }
-            focusedVideoKey = v.trackerKey;
-            renderFeed();
-            renderInsightPanel();
-          });
-          row.querySelector(".vid-cb").addEventListener("change", (e) => {
-            if (e.target.checked) selectedVideos.set(v.url, v);
-            else selectedVideos.delete(v.url);
-            syncDownloadBtn();
-          });
-          row.querySelectorAll(".row-quick-btn").forEach((button) => {
-            button.addEventListener("click", async (event) => {
-              event.stopPropagation();
+              <div class="bento-body">
+                <div class="bento-meta-row">
+                  <span>${esc(dateStr || "最新")}</span>
+                  <span class="tag state" style="font-size:0.72rem;padding:2px 6px;">${esc(trackingLabel)}</span>
+                </div>
+                <div class="bento-title" title="${esc(v.title)}">${esc(v.title)}</div>
+                ${downloadedLabel ? `<div style="font-size:0.75rem;color:var(--text-muted);">${esc(downloadedLabel)}</div>` : ""}
+                <div style="display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px;">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-muted);cursor:pointer;">
+                    <input type="checkbox" class="vid-cb" data-key="${esc(v.trackerKey)}" ${sel ? "checked" : ""} />
+                    <span>${sel ? "已勾选" : "选择"}</span>
+                  </label>
+                  <a class="vid-open" href="${esc(v.url)}" target="_blank" rel="noopener" style="margin-left:auto;font-size:0.78rem;color:var(--accent-primary-bright);text-decoration:none;font-weight:700;">打开 ↗</a>
+                </div>
+                <div class="bento-quick-triage">
+                  <button class="bento-triage-btn" type="button" data-preset="watch_now">立即看</button>
+                  <button class="bento-triage-btn" type="button" data-preset="queue_for_later">稍后</button>
+                  <button class="bento-triage-btn" type="button" data-preset="ignore">忽略</button>
+                </div>
+              </div>
+            `;
+
+            card.addEventListener("click", (event) => {
+              const target = event.target;
+              if (target.closest(".vid-cb") || target.closest(".vid-open") || target.closest(".bento-triage-btn")) {
+                return;
+              }
               focusedVideoKey = v.trackerKey;
               renderFeed();
               renderInsightPanel();
-              await runDecisionPresetForVideo(v, button.dataset.preset || "");
             });
-          });
-          row.querySelector(".vid-open").addEventListener("click", (event) => event.stopPropagation());
-          feedBodyEl.appendChild(row);
+            card.querySelector(".vid-cb").addEventListener("change", (e) => {
+              if (e.target.checked) selectedVideos.set(v.url, v);
+              else selectedVideos.delete(v.url);
+              syncDownloadBtn();
+            });
+            card.querySelectorAll(".bento-triage-btn").forEach((button) => {
+              button.addEventListener("click", async (event) => {
+                event.stopPropagation();
+                focusedVideoKey = v.trackerKey;
+                renderFeed();
+                renderInsightPanel();
+                await runDecisionPresetForVideo(v, button.dataset.preset || "");
+              });
+            });
+            card.querySelector(".vid-open").addEventListener("click", (event) => event.stopPropagation());
+            grid.appendChild(card);
+          }
+          feedBodyEl.appendChild(grid);
+        } else {
+          for (let i = 0; i < visibleVideos.length; i++) {
+            const v = visibleVideos[i];
+            const row = document.createElement("div");
+            row.className = "vid-row fade-in" + (focusedVideoKey === v.trackerKey ? " selected" : "");
+            row.style.setProperty("--delay", String(i));
+            const dateStr = v.uploadDate ? `${v.uploadDate.slice(0,4)}-${v.uploadDate.slice(4,6)}-${v.uploadDate.slice(6,8)}` : "";
+            const durStr = v.duration ? fmtDur(v.duration) : "";
+            const meta = [dateStr, durStr].filter(Boolean).join(" - ");
+            const sel = selectedVideos.has(v.url);
+            const scoreTone = v.analysis && v.analysis.score >= 72 ? "high" : v.analysis && v.analysis.score >= 55 ? "mid" : "low";
+            const confidenceTone = getConfidenceTone(v.analysis && v.analysis.confidence);
+            const trackingLabel = getTrackingLabel(v.tracking && v.tracking.status);
+            const downloadedLabel = v.tracking && v.tracking.downloadCount ? `Downloaded ${v.tracking.downloadCount}x` : "";
+            row.innerHTML = `
+              <input type="checkbox" class="vid-cb" data-key="${esc(v.trackerKey)}" ${sel?"checked":""} />
+              <img class="vid-thumb" src="${v.thumbnail||""}" alt="" loading="lazy" onerror="this.style.visibility='hidden'" />
+              <div class="vid-info">
+                <div class="vid-title" title="${esc(v.title)}">${esc(v.title)}</div>
+                <div class="vid-meta">${esc(meta)}</div>
+                <div class="vid-tags">
+                  <span class="tag ${scoreTone}">${esc(v.analysis ? v.analysis.recommendation : "Maybe")}</span>
+                  <span class="tag ${confidenceTone}" title="${esc(v.analysis && v.analysis.confidenceSummary ? v.analysis.confidenceSummary : "")}">${esc(v.analysis ? v.analysis.confidenceLabel : "Low confidence")}</span>
+                  <span class="tag state">${esc(trackingLabel)}</span>
+                  ${downloadedLabel ? `<span class="tag">${esc(downloadedLabel)}</span>` : ""}
+                </div>
+              </div>
+              <div class="row-quick-actions">
+                <button class="row-quick-btn" type="button" data-preset="watch_now">Watch now</button>
+                <button class="row-quick-btn" type="button" data-preset="queue_for_later">Later</button>
+                <button class="row-quick-btn" type="button" data-preset="ignore">Ignore</button>
+              </div>
+              <a class="vid-open" href="${v.url}" target="_blank" rel="noopener">Open -></a>
+            `;
+            row.addEventListener("click", (event) => {
+              const target = event.target;
+              if (target.closest(".vid-cb") || target.closest(".vid-open") || target.closest(".row-quick-btn")) {
+                return;
+              }
+              focusedVideoKey = v.trackerKey;
+              renderFeed();
+              renderInsightPanel();
+            });
+            row.querySelector(".vid-cb").addEventListener("change", (e) => {
+              if (e.target.checked) selectedVideos.set(v.url, v);
+              else selectedVideos.delete(v.url);
+              syncDownloadBtn();
+            });
+            row.querySelectorAll(".row-quick-btn").forEach((button) => {
+              button.addEventListener("click", async (event) => {
+                event.stopPropagation();
+                focusedVideoKey = v.trackerKey;
+                renderFeed();
+                renderInsightPanel();
+                await runDecisionPresetForVideo(v, button.dataset.preset || "");
+              });
+            });
+            row.querySelector(".vid-open").addEventListener("click", (event) => event.stopPropagation());
+            feedBodyEl.appendChild(row);
+          }
         }
         syncDownloadBtn();
+        if (window.feather) feather.replace();
       }
 
       function renderTriageStrip() {
@@ -3935,5 +4169,6 @@
       }
     </script>
     <script src="/tooltips.js"></script>
+  <canvas id="confetti-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999"></canvas>
   </body>
 </html>

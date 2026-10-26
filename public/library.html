@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Library - Video DL</title>
+    <title>媒体库 - Video DL</title>
     <link rel="stylesheet" href="/styles.css" />
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
@@ -30,30 +30,40 @@
 
       .filter-group {
         display: flex; gap: 4px;
-        background: rgba(0,0,0,0.2); padding: 3px; border-radius: 99px;
+        background: rgba(0,0,0,0.06); padding: 3px; border-radius: 99px;
+      }
+      [data-theme="dark"] .filter-group {
+        background: rgba(255,255,255,0.06);
       }
       .filter-btn {
-        font: inherit; font-size: 0.82rem; font-weight: 500;
+        font: inherit; font-size: 0.82rem; font-weight: 600;
         padding: 5px 14px; border-radius: 99px; border: none;
         background: transparent; color: var(--text-muted); cursor: pointer;
-        transition: all 0.15s;
+        transition: all 0.15s ease;
       }
       .filter-btn:hover { color: var(--text-main); }
       .filter-btn.active {
         background: var(--bg-surface); color: var(--text-main);
-        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+      }
+      [data-theme="dark"] .filter-btn.active {
+        background: rgba(56, 189, 248, 0.22);
+        color: #38bdf8;
       }
 
       .toolbar-spacer { flex: 1; }
 
       .search-box {
         font: inherit; font-size: 0.85rem;
-        padding: 7px 14px;
+        padding: 8px 16px;
         border: 1px solid var(--border); border-radius: 99px;
         background: var(--bg-surface); color: var(--text-main);
-        width: 200px; outline: none; transition: border-color 0.2s;
+        width: 200px; outline: none; transition: all 0.2s;
       }
-      .search-box:focus { border-color: var(--border-focus); }
+      .search-box:focus {
+        border-color: var(--accent-secondary);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+      }
 
       .file-list { max-height: calc(100vh - 380px); overflow-y: auto; }
 
@@ -63,7 +73,7 @@
         gap: 16px; align-items: center;
         padding: 14px 24px;
         border-bottom: 1px solid var(--border);
-        transition: background 0.15s;
+        transition: all 0.2s ease;
       }
       .file-row:hover { background: var(--bg-panel-hover); }
 
@@ -78,12 +88,12 @@
       }
 
       .file-badge {
-        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px;
+        font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.04em; padding: 3px 8px; border-radius: 6px;
         white-space: nowrap;
       }
-      .file-badge.video { background: rgba(20,184,166,0.12); color: #99f6e4; }
-      .file-badge.audio { background: rgba(16,185,129,0.12); color: #34d399; }
+      .file-badge.video { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+      .file-badge.audio { background: rgba(16, 185, 129, 0.15); color: #34d399; }
 
       .file-size {
         font-size: 0.82rem; color: var(--text-muted);
@@ -104,9 +114,11 @@
       .file-play {
         min-width: 68px;
         color: var(--accent-secondary-bright) !important;
-        border-color: rgba(20, 184, 166, 0.3) !important;
-        background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(212, 175, 55, 0.05)) !important;
+        border-color: rgba(16, 185, 129, 0.3) !important;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(245, 158, 11, 0.08)) !important;
       }
+
+      /* ── 沉浸式播放器 ── */
       .player-overlay {
         position: fixed;
         inset: 0;
@@ -115,23 +127,23 @@
         place-items: center;
         padding: 28px;
         background: var(--bg-overlay);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        opacity: 0;
+        transition: opacity 0.25s ease;
       }
-      .player-overlay.open { display: grid; }
+      .player-overlay.open { display: grid; opacity: 1; }
       .player-card {
         width: min(920px, 100%);
         max-height: calc(100vh - 56px);
         display: grid;
         gap: 14px;
-        padding: 18px;
+        padding: 20px;
         border: 1px solid var(--border-strong);
         border-radius: 24px;
-        background:
-          linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-          radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.03), transparent 28%),
-          linear-gradient(135deg, rgba(15, 18, 27, 0.85), rgba(11, 13, 20, 0.95));
+        background: var(--bg-panel);
         box-shadow: var(--shadow-elevated);
+        animation: scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
       }
       .player-head {
         display: flex;
@@ -141,7 +153,7 @@
       }
       .player-title {
         min-width: 0;
-        font-size: 1rem;
+        font-size: 1.05rem;
         font-weight: 800;
         color: var(--text-main);
         overflow: hidden;
@@ -156,81 +168,16 @@
       .player-stage {
         display: grid;
         place-items: center;
-        min-height: 96px;
+        min-height: 120px;
         border-radius: 18px;
-        background: rgba(10, 12, 18, 0.6);
+        background: rgba(10, 14, 22, 0.7);
         overflow: hidden;
       }
       .player-stage video,
       .player-stage audio {
         width: 100%;
-        max-height: calc(100vh - 210px);
+        max-height: calc(100vh - 260px);
         outline: none;
-      }
-      .player-stage audio { margin: 42px 18px; width: calc(100% - 36px); }
-      .player-actions {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-
-      .bottom-status {
-        padding: 14px 24px;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        border-top: 1px solid var(--border);
-      }
-      .bottom-status .success { color: var(--success); }
-      .bottom-status .error { color: var(--error); }
-
-      .file-row {
-        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-      }
-      .file-row::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 6px;
-        bottom: 6px;
-        width: 2.5px;
-        background: linear-gradient(180deg, var(--accent-primary-bright), var(--accent-secondary-bright));
-        border-radius: 0 3px 3px 0;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-      .file-row:hover {
-        transform: translateX(4px);
-        border-color: rgba(212, 175, 55, 0.24);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-      }
-      .file-row:hover::after {
-        opacity: 1;
-      }
-      .file-play {
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .file-play:hover {
-        transform: scale(1.04);
-        filter: brightness(1.08);
-      }
-      .player-stage video,
-      .player-stage audio {
-        border-radius: 12px;
-      }
-      .player-card {
-        animation: scale-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-      }
-      .player-overlay {
-        transition: opacity 0.25s ease, backdrop-filter 0.25s ease;
-        opacity: 0;
-        backdrop-filter: blur(0);
-      }
-      .player-overlay.open {
-        opacity: 1;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
       }
 
       @media (max-width: 768px) {
@@ -253,10 +200,11 @@
       <div class="fluid-orb fluid-orb-2"></div>
       <div class="fluid-orb fluid-orb-3"></div>
     </div>
+
     <div class="app-container">
       <nav class="sidebar-nav">
         <div class="brand">
-          <div class="brand-title">Video DL</div>
+          <div class="brand-title">Video DL ✨</div>
           <div class="brand-version" data-app-version>v1.0.34</div>
         </div>
         <div class="nav-menu">
@@ -265,7 +213,7 @@
           <a href="/analysis.html" class="nav-item"><i data-feather="sparkles"></i> Analysis</a>
           <a href="/library.html" class="nav-item active"><i data-feather="hard-drive"></i> Library</a>
         </div>
-              <div class="theme-switch-container">
+        <div class="theme-switch-container">
           <button type="button" class="theme-toggle-btn" title="切换暗黑/明亮主题">
             <span class="theme-icon">🌙</span>
             <span class="theme-label">暗夜极光</span>
@@ -274,58 +222,97 @@
       </nav>
 
       <main class="main-content" style="max-width:100%">
-        <div class="content-wrapper" style="max-width:1000px">
+        <div class="content-wrapper" style="max-width:1050px">
           <header class="page-header">
-            <h1>Library</h1>
-            <p class="sub">Downloaded files on disk.</p>
+            <h1>本地媒体库 🎬</h1>
+            <p class="sub">浏览、播放与管理已下载的音视频文件，支持网格画廊与赛博音频频谱播放器。</p>
           </header>
 
           <div class="glass-panel" style="display:flex;flex-direction:column">
+            <!-- 统计指标条 -->
             <div class="stats-row" id="stats-bar">
-              <div class="stat">Files: <span class="stat-value" id="stat-total">-</span></div>
-              <div class="stat">Video: <span class="stat-value" id="stat-video">-</span></div>
-              <div class="stat">Audio: <span class="stat-value" id="stat-audio">-</span></div>
-              <div class="stat">Size: <span class="stat-value" id="stat-size">-</span></div>
+              <div class="stat">总文件: <span class="stat-value" id="stat-total">-</span></div>
+              <div class="stat">视频: <span class="stat-value" id="stat-video">-</span></div>
+              <div class="stat">音频: <span class="stat-value" id="stat-audio">-</span></div>
+              <div class="stat">已用存储: <span class="stat-value" id="stat-size">-</span></div>
             </div>
 
+            <!-- 顶部工具栏 -->
             <div class="toolbar">
+              <!-- 分类筛选 -->
               <div class="filter-group">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="video">Video</button>
-                <button class="filter-btn" data-filter="audio">Audio</button>
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="video">视频</button>
+                <button class="filter-btn" data-filter="audio">音频</button>
               </div>
+
+              <!-- 列表 / 画廊 视图切换按钮 -->
+              <div class="view-mode-toggle">
+                <button type="button" class="view-mode-btn active" id="view-mode-list" title="列表视图">
+                  <i data-feather="list" style="width:13px;height:13px"></i> 列表
+                </button>
+                <button type="button" class="view-mode-btn" id="view-mode-grid" title="画廊视图">
+                  <i data-feather="grid" style="width:13px;height:13px"></i> 画廊
+                </button>
+              </div>
+
               <div class="toolbar-spacer"></div>
-              <input type="text" class="search-box" id="search" placeholder="Search..." />
-              <button class="secondary small" id="refresh-btn">Refresh</button>
-              <button class="danger small" id="delete-selected-btn" disabled>Delete selected</button>
+              <input type="text" class="search-box" id="search" placeholder="搜索文件名..." />
+              <button class="secondary small" id="refresh-btn"><i data-feather="rotate-cw" style="width:13px;height:13px"></i> 刷新</button>
+              <button class="danger small" id="delete-selected-btn" disabled>删除选中</button>
             </div>
 
             <div class="select-row" id="select-row" style="display:none">
               <input type="checkbox" id="select-all" />
-              <label for="select-all">Select all</label>
-              <span id="selected-count" style="margin-left:auto;color:var(--accent-primary);font-weight:500"></span>
+              <label for="select-all" style="cursor:pointer">全选当前项目</label>
+              <span id="selected-count" style="margin-left:auto;color:var(--accent-secondary);font-weight:700"></span>
             </div>
 
+            <!-- 文件容器 (动态在 .file-list 与 .file-grid 之间切换) -->
             <div class="file-list" id="file-list">
-              <div class="file-empty"><span class="spinner"></span> Loading...</div>
+              <div class="file-empty"><span class="spinner"></span> 正在扫描媒体库...</div>
             </div>
 
-            <div class="bottom-status" id="status-bar">Ready.</div>
+            <div class="bottom-status" id="status-bar">就绪。</div>
           </div>
 
+          <!-- 赛博播放器弹窗 -->
           <div class="player-overlay" id="player-overlay" aria-hidden="true">
             <section class="player-card" role="dialog" aria-modal="true" aria-labelledby="player-title">
               <div class="player-head">
                 <div style="min-width:0">
-                  <div class="player-title" id="player-title">Play file</div>
-                  <div class="player-sub" id="player-sub">Local download</div>
+                  <div class="player-title" id="player-title">播放中</div>
+                  <div class="player-sub" id="player-sub">本地媒体</div>
                 </div>
-                <button class="secondary small" id="player-close" type="button">Close</button>
+                <button class="secondary small" id="player-close" type="button">关闭 ✕</button>
               </div>
+
               <div class="player-stage" id="player-stage"></div>
-              <div class="player-actions">
-                <a class="secondary small" id="player-open" href="#" target="_blank" rel="noopener">Open in browser</a>
-                <span id="player-hint" style="color:var(--text-muted);font-size:0.82rem">Tip: use the built-in controls for full screen, speed, and volume.</span>
+
+              <!-- 播放器控制胶囊 -->
+              <div class="player-toolbar-wrap">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">播放倍速:</span>
+                  <div class="speed-pills">
+                    <button type="button" class="speed-pill-btn" data-speed="0.75">0.75x</button>
+                    <button type="button" class="speed-pill-btn active" data-speed="1.0">1.0x</button>
+                    <button type="button" class="speed-pill-btn" data-speed="1.25">1.25x</button>
+                    <button type="button" class="speed-pill-btn" data-speed="1.5">1.5x</button>
+                    <button type="button" class="speed-pill-btn" data-speed="2.0">2.0x</button>
+                  </div>
+                  <button type="button" class="secondary small" id="pip-btn" style="display:none; padding:4px 10px; font-size:0.75rem;">
+                    <i data-feather="external-link" style="width:12px;height:12px"></i> 画中画
+                  </button>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <a class="secondary small" id="player-open" href="#" target="_blank" rel="noopener">在新标签页打开</a>
+                </div>
+              </div>
+
+              <div style="font-size:0.78rem; color:var(--text-muted); border-top:1px solid var(--border); padding-top:10px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                <span>快捷键: [空格] 播放/暂停 · [←/→] 快退/快进 5s · [↑/↓] 音量 · [Esc] 退出</span>
+                <span id="audio-viz-hint" style="color:var(--accent-secondary); display:none;">🎵 正在实时计算音频频谱流...</span>
               </div>
             </section>
           </div>
@@ -354,14 +341,48 @@
       const playerSub = document.getElementById("player-sub");
       const playerOpen = document.getElementById("player-open");
       const playerClose = document.getElementById("player-close");
+      const pipBtn = document.getElementById("pip-btn");
+      const audioVizHint = document.getElementById("audio-viz-hint");
+      const viewModeListBtn = document.getElementById("view-mode-list");
+      const viewModeGridBtn = document.getElementById("view-mode-grid");
 
+      const VIEW_KEY = "video-dl.library.view";
+      let currentViewMode = localStorage.getItem(VIEW_KEY) || "list";
       let allFiles = [];
       let activeFilter = "all";
       let busy = false;
+      let activeMediaEl = null;
+
+      // Web Audio API Visualizer 状态
+      let audioCtx = null;
+      let analyser = null;
+      let sourceNode = null;
+      let visualizerAnimId = null;
 
       boot();
 
       async function boot() {
+        setViewMode(currentViewMode);
+        bindEvents();
+        await loadLibrary();
+      }
+
+      function setViewMode(mode) {
+        currentViewMode = mode;
+        localStorage.setItem(VIEW_KEY, mode);
+        if (mode === "grid") {
+          viewModeGridBtn.classList.add("active");
+          viewModeListBtn.classList.remove("active");
+          fileListEl.className = "file-grid";
+        } else {
+          viewModeListBtn.classList.add("active");
+          viewModeGridBtn.classList.remove("active");
+          fileListEl.className = "file-list";
+        }
+        renderFiles();
+      }
+
+      function bindEvents() {
         refreshBtn.addEventListener("click", loadLibrary);
         deleteSelectedBtn.addEventListener("click", deleteSelected);
         selectAllCb.addEventListener("change", toggleSelectAll);
@@ -370,33 +391,84 @@
         playerOverlay.addEventListener("click", (event) => {
           if (event.target === playerOverlay) closePlayer();
         });
-        document.addEventListener("keydown", (event) => {
-          if (event.key === "Escape" && playerOverlay.classList.contains("open")) closePlayer();
+
+        viewModeListBtn.addEventListener("click", () => setViewMode("list"));
+        viewModeGridBtn.addEventListener("click", () => setViewMode("grid"));
+
+        // 键盘快捷键监听
+        document.addEventListener("keydown", (e) => {
+          if (!playerOverlay.classList.contains("open")) return;
+          if (e.key === "Escape") {
+            closePlayer();
+            return;
+          }
+          if (!activeMediaEl) return;
+
+          if (e.code === "Space") {
+            e.preventDefault();
+            if (activeMediaEl.paused) activeMediaEl.play();
+            else activeMediaEl.pause();
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            activeMediaEl.currentTime = Math.max(0, activeMediaEl.currentTime - 5);
+          } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            activeMediaEl.currentTime = Math.min(activeMediaEl.duration || Infinity, activeMediaEl.currentTime + 5);
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            activeMediaEl.volume = Math.min(1, activeMediaEl.volume + 0.1);
+          } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            activeMediaEl.volume = Math.max(0, activeMediaEl.volume - 0.1);
+          }
         });
 
-        document.querySelectorAll(".filter-btn").forEach(btn => {
+        // 倍速切换胶囊
+        document.querySelectorAll(".speed-pill-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
-            document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".speed-pill-btn").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            const speed = parseFloat(btn.dataset.speed);
+            if (activeMediaEl) activeMediaEl.playbackRate = speed;
+          });
+        });
+
+        // 画中画
+        pipBtn.addEventListener("click", async () => {
+          if (activeMediaEl && activeMediaEl.tagName === "VIDEO") {
+            try {
+              if (document.pictureInPictureElement) {
+                await document.exitPictureInPicture();
+              } else {
+                await activeMediaEl.requestPictureInPicture();
+              }
+            } catch (err) {
+              alert("画中画模式不可用: " + err.message);
+            }
+          }
+        });
+
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
             activeFilter = btn.dataset.filter;
             renderFiles();
           });
         });
-
-        await loadLibrary();
       }
 
       async function loadLibrary() {
         if (busy) return;
         busy = true;
-        fileListEl.innerHTML = `<div class="file-empty"><span class="spinner"></span> Loading...</div>`;
+        fileListEl.innerHTML = `<div class="file-empty"><span class="spinner"></span> 正在扫描媒体库...</div>`;
         selectRow.style.display = "none";
         try {
           const data = await api("/api/library");
           allFiles = data.files || [];
           updateStats();
           renderFiles();
-          setStatus("success", `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} loaded.`);
+          setStatus("success", `已加载 ${allFiles.length} 个本地文件。`);
         } catch (err) {
           fileListEl.innerHTML = `<div class="file-empty" style="color:var(--error)">${esc(err.message)}</div>`;
           setStatus("error", err.message);
@@ -405,7 +477,7 @@
 
       function getFiltered() {
         const q = searchInput.value.trim().toLowerCase();
-        return allFiles.filter(f => {
+        return allFiles.filter((f) => {
           if (activeFilter !== "all" && f.category !== activeFilter) return false;
           if (q && !f.name.toLowerCase().includes(q)) return false;
           return true;
@@ -420,12 +492,23 @@
         selectedCountEl.textContent = "";
 
         if (!files.length) {
-          fileListEl.innerHTML = `<div class="file-empty">${allFiles.length ? "No matches." : "No files yet."}</div>`;
+          fileListEl.innerHTML = `<div class="file-empty">${allFiles.length ? "未找到匹配项。" : "媒体库暂无已下载文件。"}</div>`;
           selectRow.style.display = "none";
           return;
         }
 
-        selectRow.style.display = "flex";
+        selectRow.style.display = currentViewMode === "list" ? "flex" : "none";
+
+        if (currentViewMode === "grid") {
+          renderGridView(files);
+        } else {
+          renderListView(files);
+        }
+
+        if (window.feather) feather.replace();
+      }
+
+      function renderListView(files) {
         files.forEach((f, i) => {
           const row = document.createElement("div");
           row.className = "file-row file-row-with-cb fade-in";
@@ -438,10 +521,10 @@
               <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
               <div class="file-meta"><span>${dateStr}</span><span>${ext}</span></div>
             </div>
-            <span class="file-badge ${f.category}">${f.category}</span>
+            <span class="file-badge ${f.category}">${f.category === "video" ? "视频" : "音频"}</span>
             <span class="file-size">${f.size}</span>
-            <button class="secondary small file-play" data-path="${esc(f.path)}">Play</button>
-            <button class="danger small file-del" data-path="${esc(f.path)}">Delete</button>
+            <button class="secondary small file-play" data-path="${esc(f.path)}"><i data-feather="play" style="width:12px;height:12px"></i> 播放</button>
+            <button class="danger small file-del" data-path="${esc(f.path)}">删除</button>
           `;
           row.querySelector(".file-cb").addEventListener("change", syncSelection);
           row.querySelector(".file-play").addEventListener("click", () => playFile(f));
@@ -450,9 +533,48 @@
         });
       }
 
+      function renderGridView(files) {
+        files.forEach((f, i) => {
+          const card = document.createElement("div");
+          card.className = "file-card fade-in";
+          card.style.setProperty("--delay", String(i));
+          const dateStr = fmtDate(f.modified);
+          const isAudio = f.category === "audio";
+          const ext = f.name.split(".").pop().toUpperCase();
+
+          card.innerHTML = `
+            <div class="file-card-preview ${isAudio ? 'audio-preview' : ''}">
+              ${isAudio
+                ? `<div class="vinyl-record-wrap"><div class="vinyl-record"><div class="vinyl-center"></div></div></div>`
+                : `<span class="file-card-icon">🎬</span>`
+              }
+              <div class="file-card-play-hover" title="立即播放">
+                <div class="play-circle-btn">▶</div>
+              </div>
+            </div>
+            <div class="file-card-content">
+              <div class="file-card-title" title="${esc(f.name)}">${esc(f.name)}</div>
+              <div class="file-card-meta">
+                <span class="file-badge ${f.category}">${f.category === "video" ? "MP4" : "MP3"} · ${ext}</span>
+                <span>${f.size}</span>
+              </div>
+            </div>
+            <div class="file-card-actions">
+              <button class="secondary small" style="flex:1" type="button"><i data-feather="play" style="width:12px;height:12px"></i> 播放</button>
+              <button class="danger small" type="button" title="删除文件"><i data-feather="trash-2" style="width:12px;height:12px"></i></button>
+            </div>
+          `;
+
+          card.querySelector(".file-card-play-hover").addEventListener("click", () => playFile(f));
+          card.querySelector(".file-card-actions button.secondary").addEventListener("click", () => playFile(f));
+          card.querySelector(".file-card-actions button.danger").addEventListener("click", () => deleteSingle(f));
+          fileListEl.appendChild(card);
+        });
+      }
+
       function toggleSelectAll() {
         const checked = selectAllCb.checked;
-        fileListEl.querySelectorAll(".file-cb").forEach(cb => { cb.checked = checked; });
+        fileListEl.querySelectorAll(".file-cb").forEach((cb) => { cb.checked = checked; });
         syncSelection();
       }
 
@@ -461,52 +583,168 @@
         const checked = fileListEl.querySelectorAll(".file-cb:checked");
         deleteSelectedBtn.disabled = checked.length === 0;
         selectAllCb.checked = all.length > 0 && checked.length === all.length;
-        selectedCountEl.textContent = checked.length ? `${checked.length} selected` : "";
+        selectedCountEl.textContent = checked.length ? `已选择 ${checked.length} 项` : "";
       }
 
       async function deleteSingle(f) {
-        if (!confirm(`Delete "${f.name}"?`)) return;
+        if (!confirm(`确认永久删除 "${f.name}" 吗？`)) return;
         try {
           await api("/api/library", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path: f.path }) });
-          allFiles = allFiles.filter(x => x.path !== f.path);
+          allFiles = allFiles.filter((x) => x.path !== f.path);
           updateStats(); renderFiles();
-          setStatus("success", `Deleted "${f.name}".`);
+          setStatus("success", `已删除 "${f.name}"。`);
         } catch (err) { setStatus("error", err.message); }
       }
 
       async function deleteSelected() {
-        const paths = [...fileListEl.querySelectorAll(".file-cb:checked")].map(cb => cb.dataset.path);
+        const paths = [...fileListEl.querySelectorAll(".file-cb:checked")].map((cb) => cb.dataset.path);
         if (!paths.length) return;
-        if (!confirm(`Delete ${paths.length} file${paths.length > 1 ? "s" : ""}?`)) return;
+        if (!confirm(`确认永久删除选中的 ${paths.length} 个文件吗？`)) return;
         busy = true; deleteSelectedBtn.disabled = true;
         let deleted = 0, lastError = "";
         for (const p of paths) {
           try {
             await api("/api/library", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path: p }) });
-            allFiles = allFiles.filter(x => x.path !== p);
+            allFiles = allFiles.filter((x) => x.path !== p);
             deleted++;
           } catch (err) { lastError = err.message; }
         }
         updateStats(); renderFiles(); busy = false;
-        if (lastError) setStatus("error", `${deleted}/${paths.length} deleted. ${lastError}`);
-        else setStatus("success", `${deleted} file${deleted > 1 ? "s" : ""} deleted.`);
+        if (lastError) setStatus("error", `已删除 ${deleted}/${paths.length} 项。${lastError}`);
+        else setStatus("success", `已成功删除 ${deleted} 个文件。`);
       }
 
+      /* ── 赛博播放器逻辑 (含音频频谱波形 & PiP) ── */
       function playFile(file) {
+        stopVisualizer();
         const src = mediaUrl(file);
         const isAudio = file.category === "audio";
+
         playerTitle.textContent = file.name;
         playerSub.textContent = `${file.category.toUpperCase()} · ${file.size} · ${fmtDate(file.modified)}`;
         playerOpen.href = src;
-        playerStage.innerHTML = isAudio
-          ? `<audio controls autoplay src="${esc(src)}"></audio>`
-          : `<video controls autoplay playsinline src="${esc(src)}"></video>`;
+
+        if (isAudio) {
+          pipBtn.style.display = "none";
+          audioVizHint.style.display = "inline";
+          playerStage.innerHTML = `
+            <div class="audio-visualizer-container">
+              <div class="vinyl-record-wrap">
+                <div class="vinyl-record spinning" id="vinyl-disc">
+                  <div class="vinyl-center"></div>
+                </div>
+              </div>
+              <canvas class="audio-visualizer-canvas" id="audio-visualizer" width="800" height="120"></canvas>
+              <audio id="active-media-el" controls autoplay src="${esc(src)}" style="width:100%"></audio>
+            </div>
+          `;
+          activeMediaEl = document.getElementById("active-media-el");
+          initAudioVisualizer(activeMediaEl);
+        } else {
+          pipBtn.style.display = "inline-flex";
+          audioVizHint.style.display = "none";
+          playerStage.innerHTML = `<video id="active-media-el" controls autoplay playsinline src="${esc(src)}"></video>`;
+          activeMediaEl = document.getElementById("active-media-el");
+        }
+
+        // 重置倍速按钮为 1.0x
+        document.querySelectorAll(".speed-pill-btn").forEach((b) => b.classList.toggle("active", b.dataset.speed === "1.0"));
+
         playerOverlay.classList.add("open");
         playerOverlay.setAttribute("aria-hidden", "false");
-        setStatus("", `Playing "${file.name}".`);
+        setStatus("", `正在播放 "${file.name}"。`);
+        if (window.feather) feather.replace();
+      }
+
+      function initAudioVisualizer(audioEl) {
+        try {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
+
+          if (!sourceNode) {
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 128;
+            sourceNode = audioCtx.createMediaElementSource(audioEl);
+            sourceNode.connect(analyser);
+            analyser.connect(audioCtx.destination);
+          }
+
+          const canvas = document.getElementById("audio-visualizer");
+          if (!canvas) return;
+          const canvasCtx = canvas.getContext("2d");
+          const bufferLength = analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+          const vinyl = document.getElementById("vinyl-disc");
+
+          audioEl.addEventListener("pause", () => {
+            if (vinyl) vinyl.classList.remove("spinning");
+          });
+          audioEl.addEventListener("play", () => {
+            if (vinyl) vinyl.classList.add("spinning");
+            if (audioCtx.state === "suspended") audioCtx.resume();
+          });
+
+          function draw() {
+            visualizerAnimId = requestAnimationFrame(draw);
+            analyser.getByteFrequencyData(dataArray);
+
+            const w = canvas.width;
+            const h = canvas.height;
+            canvasCtx.clearRect(0, 0, w, h);
+
+            const barCount = 36;
+            const barWidth = (w / barCount) - 3;
+            let x = 3;
+
+            for (let i = 0; i < barCount; i++) {
+              const dataIndex = Math.floor((i / barCount) * bufferLength);
+              const val = dataArray[dataIndex] || 0;
+              const barHeight = Math.max(4, (val / 255) * h);
+
+              // 赛博渐变频谱柱
+              const grad = canvasCtx.createLinearGradient(0, h, 0, h - barHeight);
+              grad.addColorStop(0, "#38bdf8");
+              grad.addColorStop(0.5, "#10b981");
+              grad.addColorStop(1, "#f59e0b");
+
+              canvasCtx.fillStyle = grad;
+              canvasCtx.beginPath();
+              canvasCtx.roundRect(x, h - barHeight, barWidth, barHeight, [4, 4, 0, 0]);
+              canvasCtx.fill();
+
+              // 顶部高光点
+              if (barHeight > 10) {
+                canvasCtx.fillStyle = "#ffffff";
+                canvasCtx.fillRect(x, h - barHeight, barWidth, 2);
+              }
+
+              x += barWidth + 3;
+            }
+          }
+          draw();
+        } catch (e) {
+          console.warn("Audio Visualizer could not be initialized:", e);
+        }
+      }
+
+      function stopVisualizer() {
+        if (visualizerAnimId) {
+          cancelAnimationFrame(visualizerAnimId);
+          visualizerAnimId = null;
+        }
       }
 
       function closePlayer() {
+        stopVisualizer();
+        if (activeMediaEl) {
+          activeMediaEl.pause();
+          activeMediaEl.src = "";
+          activeMediaEl = null;
+        }
         playerStage.innerHTML = "";
         playerOverlay.classList.remove("open");
         playerOverlay.setAttribute("aria-hidden", "true");
@@ -517,8 +755,8 @@
       }
 
       function updateStats() {
-        const v = allFiles.filter(f => f.category === "video");
-        const a = allFiles.filter(f => f.category === "audio");
+        const v = allFiles.filter((f) => f.category === "video");
+        const a = allFiles.filter((f) => f.category === "audio");
         const bytes = allFiles.reduce((s, f) => s + f.sizeBytes, 0);
         statTotal.textContent = allFiles.length;
         statVideo.textContent = v.length;
@@ -533,26 +771,26 @@
       function fmtDate(iso) {
         try {
           const d = new Date(iso);
-          return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" }) + " " +
-            d.toLocaleTimeString(undefined, { hour:"2-digit", minute:"2-digit" });
+          return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) + " " +
+            d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
         } catch { return ""; }
       }
 
       function fmtSize(bytes) {
         if (bytes === 0) return "0 B";
-        const u = ["B","KB","MB","GB","TB"];
+        const u = ["B", "KB", "MB", "GB", "TB"];
         const i = Math.floor(Math.log(bytes) / Math.log(1024));
         return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + " " + u[i];
       }
 
       function esc(v) {
-        return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+        return String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
       }
 
       async function api(url, opts = {}) {
         const r = await fetch(url, opts);
         const d = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(d.error || "Request failed.");
+        if (!r.ok) throw new Error(d.error || "请求失败。");
         return d;
       }
     </script>
