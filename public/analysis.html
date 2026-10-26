@@ -450,13 +450,20 @@
     }
     .batch-bar .action-btn i { width: 14px; height: 14px; }
   </style>
-</head>
+  <script src="/theme.js"></script>
+  </head>
 <body>
+    <!-- 动态流体氛围光斑 -->
+    <div class="fluid-ambient-mesh">
+      <div class="fluid-orb fluid-orb-1"></div>
+      <div class="fluid-orb fluid-orb-2"></div>
+      <div class="fluid-orb fluid-orb-3"></div>
+    </div>
   <div class="app-container">
     <nav class="sidebar-nav">
       <div class="brand">
         <div class="brand-title">Video DL</div>
-        <div class="brand-version" data-app-version>v1.0.31</div>
+        <div class="brand-version" data-app-version>v1.0.34</div>
       </div>
       <div class="nav-menu">
         <a href="/" class="nav-item"><i data-feather="download"></i> Downloader</a>
@@ -464,7 +471,13 @@
         <a href="/analysis.html" class="nav-item active"><i data-feather="sparkles"></i> Analysis</a>
         <a href="/library.html" class="nav-item"><i data-feather="hard-drive"></i> Library</a>
       </div>
-    </nav>
+            <div class="theme-switch-container">
+          <button type="button" class="theme-toggle-btn" title="切换暗黑/明亮主题">
+            <span class="theme-icon">🌙</span>
+            <span class="theme-label">暗夜极光</span>
+          </button>
+        </div>
+      </nav>
 
     <main class="main-content">
       <div class="content-wrapper">

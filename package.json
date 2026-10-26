@@ -1,15 +1,17 @@
 {
   "name": "video-dl",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "description": "Local web app for downloading videos and uploading to Google Drive",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "start:web": "node server.js",
-    "launch:web": "node ./scripts/launch.js --mode=browser",
-    "launch:app": "node ./scripts/launch.js --mode=app",
+    "launch:web": "node scripts/launch-web.js",
+    "launch:app": "node scripts/launch-web.js --app",
+    "launch:none": "node scripts/launch-web.js --none",
     "launch:mac": "bash ./scripts/launch-mac.sh browser",
-    "launch:mac:app": "bash ./scripts/launch-mac.sh app"
+    "launch:mac:app": "bash ./scripts/launch-mac.sh app",
+    "test": "node --test tests/*.test.js"
   },
   "keywords": [
     "video",

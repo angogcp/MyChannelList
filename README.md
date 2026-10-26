@@ -1,14 +1,34 @@
 # Video DL
 
-Version `1.0.31`
+Version `1.0.34`
 
 Local web app for downloading videos, tracking channel watch lists, choosing MP4/MP3 quality, and optionally uploading completed downloads to Google Drive.
 
 ## Install
 
+Windows:
+
+```powershell
+npm.cmd install
+```
+
+macOS:
+
 ```bash
+# Recommended via Homebrew (or standalone binary)
+brew install node ffmpeg
 npm install
 ```
+
+Linux:
+
+```bash
+sudo apt update
+sudo apt install -y nodejs npm ffmpeg
+npm install
+```
+
+`ffmpeg` must be available on `PATH` on Linux/macOS (or installed via Homebrew at `/opt/homebrew/bin/ffmpeg` or `/usr/local/bin/ffmpeg`). `yt-dlp` is downloaded automatically on first use if it is not already installed.
 
 ## Run
 
@@ -26,16 +46,22 @@ http://localhost:3010
 
 ## Launchers
 
-Open the web app in your default browser:
+Open the web app in your default browser on Windows, Linux, or WSL:
 
 ```bash
 npm run launch:web
 ```
 
-Open the web app in an app-style Edge/Chrome window:
+Open the web app in an app-style Edge/Chrome window when a compatible browser is installed:
 
 ```bash
 npm run launch:app
+```
+
+Start the server without opening a browser:
+
+```bash
+npm run launch:none
 ```
 
 ### macOS
@@ -43,6 +69,8 @@ npm run launch:app
 - Or run in terminal: `./scripts/launch-mac.sh`
 
 ### Windows
+- Double-click `Launch Video DL Web.cmd` or `Launch Video DL App.cmd`.
+- Or run via PowerShell: `.\scripts\launch-web.ps1`
 - Double-click `Launch Video DL Web.cmd` or `Launch Video DL App.cmd`.
 - Or run via PowerShell: `.\scripts\launch-web.ps1`
 

@@ -4,14 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+```bash
 # Start the server (cross-platform)
 node server.js
 npm start
 npm run start:web
 
-# Launch with browser window (cross-platform)
+# Launch with browser window (auto-installs deps first time)
 npm run launch:web
-npm run launch:app       # Chrome/Edge app window
+npm run launch:app       # Edge/Chrome app window when available
+npm run launch:none      # server only, no browser
 
 # macOS Launchers
 # Double-click: Launch Video DL Web.command (or Launch Video DL App.command)
