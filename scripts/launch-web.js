@@ -170,6 +170,14 @@ function openAppWindow(targetUrl) {
         "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
         "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
       ]
+    : process.platform === "darwin"
+    ? [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+        "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+        "google-chrome",
+        "chromium"
+      ]
     : ["microsoft-edge", "microsoft-edge-stable", "google-chrome", "google-chrome-stable", "chromium", "chromium-browser"];
 
   return runFirstAvailable(browserNames.map((command) => ({ command, args })));
@@ -180,8 +188,12 @@ function getBrowserOpenCommands(targetUrl) {
     return [{ command: "cmd.exe", args: ["/c", "start", "", targetUrl] }];
   }
 
-  // WSL often has cmd.exe available and can open the Windows default browser.
   const commands = [];
+  if (process.platform === "darwin") {
+    commands.push({ command: "open", args: [targetUrl] });
+  }
+
+  // WSL often has cmd.exe available and can open the Windows default browser.
   if (isWsl()) {
     commands.push({ command: "cmd.exe", args: ["/c", "start", "", targetUrl] });
   }

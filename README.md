@@ -12,6 +12,14 @@ Windows:
 npm.cmd install
 ```
 
+macOS:
+
+```bash
+# Recommended via Homebrew
+brew install node ffmpeg
+npm install
+```
+
 Linux:
 
 ```bash
@@ -20,7 +28,7 @@ sudo apt install -y nodejs npm ffmpeg
 npm install
 ```
 
-`ffmpeg` must be available on `PATH` on Linux. `yt-dlp` is downloaded automatically on first use if it is not already installed.
+`ffmpeg` must be available on `PATH` on Linux/macOS (or installed via Homebrew at `/opt/homebrew/bin/ffmpeg` or `/usr/local/bin/ffmpeg`). `yt-dlp` is downloaded automatically on first use if it is not already installed.
 
 ## Run
 
